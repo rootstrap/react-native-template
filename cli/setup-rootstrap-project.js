@@ -1,14 +1,17 @@
+#!/usr/bin/env node
+
 const { execShellCommand, runCommand } = require('./utils.js');
 const { consola } = require('consola');
 const fs = require('fs-extra');
 const path = require('path');
+const { removeScript } = require('./setup-project.js');
 
-const initGit = async (projectName) => {
-  await execShellCommand(`cd ${projectName} && git init && cd ..`);
+const initGit = async () => {
+  await execShellCommand('git init');
 };
 
-const installDeps = async (projectName) => {
-  await runCommand(`cd ${projectName} && pnpm install`, {
+const installDeps = async () => {
+  await runCommand('pnpm install', {
     loading: 'Installing  project dependencies',
     success: 'Dependencies installed',
     error: 'Failed to install dependencies, Make sure you have pnpm installed',
@@ -16,7 +19,7 @@ const installDeps = async (projectName) => {
 };
 
 // remove unnecessary files, such us .git, ios, android, docs, cli, LICENSE
-const removeFiles = async (projectName) => {
+const removeFiles = async () => {
   const FILES_TO_REMOVE = [
     '.git',
     'README.md',
@@ -24,11 +27,11 @@ const removeFiles = async (projectName) => {
     'android',
     'docs',
     'cli',
-    'LICENSE',
+    'LICENSE'
   ];
 
   FILES_TO_REMOVE.forEach((file) => {
-    fs.removeSync(path.join(process.cwd(), `${projectName}/${file}`));
+    fs.removeSync(path.join(process.cwd(), file));
   });
 };
 
@@ -36,7 +39,7 @@ const removeFiles = async (projectName) => {
 const updatePackageInfos = async (projectName) => {
   const packageJsonPath = path.join(
     process.cwd(),
-    `${projectName}/package.json`
+    'package.json'
   );
   const packageJson = fs.readJsonSync(packageJsonPath);
   packageJson.osMetadata = { initVersion: packageJson.version };
@@ -50,7 +53,7 @@ const updatePackageInfos = async (projectName) => {
 };
 
 const updateProjectConfig = async (projectName) => {
-  const configPath = path.join(process.cwd(), `${projectName}/env.js`);
+  const configPath = path.join(process.cwd(), 'env.js');
   const contents = fs.readFileSync(configPath, {
     encoding: 'utf-8',
   });
@@ -62,45 +65,38 @@ const updateProjectConfig = async (projectName) => {
   fs.writeFileSync(configPath, replaced, { spaces: 2 });
   const readmeFilePath = path.join(
     process.cwd(),
-    `${projectName}/README-project.md`
+    'README-project.md'
   );
   fs.renameSync(
     readmeFilePath,
-    path.join(process.cwd(), `${projectName}/README.md`)
+    path.join(process.cwd(), 'README.md')
   );
 };
 
-const removeScript = async (pathName, scriptName) => {
-  const packageJsonPath = path.join(pathName, `package.json`);
-  const packageJson = fs.readJsonSync(packageJsonPath);
-  
-  if (packageJson.scripts?.[scriptName]) {
-    delete packageJson.scripts[scriptName];
-    fs.writeJsonSync(packageJsonPath, packageJson, { spaces: 2 });
-    consola.success(`Removed script: ${scriptName}`);
-  } else {
-    consola.warn(`Script ${scriptName} not found in package.json`);
+const setupProject = async () => {
+  consola.box('Rootstrap React Native Starter 🚀!');
+  // get project name from command line
+  const projectName = process.argv[2];
+  // check if project name is provided
+  if (!projectName) {
+    consola.error(
+      'Please provide a name for your project: `pnpm setup-project <project-name>`'
+    );
+    process.exit(1);
   }
-};
-
-const setupProject = async (projectName) => {
-  consola.start(`Clean up and setup your project 🧹`);
+  consola.start('Clean up and setup your project 🧹');
   try {
-    removeFiles(projectName);
-    await initGit(projectName);
+    removeFiles();
+    initGit()
     updatePackageInfos(projectName);
     updateProjectConfig(projectName);
-    const projectPath = path.join(process.cwd(), projectName)
+    const projectPath = process.cwd();
     removeScript(projectPath, 'setup-project')
-    consola.success(`Clean up and setup your project 🧹`);
+    consola.success('Clean up and setup your project 🧹');
   } catch (error) {
-    consola.error(`Failed to clean up project folder`, error);
+    consola.error('Failed to clean up project folder', error);
     process.exit(1);
   }
 };
 
-module.exports = {
-  setupProject,
-  installDeps,
-  removeScript
-};
+setupProject()

@@ -8,6 +8,24 @@
 
 ![expo](https://img.shields.io/github/package-json/dependency-version/obytes/react-native-template-obytes/expo?label=expo) ![react-native](https://img.shields.io/github/package-json/dependency-version/obytes/react-native-template-obytes/react-native?label=react-native) ![GitHub Repo stars](https://img.shields.io/github/stars/obytes/react-native-template-obytes) ![GitHub commit activity (branch)](https://img.shields.io/github/commit-activity/m/obytes/react-native-template-obytes) ![GitHub issues](https://img.shields.io/github/issues/obytes/react-native-template-obytes) ![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/obytes/react-native-template-obytes)
 
+# WIP - This Readme is a work in progress
+
+# Getting started
+
+Clone this repo in a folder with the name of your new project:
+
+`git clone git@github.com:rootstrap/react-native-template.git <new-project>`
+
+Run the setup project script that will install dependencies, get rid of files you won't need anymore and get your project on a clean start.
+
+`pnpm setup-project <new-project>`
+
+Once this step is completed add your new github repo:
+
+`git remote add origin git@github.com:<org>/<new-project-repo-name>.git`
+
+#
+
 📱 A template for your next React Native project 🚀, Made with developer experience and performance first: Expo, TypeScript, TailwindCSS, Husky, Lint-Staged, expo-router, react-query, react-hook-form, I18n.
 
 # Overview
@@ -55,7 +73,6 @@ When creating this starter kit, we had several guiding principles in mind::
 
 ## ✍️ Documentation
 
-- [Create new project ](https://starter.obytes.com/getting-started/create-new-app/)
 - [Rules and Conventions](https://starter.obytes.com/getting-started/rules-and-conventions/)
 - [Project structure](https://starter.obytes.com/getting-started/project-structure)
 - [Environment vars and config](https://starter.obytes.com/getting-started/environment-vars-config)
