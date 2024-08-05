@@ -29,7 +29,7 @@ name: 'Setup EAS Build + Trigger Build'
 description: 'Setup EAS Build + Trigger Build'
 inputs:
   APP_ENV:
-    description: 'APP_ENV (one of): development, staging, production'
+    description: 'APP_ENV (one of): development, staging, production, qa'
     required: true
     default: 'staging'
   AUTO_SUBMIT: ## TODO: we need to handle this too
