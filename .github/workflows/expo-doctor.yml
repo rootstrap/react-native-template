@@ -37,6 +37,12 @@ jobs:
       - name: 📦 Setup Node + PNPM + install deps
         uses: ./.github/actions/setup-node-pnpm-install
 
+      - name: Create .env.development placeholder
+        run: |
+          echo SECRET_KEY=secretKey > .env.development
+          echo API_URL=apiUrl >> .env.development
+          echo VAR_NUMBER=1 >> .env.development
+
       - name: Run prebuild
         run: pnpm run prebuild ## we only need to run this to generate the badged icon in `.expo` folder
 
