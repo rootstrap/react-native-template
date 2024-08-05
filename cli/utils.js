@@ -10,6 +10,7 @@ const execShellCommand = (cmd) => {
         reject(error);
       }
       resolve(stdout ? stdout : stderr);
+      //TODO: hola
     });
   });
 };
