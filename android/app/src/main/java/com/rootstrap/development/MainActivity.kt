@@ -1,4 +1,4 @@
-package com.rs.mobile.development
+package com.rootstrap.development
 
 import android.os.Build
 import android.os.Bundle

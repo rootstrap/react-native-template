@@ -1,4 +1,4 @@
-package com.rs.mobile.development
+package com.rootstrap.development
 
 import android.app.Application
 import android.content.res.Configuration
