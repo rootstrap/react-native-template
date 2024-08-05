@@ -28,7 +28,3 @@ _Does your code affect something downstream? Are there side effects people shoul
 <!---
 _How did you test your change? Document it here._
 -->
-
-
-
-@rs-gpt-review Make a code review on this React Native pull-request, with focus on mantainability, performance and security
