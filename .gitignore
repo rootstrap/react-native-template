@@ -20,6 +20,10 @@ yarn-error.log
 # macOS
 .DS_Store
 
+# This folders should be generated with a prebuild
+ios/
+android/
+
 .env.development
 .env.production
 .env.staging
