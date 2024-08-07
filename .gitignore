@@ -12,11 +12,6 @@ web-build/
 yarn-error.log
 /coverage
 
-.env.development
-.env.production
-.env.staging
-.env.qa
-
 # macOS
 .DS_Store
 
