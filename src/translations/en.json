@@ -4,6 +4,7 @@
   },
   "settings": {
     "about": "About",
+    "apiUrl": "API_URL",
     "app_name": "App Name",
     "arabic": "Arabic",
     "english": "English",
@@ -26,6 +27,7 @@
       "title": "Theme"
     },
     "title": "Settings",
+    "varNumber": "VAR_NUMBER_ENV",
     "version": "Version",
     "website": "Website"
   },

@@ -17,7 +17,10 @@
       "env": {
         "EXPO_NO_DOTENV": "1",
         "APP_ENV": "production",
-        "FLIPPER_DISABLE": "1"
+        "FLIPPER_DISABLE": "1",
+        "SECRET_KEY": "SECRET_KEY_PRODUCTION",
+        "API_URL": "API_URL_PRODUCTION",
+        "VAR_NUMBER": "VAR_NUMBER_PRODUCTION"
       },
       "prebuildCommand": "prebuild --skip-dependency-update react",
       "cache": {
@@ -38,7 +41,10 @@
       "env": {
         "APP_ENV": "staging",
         "EXPO_NO_DOTENV": "1",
-        "FLIPPER_DISABLE": "1"
+        "FLIPPER_DISABLE": "1",
+        "SECRET_KEY": "SECRET_KEY_STAGING",
+        "API_URL": "API_URL_STAGING",
+        "VAR_NUMBER": "VAR_NUMBER_STAGING"
       },
       "prebuildCommand": "prebuild --skip-dependency-update react",
       "cache": {

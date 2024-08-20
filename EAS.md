@@ -6,6 +6,26 @@ To be able to use Expo Application Services to upload your app to App Store and 
 
 To be able to trigger the eas-build github action you will have to add the `EXPO_TOKEN` secret to the repo settings. This secret is a required access token for your Expo account. https://expo.dev/settings/access-tokens
 
+## How to use your env variables from github actions
+
+```
+➜  react-native-template git:(chore/eas_gha) eas secret:create
+✔ Secret name: … SECRET_KEY_STAGING
+✔ Select secret type › string
+✔ Secret value: … staging-secret
+✔ Created a new secret SECRET_KEY_STAGING with value staging-secret on project @rsdevs/reactnativetemplate.
+```
+
+```
+ eas secret:create
+✔ Secret name: … SECRET_KEY_PRODUCTION
+✔ Select secret type › string
+✔ Secret value: … production_secret
+✔ Created a new secret SECRET_KEY_PRODUCTION with value production_secret on project @rsdevs/reactnativetemplate.
+```
+
+Then on your eas.json you specify the value of "SECRET*KEY": "SECRET_KEY*<STAGING/PRODUCTION>" on each corresponding env.
+
 ### Submit to Google Play Store
 
 The first submission of the app needs to be performed manually. Learn more: https://expo.fyi/first-android-submission. Only after having a valid version submitted you can submit automatically using EAS.
