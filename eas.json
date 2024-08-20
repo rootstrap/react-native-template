@@ -42,7 +42,7 @@
         "APP_ENV": "staging",
         "EXPO_NO_DOTENV": "1",
         "FLIPPER_DISABLE": "1",
-        "SECRET_KEY": "SECRET_KEY_STAGING",
+        "SECRET_KEY": "EXPO_PUBLIC_SECRET_KEY_STAGING",
         "API_URL": "API_URL_STAGING",
         "VAR_NUMBER": "EXPO_PUBLIC_VAR_NUMBER_STAGING"
       },
