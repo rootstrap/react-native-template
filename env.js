@@ -19,9 +19,13 @@ const path = require('path');
 const APP_ENV = process.env.APP_ENV ?? 'development';
 const envPath = path.resolve(__dirname, `.env.${APP_ENV}`);
 
+console.log('process.env', process.env);
+
 require('dotenv').config({
   path: envPath,
 });
+
+console.log('process.env', process.env);
 
 /**
  * 2nd part: Define some static variables for the app
@@ -109,7 +113,7 @@ const _clientEnv = {
     process.env[`API_URL_${APP_ENV_UPPERCASE}`] || process.env.API_URL || '',
   VAR_NUMBER:
     Number(process.env[`VAR_NUMBER_${APP_ENV_UPPERCASE}`]) ||
-    process.env.VAR_NUMBER ||
+    Number(process.env.VAR_NUMBER) ||
     1,
   VAR_BOOL: process.env.VAR_BOOL === 'true',
   PRUEBA_STAGING: process.env.PRUEBA_STAGING,
@@ -141,6 +145,8 @@ const merged = buildTime.merge(client);
 const parsed = merged.safeParse(_env);
 
 if (parsed.success === false) {
+  console.log('process.env', process.env);
+  console.log('process.env.VAR_NUMBER', process.env.VAR_NUMBER);
   console.error(
     '❌ Invalid environment variables:',
     parsed.error.flatten().fieldErrors,
