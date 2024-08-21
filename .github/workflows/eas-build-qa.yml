@@ -32,8 +32,6 @@ jobs:
       - name: 📦 Checkout project repo
         uses: actions/checkout@v3
         with:
-          # build the version from the selected branch
-          ref: ${{ github.ref }}
           fetch-depth: 0
 
       - name: 📦 Setup Node + PNPM + install deps

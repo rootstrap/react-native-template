@@ -26,6 +26,8 @@ To be able to trigger the eas-build github action you will have to add the `EXPO
 
 Then on your eas.json you specify the value of "SECRET*KEY": "SECRET_KEY*<STAGING/PRODUCTION>" on each corresponding env.
 
+<img src="https://github.com/user-attachments/assets/6f01dccd-2515-4ce3-8c01-f3c8244be468" />
+
 ### Submit to Google Play Store
 
 The first submission of the app needs to be performed manually. Learn more: https://expo.fyi/first-android-submission. Only after having a valid version submitted you can submit automatically using EAS.
