@@ -43,8 +43,9 @@
         "EXPO_NO_DOTENV": "1",
         "FLIPPER_DISABLE": "1",
         "SECRET_KEY": "EXPO_PUBLIC_SECRET_KEY_STAGING",
-        "API_URL": "API_URL_STAGING",
-        "VAR_NUMBER": "EXPO_PUBLIC_VAR_NUMBER_STAGING"
+        "PRUEBA_STAGING": "${EXPO_PUBLIC_PRUEBA_STAGING}",
+        "API_URL_STAGING": "dummy"
+        // "VAR_NUMBER": "EXPO_PUBLIC_VAR_NUMBER_STAGING"
       },
       "prebuildCommand": "prebuild --skip-dependency-update react",
       "cache": {

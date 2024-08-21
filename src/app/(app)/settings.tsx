@@ -35,6 +35,10 @@ export default function Settings() {
             <Item text="settings.apiUrl" value={Env.API_URL} />
             <Item text="settings.varNumber" value={String(Env.VAR_NUMBER)} />
             <Item text="settings.app_name" value={Env.NAME} />
+            <Item
+              text="settings.var_only_env_staging"
+              value={Env.VAR_ONLY_ENV_STAGING}
+            />
           </ItemsContainer>
 
           <ItemsContainer title="settings.support_us">

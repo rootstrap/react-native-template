@@ -39,6 +39,7 @@ const NAME = 'RootstrapApp'; // app name
 const EXPO_ACCOUNT_OWNER = 'rsdevs'; // expo account owner
 const EAS_PROJECT_ID = '72fdf440-59f1-493d-96e3-4afad8d7a045'; // eas project id
 const SCHEME = 'RootstrapApp'; // app scheme
+const APP_ENV_UPPERCASE = APP_ENV.toUpperCase();
 
 /**
  * We declare a function withEnvSuffix that will add a suffix to the variable name based on the APP_ENV
@@ -81,6 +82,8 @@ const client = z.object({
   API_URL: z.string(),
   VAR_NUMBER: z.number(),
   VAR_BOOL: z.boolean(),
+  PRUEBA_STAGING: z.string(),
+  VAR_ONLY_ENV_STAGING: z.string(),
 });
 
 const buildTime = z.object({
@@ -102,9 +105,15 @@ const _clientEnv = {
   VERSION: packageJSON.version,
 
   // ADD YOUR ENV VARS HERE TOO
-  API_URL: process.env.API_URL || '',
-  VAR_NUMBER: Number(process.env.VAR_NUMBER) || 1,
+  API_URL:
+    process.env[`API_URL_${APP_ENV_UPPERCASE}`] || process.env.API_URL || '',
+  VAR_NUMBER:
+    Number(process.env[`VAR_NUMBER_${APP_ENV_UPPERCASE}`]) ||
+    process.env.VAR_NUMBER ||
+    1,
   VAR_BOOL: process.env.VAR_BOOL === 'true',
+  PRUEBA_STAGING: process.env.PRUEBA_STAGING,
+  VAR_ONLY_ENV_STAGING: process.env.VAR_ONLY_ENV_STAGING || 'dummy_staging',
 };
 
 /**

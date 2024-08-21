@@ -28,6 +28,7 @@
     },
     "title": "Settings",
     "varNumber": "VAR_NUMBER_ENV",
+    "var_only_env_staging": "VAR_ONLY_ENV_STAGING",
     "version": "Version",
     "website": "Website"
   },
