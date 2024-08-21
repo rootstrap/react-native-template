@@ -102,8 +102,8 @@ const _clientEnv = {
   VERSION: packageJSON.version,
 
   // ADD YOUR ENV VARS HERE TOO
-  API_URL: process.env.API_URL || '',
-  VAR_NUMBER: Number(process.env.VAR_NUMBER) || 1,
+  API_URL: process.env.API_URL,
+  VAR_NUMBER: Number(process.env.VAR_NUMBER),
   VAR_BOOL: process.env.VAR_BOOL === 'true',
 };
 
