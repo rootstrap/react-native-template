@@ -23,6 +23,7 @@ const removeFiles = async (projectName) => {
     'docs',
     'cli',
     'LICENSE',
+    '.github/pull.yml',
   ];
 
   FILES_TO_REMOVE.forEach((file) => {

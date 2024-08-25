@@ -1,0 +1,6 @@
+version: "1"
+rules:
+  - base: master
+    upstream: obytes:master
+    mergeMethod: merge
+label: ":arrow_heading_down: upstream-merge"
