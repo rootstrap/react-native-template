@@ -211,6 +211,11 @@ export default defineConfig({
           link: '/how-to-contribute',
         },
         {
+          label: 'Reviews',
+          link: '/reviews',
+          badge: 'new',
+        },
+        {
           label: 'Stay Updated',
           link: '/stay-updated',
         },
