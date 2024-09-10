@@ -6,7 +6,7 @@ head:
     content: Overview | React Native / Expo Starter
 ---
 
-Welcome to the Obytes Mobile Tribe's Expo / React Native Starter Kit!
+Welcome to the Rootstrap's Expo / React Native Starter Kit!
 
 ## 🚀 Motivation
 
