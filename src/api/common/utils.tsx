@@ -67,9 +67,9 @@ export const toSnakeCase = (obj: GenericObject): GenericObject => {
   const newObj: GenericObject = {};
   for (const key in obj) {
     if (Object.hasOwn(obj,key)) {
-      let newKey = key.match(/([A-Z])/g)
-        ? key
-            .match(/([A-Z])/g)!
+      const keyMatch = key.match(/([A-Z])/g)
+      let newKey = keyMatch
+        ? keyMatch
             .reduce(
               (str, c) => str.replace(new RegExp(c), '_' + c.toLowerCase()),
               key
