@@ -1,6 +1,6 @@
 import { render, screen, within } from '@testing-library/react-native';
 
-import { colors } from '@/ui';
+import { colors } from '@/components/ui';
 
 import { Colors } from './colors';
 

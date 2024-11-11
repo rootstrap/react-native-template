@@ -3,8 +3,8 @@ import { type SubmitHandler, useForm } from 'react-hook-form';
 import { KeyboardAvoidingView } from 'react-native';
 import z from 'zod';
 
+import { Button, ControlledInput, Text, View } from '@/components/ui';
 import { translate } from '@/lib';
-import { Button, ControlledInput, Text, View } from '@/ui';
 
 const MIN_PASSWORD_LENGTH = 6;
 

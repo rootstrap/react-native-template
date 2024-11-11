@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { z } from 'zod';
 
+import { Button, ControlledInput, Text, View } from '@/components/ui';
 import { translate } from '@/lib';
-import { Button, ControlledInput, Text, View } from '@/ui';
 
 const schema = z.object({
   email: z

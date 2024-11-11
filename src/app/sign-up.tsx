@@ -5,7 +5,7 @@ import { showMessage } from 'react-native-flash-message';
 import { useSignUp } from '@/api/auth/use-sign-up';
 import type { SignUpFormProps } from '@/components/sign-up-form';
 import { SignUpForm } from '@/components/sign-up-form';
-import { FocusAwareStatusBar } from '@/ui';
+import { FocusAwareStatusBar } from '@/components/ui';
 
 export default function SignIn() {
   const router = useRouter();

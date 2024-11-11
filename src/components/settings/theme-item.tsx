@@ -1,9 +1,9 @@
 import { useCallback, useMemo } from 'react';
 
+import type { OptionType } from '@/components/ui';
+import { Options, useModal } from '@/components/ui';
 import type { ColorSchemeType } from '@/lib';
 import { translate, useSelectedTheme } from '@/lib';
-import type { OptionType } from '@/ui';
-import { Options, useModal } from '@/ui';
 
 import { Item } from './item';
 

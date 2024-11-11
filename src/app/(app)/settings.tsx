@@ -11,10 +11,16 @@ import { Item } from '@/components/settings/item';
 import { ItemsContainer } from '@/components/settings/items-container';
 import { LanguageItem } from '@/components/settings/language-item';
 import { ThemeItem } from '@/components/settings/theme-item';
+import {
+  colors,
+  FocusAwareStatusBar,
+  ScrollView,
+  Text,
+  View,
+} from '@/components/ui';
+import { Website } from '@/components/ui/icons';
 import { translate } from '@/lib';
 import { Env } from '@/lib/env';
-import { colors, FocusAwareStatusBar, ScrollView, Text, View } from '@/ui';
-import { Website } from '@/ui/icons';
 
 export default function Settings() {
   const { logout } = useAuth();

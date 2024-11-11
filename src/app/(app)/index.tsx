@@ -1,4 +1,4 @@
-import { FocusAwareStatusBar, View } from '@/ui';
+import { FocusAwareStatusBar, View } from '@/components/ui';
 
 export default function Feed() {
   return (

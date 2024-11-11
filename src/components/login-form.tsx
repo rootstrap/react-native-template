@@ -5,8 +5,8 @@ import { useForm } from 'react-hook-form';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import z from 'zod';
 
+import { Button, ControlledInput, Text, View } from '@/components/ui';
 import { translate } from '@/lib';
-import { Button, ControlledInput, Text, View } from '@/ui';
 
 const MIN_CHARS = 6;
 const schema = z.object({

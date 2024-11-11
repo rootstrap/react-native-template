@@ -1,4 +1,4 @@
-import { Button, View } from '@/ui';
+import { Button, View } from '@/components/ui';
 
 import { Title } from './title';
 

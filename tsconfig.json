@@ -8,7 +8,7 @@
         "./src/*"
       ],
       "@env": [
-        "./src/core/env.js"
+        "./src/lib/env.js"
       ]
     },
     "esModuleInterop": true,
