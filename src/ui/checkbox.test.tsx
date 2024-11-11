@@ -1,7 +1,7 @@
 /* eslint-disable max-lines-per-function */
 import 'react-native';
 
-import { cleanup, fireEvent, render, screen, setup } from '@/core/test-utils';
+import { cleanup, fireEvent, render, screen, setup } from '@/lib/test-utils';
 
 import { Checkbox, Radio, Switch } from './checkbox';
 

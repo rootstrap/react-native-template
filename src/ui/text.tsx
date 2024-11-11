@@ -3,8 +3,8 @@ import type { TextProps, TextStyle } from 'react-native';
 import { I18nManager, StyleSheet, Text as NNText } from 'react-native';
 import { twMerge } from 'tailwind-merge';
 
-import type { TxKeyPath } from '@/core/i18n';
-import { translate } from '@/core/i18n';
+import type { TxKeyPath } from '@/lib/i18n';
+import { translate } from '@/lib/i18n';
 
 interface Props extends TextProps {
   className?: string;

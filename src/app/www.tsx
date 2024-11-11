@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { View } from 'react-native';
 import { WebView } from 'react-native-webview';
 
-import { translate } from '@/core';
+import { translate } from '@/lib';
 import { Text } from '@/ui';
 
 export default function WWW() {

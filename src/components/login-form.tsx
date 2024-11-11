@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import z from 'zod';
 
-import { translate } from '@/core';
+import { translate } from '@/lib';
 import { Button, ControlledInput, Text, View } from '@/ui';
 
 const MIN_CHARS = 6;

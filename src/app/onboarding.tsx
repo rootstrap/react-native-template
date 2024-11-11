@@ -1,8 +1,8 @@
 import { useRouter } from 'expo-router';
 
 import { Cover } from '@/components/cover';
-import { translate } from '@/core';
-import { useIsFirstTime } from '@/core/hooks';
+import { translate } from '@/lib';
+import { useIsFirstTime } from '@/lib/hooks';
 import { Button, FocusAwareStatusBar, SafeAreaView, Text, View } from '@/ui';
 
 export default function Onboarding() {

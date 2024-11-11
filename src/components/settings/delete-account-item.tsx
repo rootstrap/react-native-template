@@ -1,7 +1,7 @@
 import React from 'react';
 import { Alert } from 'react-native';
 
-import { translate } from '@/core';
+import { translate } from '@/lib';
 
 import { Item } from './item';
 

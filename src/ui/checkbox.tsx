@@ -153,9 +153,7 @@ export const RadioIcon = ({ checked }: IconProps) => {
       transition={{ borderColor: { duration: 100, type: 'timing' } }}
     >
       <MotiView
-        className={`h-[10px] w-[10px] rounded-[10px] ${
-          checked && 'bg-primary-300'
-        } `}
+        className={`size-[10px] rounded-[10px] ${checked && 'bg-primary-300'} `}
         from={{ opacity: 0 }}
         animate={{ opacity: checked ? 1 : 0 }}
         transition={{ opacity: { duration: 50, type: 'timing' } }}

@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 
-import type { TxKeyPath } from '@/core';
+import type { TxKeyPath } from '@/lib';
 import { Pressable, Text, View } from '@/ui';
 import { ArrowRight } from '@/ui/icons';
 

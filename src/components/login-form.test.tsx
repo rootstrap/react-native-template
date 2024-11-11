@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@/core/test-utils';
+import { cleanup, fireEvent, render, screen } from '@/lib/test-utils';
 
 import { LoginForm } from './login-form';
 

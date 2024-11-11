@@ -59,7 +59,7 @@ const button = tv({
         label: 'text-sm',
         indicator: 'h-2',
       },
-      icon: { container: 'h-9 w-9' },
+      icon: { container: 'size-9' },
     },
     disabled: {
       true: {

@@ -14,8 +14,8 @@ import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { APIProvider } from '@/api';
 import interceptors from '@/api/common/interceptors';
 import { AuthProvider } from '@/components/providers/auth';
-import { hydrateAuth, loadSelectedTheme } from '@/core';
-import { useThemeConfig } from '@/core/use-theme-config';
+import { hydrateAuth, loadSelectedTheme } from '@/lib';
+import { useThemeConfig } from '@/lib/use-theme-config';
 
 export { ErrorBoundary } from 'expo-router';
 

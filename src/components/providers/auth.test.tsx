@@ -2,7 +2,7 @@ import { act, renderHook } from '@testing-library/react-hooks';
 import { waitFor } from '@testing-library/react-native';
 import dayjs from 'dayjs';
 
-import { fireEvent, render, screen } from '@/core/test-utils';
+import { fireEvent, render, screen } from '@/lib/test-utils';
 import { Text, TouchableOpacity, View } from '@/ui';
 
 import {

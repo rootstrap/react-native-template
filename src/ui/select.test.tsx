@@ -1,6 +1,6 @@
 /* eslint-disable max-lines-per-function */
 
-import { cleanup, fireEvent, render, screen, setup } from '@/core/test-utils';
+import { cleanup, fireEvent, render, screen, setup } from '@/lib/test-utils';
 import type { OptionType } from '@/ui';
 
 import { Select } from './select';

@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@/core/test-utils';
+import { cleanup, fireEvent, render, screen, waitFor } from '@/lib/test-utils';
 
 import {
   ForgotPasswordForm,

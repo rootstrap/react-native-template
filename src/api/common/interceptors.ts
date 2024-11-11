@@ -1,6 +1,6 @@
 import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
-import { signIn, useAuth } from '@/core';
+import { signIn, useAuth } from '@/lib';
 
 import { client } from './client';
 import { toCamelCase, toSnakeCase } from './utils';

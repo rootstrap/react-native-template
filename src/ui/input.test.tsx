@@ -1,7 +1,7 @@
 /* eslint-disable max-lines-per-function */
 import { I18nManager } from 'react-native';
 
-import { cleanup, render, screen, setup } from '@/core/test-utils';
+import { cleanup, render, screen, setup } from '@/lib/test-utils';
 
 import { Input } from './input';
 
