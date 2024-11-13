@@ -22,6 +22,7 @@ module.exports = {
     'simple-import-sort',
     'sonarjs',
     'jest',
+    'eslint-plugin-react-compiler',
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
