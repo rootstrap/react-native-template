@@ -197,7 +197,7 @@ export const Select = (props: SelectProps) => {
         <Pressable
           className={styles.input()}
           disabled={disabled}
-          onPress={modal.present}
+          onPress={() => modal.present()}
           testID={testID ? `${testID}-trigger` : undefined}
         >
           <View className="flex-1">

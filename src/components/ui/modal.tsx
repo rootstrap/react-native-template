@@ -61,7 +61,7 @@ type ModalHeaderProps = {
 
 export const useModal = () => {
   const ref = useRef<BottomSheetModal>(null);
-  const present = useCallback((data?: unknown) => {
+  const present = useCallback((data?: never) => {
     ref.current?.present(data);
   }, []);
   const dismiss = useCallback(() => {
