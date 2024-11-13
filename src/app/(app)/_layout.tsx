@@ -37,7 +37,7 @@ export default function TabLayout() {
           title: 'Feed',
           tabBarIcon: ({ color }) => <FeedIcon color={color} />,
           headerRight: () => <CreateNewPostLink />,
-          tabBarTestID: 'feed-tab',
+          tabBarButtonTestID: 'feed-tab',
         }}
       />
       <Tabs.Screen
@@ -45,7 +45,7 @@ export default function TabLayout() {
         options={{
           title: 'Style',
           tabBarIcon: ({ color }) => <StyleIcon color={color} />,
-          tabBarTestID: 'style-tab',
+          tabBarButtonTestID: 'style-tab',
         }}
       />
       <Tabs.Screen
@@ -53,7 +53,7 @@ export default function TabLayout() {
         options={{
           title: 'Settings',
           tabBarIcon: ({ color }) => <SettingsIcon color={color} />,
-          tabBarTestID: 'settings-tab',
+          tabBarButtonTestID: 'settings-tab',
         }}
       />
     </Tabs>

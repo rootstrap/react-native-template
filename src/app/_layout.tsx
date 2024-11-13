@@ -44,10 +44,7 @@ export default function RootLayout() {
           }}
         />
         <Stack.Screen name="sign-in" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="sign-up"
-          options={{ headerBackTitleVisible: false }}
-        />
+        <Stack.Screen name="sign-up" />
         <Stack.Screen
           name="www"
           options={{
