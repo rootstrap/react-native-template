@@ -1,6 +1,6 @@
 {
   "cli": {
-    "version": ">= 0.57.0",
+    "version": ">= 3.8.1",
     "appVersionSource": "remote"
   },
   "build": {
@@ -8,7 +8,7 @@
       "autoIncrement": true,
       "channel": "production",
       "distribution": "store",
-      "pnpm": "8.15.4",
+      "pnpm": "9.12.3",
       "ios": {
         "image": "latest"
       },
@@ -21,17 +21,13 @@
         "APP_ENV": "production",
         "FLIPPER_DISABLE": "1",
         "EAS_NO_DOCTOR": "1"
-      },
-      "prebuildCommand": "prebuild --skip-dependency-update react",
-      "cache": {
-        "key": "eas-1"
       }
     },
     "staging": {
       "autoIncrement": true,
       "channel": "staging",
       "distribution": "store",
-      "pnpm": "8.15.4",
+      "pnpm": "9.12.3",
       "ios": {
         "image": "latest"
       },
@@ -44,17 +40,13 @@
         "EXPO_NO_DOTENV": "1",
         "FLIPPER_DISABLE": "1",
         "EAS_NO_DOCTOR": "1"
-      },
-      "prebuildCommand": "prebuild --skip-dependency-update react",
-      "cache": {
-        "key": "eas-1"
       }
     },
     "qa": {
       "autoIncrement": true,
       "channel": "qa",
       "distribution": "store",
-      "pnpm": "8.15.4",
+      "pnpm": "9.12.3",
       "ios": {
         "image": "latest"
       },
@@ -67,17 +59,13 @@
         "EXPO_NO_DOTENV": "1",
         "FLIPPER_DISABLE": "1",
         "EAS_NO_DOCTOR": "1"
-      },
-      "prebuildCommand": "prebuild --skip-dependency-update react",
-      "cache": {
-        "key": "eas-1"
       }
     },
     "development": {
       "autoIncrement": true,
       "developmentClient": true,
       "distribution": "store",
-      "pnpm": "8.15.4",
+      "pnpm": "9.12.3",
       "ios": {
         "image": "latest"
       },
@@ -90,30 +78,7 @@
         "EXPO_NO_DOTENV": "1",
         "EAS_NO_DOCTOR": "1"
       },
-      "prebuildCommand": "prebuild --skip-dependency-update react",
-      "cache": {
-        "key": "eas-1"
-      },
       "channel": "development"
-    },
-    "simulator": {
-      "ios": {
-        "simulator": true,
-        "image": "latest"
-      },
-      "android": {
-        "image": "latest"
-      },
-      "env": {
-        "APP_ENV": "development",
-        "EXPO_NO_DOTENV": "1"
-      },
-      "pnpm": "8.15.4",
-      "prebuildCommand": "prebuild --skip-dependency-update react",
-      "cache": {
-        "key": "eas-1"
-      },
-      "channel": "simulator"
     }
   },
   "submit": {
