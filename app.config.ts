@@ -67,7 +67,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       {
         backgroundColor: '#000000',
         image: './assets/splash-icon.png',
-        imageWidth: 200,
+        imageWidth: 150,
       },
     ],
     [
