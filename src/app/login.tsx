@@ -2,8 +2,8 @@ import { useRouter } from 'expo-router';
 
 import type { LoginFormProps } from '@/components/login-form';
 import { LoginForm } from '@/components/login-form';
-import { useAuth } from '@/core';
-import { FocusAwareStatusBar } from '@/ui';
+import { FocusAwareStatusBar } from '@/components/ui';
+import { useAuth } from '@/lib';
 
 export default function Login() {
   const router = useRouter();

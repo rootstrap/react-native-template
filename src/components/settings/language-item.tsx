@@ -1,9 +1,17 @@
 import { useCallback, useMemo } from 'react';
 
+<<<<<<< HEAD
 import { translate,useSelectedLanguage } from '@/core';
 import type { Language } from '@/core/i18n/resources';
 import type { OptionType } from '@/ui';
 import { Options, useModal } from '@/ui';
+=======
+import type { OptionType } from '@/components/ui';
+import { Options, useModal } from '@/components/ui';
+import { useSelectedLanguage } from '@/lib';
+import { translate } from '@/lib';
+import type { Language } from '@/lib/i18n/resources';
+>>>>>>> 627e97c
 
 import { Item } from './item';
 
@@ -15,7 +23,7 @@ export const LanguageItem = () => {
       setLanguage(option.value as Language);
       modal.dismiss();
     },
-    [setLanguage, modal]
+    [setLanguage, modal],
   );
 
   const langs = useMemo(
@@ -23,12 +31,12 @@ export const LanguageItem = () => {
       { label: translate('settings.english'), value: 'en' },
       { label: translate('settings.arabic'), value: 'ar' },
     ],
-    []
+    [],
   );
 
   const selectedLanguage = useMemo(
     () => langs.find((lang) => lang.value === language),
-    [language, langs]
+    [language, langs],
   );
 
   return (

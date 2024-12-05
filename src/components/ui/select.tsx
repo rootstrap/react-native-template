@@ -8,13 +8,18 @@ import { useColorScheme } from 'nativewind';
 import { forwardRef, memo, useCallback, useMemo } from 'react';
 import type { FieldValues } from 'react-hook-form';
 import { useController } from 'react-hook-form';
+<<<<<<< HEAD:src/ui/select.tsx
 import { Platform, Pressable, type PressableProps,TouchableOpacity, View  } from 'react-native';
+=======
+import { Platform, View } from 'react-native';
+import { Pressable, type PressableProps } from 'react-native';
+>>>>>>> 627e97c:src/components/ui/select.tsx
 import type { SvgProps } from 'react-native-svg';
 import Svg, { Path } from 'react-native-svg';
 import { tv } from 'tailwind-variants';
 
-import colors from '@/ui/colors';
-import { CaretDown } from '@/ui/icons';
+import colors from '@/components/ui/colors';
+import { CaretDown } from '@/components/ui/icons';
 
 import type { InputControllerType } from './input';
 import { Modal, useModal } from './modal';
@@ -88,7 +93,7 @@ export const Options = forwardRef<BottomSheetModal, OptionsProps>(
           testID={testID ? `${testID}-item-${item.value}` : undefined}
         />
       ),
-      [onSelect, value, testID]
+      [onSelect, value, testID],
     );
 
     return (
@@ -109,7 +114,7 @@ export const Options = forwardRef<BottomSheetModal, OptionsProps>(
         />
       </Modal>
     );
-  }
+  },
 );
 
 const Option = memo(
@@ -128,7 +133,12 @@ const Option = memo(
         <Text className="flex-1 dark:text-neutral-100 ">{label}</Text>
         {selected && <Check />}
       </Pressable>
+<<<<<<< HEAD:src/ui/select.tsx
     )
+=======
+    );
+  },
+>>>>>>> 627e97c:src/components/ui/select.tsx
 );
 
 export interface SelectProps {
@@ -163,7 +173,7 @@ export const Select = (props: SelectProps) => {
       onSelect?.(option.value);
       modal.dismiss();
     },
-    [modal, onSelect]
+    [modal, onSelect],
   );
 
   const styles = useMemo(
@@ -172,15 +182,15 @@ export const Select = (props: SelectProps) => {
         error: Boolean(error),
         disabled,
       }),
-    [error, disabled]
+    [error, disabled],
   );
 
   const textValue = useMemo(
     () =>
       value !== undefined
-        ? options?.filter((t) => t.value === value)?.[0]?.label ?? placeholder
+        ? (options?.filter((t) => t.value === value)?.[0]?.label ?? placeholder)
         : placeholder,
-    [value, options, placeholder]
+    [value, options, placeholder],
   );
 
   return (
@@ -194,7 +204,7 @@ export const Select = (props: SelectProps) => {
             {label}
           </Text>
         )}
-        <TouchableOpacity
+        <Pressable
           className={styles.input()}
           disabled={disabled}
           onPress={modal.present}
@@ -204,7 +214,7 @@ export const Select = (props: SelectProps) => {
             <Text className={styles.inputValue()}>{textValue}</Text>
           </View>
           <CaretDown />
-        </TouchableOpacity>
+        </Pressable>
         {error && (
           <Text
             testID={`${testID}-error`}
@@ -226,7 +236,7 @@ export const Select = (props: SelectProps) => {
 
 // only used with react-hook-form
 export function ControlledSelect<T extends FieldValues>(
-  props: ControlledSelectProps<T>
+  props: ControlledSelectProps<T>,
 ) {
   const { name, control, rules, onSelect: onNSelect, ...selectProps } = props;
 
@@ -236,7 +246,7 @@ export function ControlledSelect<T extends FieldValues>(
       field.onChange(value);
       onNSelect?.(value);
     },
-    [field, onNSelect]
+    [field, onNSelect],
   );
   return (
     <Select

@@ -1,5 +1,12 @@
+<<<<<<< HEAD
 import { Text, View } from '@/ui';
 import colors from '@/ui/colors';
+=======
+import React from 'react';
+
+import { Text, View } from '@/components/ui';
+import colors from '@/components/ui/colors';
+>>>>>>> 627e97c
 
 import { Title } from './title';
 type ColorName = keyof typeof colors;

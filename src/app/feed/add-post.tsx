@@ -5,7 +5,12 @@ import { showMessage } from 'react-native-flash-message';
 import { z } from 'zod';
 
 import { useAddPost } from '@/api';
-import { Button, ControlledInput, showErrorMessage, View } from '@/ui';
+import {
+  Button,
+  ControlledInput,
+  showErrorMessage,
+  View,
+} from '@/components/ui';
 
 const TITLE_MIN_CHARS = 10
 const BODY_MIN_CHARS = 120
@@ -37,7 +42,7 @@ export default function AddPost() {
         onError: () => {
           showErrorMessage('Error adding post');
         },
-      }
+      },
     );
   };
   return (

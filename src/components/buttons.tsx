@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 import { Button, View } from '@/ui';
+=======
+import React from 'react';
+
+import { Button, View } from '@/components/ui';
+>>>>>>> 627e97c
 
 import { Title } from './title';
 

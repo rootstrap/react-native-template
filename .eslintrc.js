@@ -18,8 +18,12 @@ module.exports = {
     'unused-imports',
     'tailwindcss',
     'simple-import-sort',
+<<<<<<< HEAD
     'sonarjs',
     'jest'
+=======
+    'eslint-plugin-react-compiler',
+>>>>>>> 627e97c
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {

@@ -2,13 +2,13 @@
 import { Link, Redirect, SplashScreen, Tabs } from 'expo-router';
 import { useCallback, useEffect } from 'react';
 
-import { useAuth, useIsFirstTime } from '@/core';
-import { Pressable, Text } from '@/ui';
+import { Pressable, Text } from '@/components/ui';
 import {
   Feed as FeedIcon,
   Settings as SettingsIcon,
   Style as StyleIcon,
-} from '@/ui/icons';
+} from '@/components/ui/icons';
+import { useAuth, useIsFirstTime } from '@/lib';
 
 export default function TabLayout() {
   const status = useAuth.use.status();
@@ -39,7 +39,7 @@ export default function TabLayout() {
           title: 'Feed',
           tabBarIcon: ({ color }) => <FeedIcon color={color} />,
           headerRight: () => <CreateNewPostLink />,
-          tabBarTestID: 'feed-tab',
+          tabBarButtonTestID: 'feed-tab',
         }}
       />
 
@@ -49,7 +49,7 @@ export default function TabLayout() {
           title: 'Style',
           headerShown: false,
           tabBarIcon: ({ color }) => <StyleIcon color={color} />,
-          tabBarTestID: 'style-tab',
+          tabBarButtonTestID: 'style-tab',
         }}
       />
       <Tabs.Screen
@@ -58,7 +58,7 @@ export default function TabLayout() {
           title: 'Settings',
           headerShown: false,
           tabBarIcon: ({ color }) => <SettingsIcon color={color} />,
-          tabBarTestID: 'settings-tab',
+          tabBarButtonTestID: 'settings-tab',
         }}
       />
     </Tabs>

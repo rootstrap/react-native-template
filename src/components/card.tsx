@@ -1,7 +1,7 @@
 import { Link } from 'expo-router';
 
 import type { Post } from '@/api';
-import { Image, Pressable, Text, View } from '@/ui';
+import { Image, Pressable, Text, View } from '@/components/ui';
 
 type Props = Post;
 

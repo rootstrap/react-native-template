@@ -13,14 +13,21 @@ hero:
       link: /react-native-template/overview
       icon: right-arrow
       variant: primary
+<<<<<<< HEAD
     - text: View on GitHub
       link: https://github.com/rootstrap/react-native-template
+=======
+    - text: Work With Us
+      link: https://obytes.com/contact?utm_source=starter.obytes.com
+>>>>>>> 627e97c
       icon: external
+      variant: secondary
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 import GithubStar from '../../components/GithubStar.astro';
 import About from '../../components/about.astro';
+import Reviews from '../../components/reviews.astro';
 
 <GithubStar />
 
@@ -69,14 +76,24 @@ import About from '../../components/about.astro';
 		We manage data fetching using React Query and Axios. These powerful libraries make it easy to fetch, cache, and update data in your React applications. We also include a set of VSCode snippets to make your life easier when creating queries and mutations.
 	</Card>
   <Card title="Unit + E2E tests" icon="document">
-		We provide a complete setup for unit and end-to-end tests using Jest and React Testing Library, along with Cypress for end-to-end testing. This will assist you in writing tests for your app and ensuring that it functions as expected.
+		We provide a complete setup for unit and end-to-end tests using Jest and React Testing Library, along with Meastro for end-to-end testing. This will assist you in writing tests for your app and ensuring that it functions as expected.
 	</Card>
 </CardGrid>
 
+<<<<<<< HEAD
 <About title="Built by">
 \
 The **Rootstrap React Native Template** is built on the foundation of the Obytes React Native template, incorporating its core structure and functionality. It has been enhanced with specific changes to match our development practices, offering a more customized and efficient solution for our projects.
 \
 [Contact Rootstrap](https://rootstrap.com/contact)
+=======
+<Reviews />
+
+<About title="Built with ❤️ by">
+
+In addition to maintaining this starter kit, we provide expertise in custom projects and app development. If you're looking for experienced and reliable developers to bring your app vision to life, reach out to us. Let's discuss your project and explore how we can help you achieve your goals.
+
+[Work with us](https://obytes.com/contact?utm_source=starter.obytes.com)
+>>>>>>> 627e97c
 
 </About>

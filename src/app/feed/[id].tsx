@@ -1,7 +1,12 @@
 import { Stack, useLocalSearchParams } from 'expo-router';
 
 import { usePost } from '@/api';
-import { ActivityIndicator, FocusAwareStatusBar, Text, View } from '@/ui';
+import {
+  ActivityIndicator,
+  FocusAwareStatusBar,
+  Text,
+  View,
+} from '@/components/ui';
 
 export default function Post() {
   const local = useLocalSearchParams<{ id: string }>();
