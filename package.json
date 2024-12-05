@@ -1,6 +1,11 @@
 {
+<<<<<<< HEAD
   "name": "react-native-template",
   "version": "1.4.0",
+=======
+  "name": "obytesapp",
+  "version": "6.3.4",
+>>>>>>> bb23b95
   "private": true,
   "main": "expo-router/entry",
   "scripts": {
@@ -28,6 +33,7 @@
     "submit:qa:mobile": "cross-env APP_ENV=qa eas submit",
     "start:staging": "cross-env APP_ENV=staging pnpm run start",
     "prebuild:staging": "cross-env APP_ENV=staging pnpm run prebuild",
+    "prebuild:development": "cross-env APP_ENV=development pnpm run prebuild",
     "android:staging": "cross-env APP_ENV=staging pnpm run android",
     "ios:staging": "cross-env APP_ENV=staging pnpm run ios",
     "web:staging": "cross-env APP_ENV=staging pnpm run web",
@@ -70,9 +76,15 @@
     "@tanstack/react-query": "^5.52.1",
     "app-icon-badge": "^0.0.15",
     "axios": "^1.7.5",
+<<<<<<< HEAD
     "expo": "~51.0.39",
     "expo-constants": "~16.0.2",
     "expo-dev-client": "~4.0.29",
+=======
+    "expo": "~51.0.38",
+    "expo-constants": "~16.0.2",
+    "expo-dev-client": "~4.0.28",
+>>>>>>> bb23b95
     "expo-font": "~12.0.10",
     "expo-image": "~1.13.0",
     "expo-linking": "~6.3.1",
