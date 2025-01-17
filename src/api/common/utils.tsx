@@ -48,36 +48,34 @@ export const getNextPageParam: GetPreviousPageParamFunction<
 
 type GenericObject = { [key: string]: unknown };
 
+function isGenericObject(value: unknown): value is GenericObject {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 export const toCamelCase = (obj: GenericObject): GenericObject => {
   const newObj: GenericObject = {};
   for (const key in obj) {
     if (Object.hasOwn(obj, key)) {
-      if (key.includes('_')) {
-        const newKey = key.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
-        newObj[newKey] = obj[key];
+      const newKey = key.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+      const value = obj[key]
+      if (isGenericObject(value)) {
+        newObj[newKey] = toCamelCase(value);
       } else {
-        newObj[key] = obj[key];
+        newObj[newKey] = value;
       }
     }
   }
   return newObj;
 };
 
+const camelToSnake = (key: string): string => key.replace(/([a-z])([A-Z])/g, "$1_$2").toLowerCase();
+
 export const toSnakeCase = (obj: GenericObject): GenericObject => {
   const newObj: GenericObject = {};
-  for (const key in obj) {
-    if (Object.hasOwn(obj, key)) {
-      let newKey = key.match(/([A-Z])/g)
-        ? key
-            .match(/([A-Z])/g)!
-            .reduce(
-              (str, c) => str.replace(new RegExp(c), `_${c.toLowerCase()}`),
-              key,
-            )
-        : key;
-      newKey = newKey.substring(key.slice(0, 1).match(/([A-Z])/g) ? 1 : 0);
-      newObj[newKey] = obj[key];
-    }
+    
+  for (const [key, value] of Object.entries(obj)) {
+    const newKey = camelToSnake(key);
+    newObj[newKey] = isGenericObject(value) && value !== null ? toSnakeCase(value) : value;
   }
   return newObj;
 };
