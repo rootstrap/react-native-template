@@ -58,6 +58,49 @@ describe('utils', () => {
   });
 });
 
+describe('toCamelCase with nested objects', () => {
+  it('should convert to camelCase only snake_case keys', () => {
+    const obj = {
+      user: {
+        foo_bar: 'foo',
+        bar_baz: 'bar',
+        nested_object: {
+          another_key: 'value',
+          yet_another_key: 'another value',
+        },
+      },
+    };
+    const expected = {
+      user: {
+        fooBar: 'foo',
+        barBaz: 'bar',
+        nestedObject: {
+          anotherKey: 'value',
+          yetAnotherKey: 'another value',
+        },
+      },
+    };
+    expect(toCamelCase(obj)).toEqual(expected);
+  });
+});
+
+describe('toSnakeCase with nested objects', () => {
+
+  it('should convert to snake_case only camelCase keys', () => {
+    const obj = { user: {
+      fooBar: 'foo',
+      barBaz: 'bar',
+      foo_bar: 'foo',
+      bar_baz: 'bar',
+    }};
+    const expected = { user: {
+      foo_bar: 'foo',
+      bar_baz: 'bar',
+    }}
+    expect(toSnakeCase(obj)).toEqual(expected);
+  });
+});
+
 describe('getUrlParameters', () => {
   it('should return null for a null URL', () => {
     const result = getUrlParameters(null);
