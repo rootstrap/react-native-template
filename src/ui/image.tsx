@@ -13,13 +13,13 @@ export const Image = ({
   placeholder = 'L6PZfSi_.AyE_3t7t7R**0o#DgR4',
   ...props
 }: ImgProps) => (
-    <NImage
-      className={className}
-      placeholder={placeholder}
-      style={style}
-      {...props}
-    />
-  );
+  <NImage
+    className={className}
+    placeholder={placeholder}
+    style={style}
+    {...props}
+  />
+);
 
 export const preloadImages = (sources: string[]) => {
   NImage.prefetch(sources);

@@ -11,9 +11,9 @@ type WithSelectors<S> = S extends { getState: () => infer T }
 
 export const createSelectors = <
   T extends object,
-  S extends UseBoundStore<StoreApi<T>>
+  S extends UseBoundStore<StoreApi<T>>,
 >(
-  _store: S
+  _store: S,
 ) => {
   const store = _store as WithSelectors<typeof _store>;
   store.use = {} as { [K in keyof T]: () => T[K] };

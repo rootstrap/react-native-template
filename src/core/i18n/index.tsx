@@ -6,7 +6,7 @@ import { I18nManager } from 'react-native';
 import { resources } from './resources';
 export * from './utils';
 
-const locales = getLocales()
+const locales = getLocales();
 
 i18n.use(initReactI18next).init({
   resources,

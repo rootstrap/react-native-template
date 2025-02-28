@@ -85,18 +85,21 @@ describe('toCamelCase with nested objects', () => {
 });
 
 describe('toSnakeCase with nested objects', () => {
-
   it('should convert to snake_case only camelCase keys', () => {
-    const obj = { user: {
-      fooBar: 'foo',
-      barBaz: 'bar',
-      foo_bar: 'foo',
-      bar_baz: 'bar',
-    }};
-    const expected = { user: {
-      foo_bar: 'foo',
-      bar_baz: 'bar',
-    }}
+    const obj = {
+      user: {
+        fooBar: 'foo',
+        barBaz: 'bar',
+        foo_bar: 'foo',
+        bar_baz: 'bar',
+      },
+    };
+    const expected = {
+      user: {
+        foo_bar: 'foo',
+        bar_baz: 'bar',
+      },
+    };
     expect(toSnakeCase(obj)).toEqual(expected);
   });
 });
@@ -124,7 +127,7 @@ describe('getUrlParameters', () => {
 
   it('should handle special characters in the URL parameters', () => {
     const result = getUrlParameters(
-      'https://example.com?name=John%20Doe&city=New%20York'
+      'https://example.com?name=John%20Doe&city=New%20York',
     );
     expect(result).toEqual({ name: 'John Doe', city: 'New York' });
   });

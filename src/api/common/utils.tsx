@@ -49,7 +49,7 @@ export const getNextPageParam: GetPreviousPageParamFunction<
 type GenericObject = { [key: string]: unknown };
 
 function isGenericObject(value: unknown): value is GenericObject {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 export const toCamelCase = (obj: GenericObject): GenericObject => {
@@ -57,7 +57,7 @@ export const toCamelCase = (obj: GenericObject): GenericObject => {
   for (const key in obj) {
     if (Object.hasOwn(obj, key)) {
       const newKey = key.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
-      const value = obj[key]
+      const value = obj[key];
       if (isGenericObject(value)) {
         newObj[newKey] = toCamelCase(value);
       } else {
@@ -68,14 +68,16 @@ export const toCamelCase = (obj: GenericObject): GenericObject => {
   return newObj;
 };
 
-const camelToSnake = (key: string): string => key.replace(/([a-z])([A-Z])/g, "$1_$2").toLowerCase();
+const camelToSnake = (key: string): string =>
+  key.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase();
 
 export const toSnakeCase = (obj: GenericObject): GenericObject => {
   const newObj: GenericObject = {};
-    
+
   for (const [key, value] of Object.entries(obj)) {
     const newKey = camelToSnake(key);
-    newObj[newKey] = isGenericObject(value) && value !== null ? toSnakeCase(value) : value;
+    newObj[newKey] =
+      isGenericObject(value) && value !== null ? toSnakeCase(value) : value;
   }
   return newObj;
 };

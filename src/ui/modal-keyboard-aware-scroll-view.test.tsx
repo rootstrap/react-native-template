@@ -8,10 +8,10 @@ describe('BottomSheetKeyboardAwareScrollView component', () => {
     render(
       <BottomSheetKeyboardAwareScrollView testID="BottomSheetKeyboardAwareScrollView">
         <View />
-      </BottomSheetKeyboardAwareScrollView>
+      </BottomSheetKeyboardAwareScrollView>,
     );
     expect(
-      screen.getByTestId('BottomSheetKeyboardAwareScrollView')
+      screen.getByTestId('BottomSheetKeyboardAwareScrollView'),
     ).toBeTruthy();
   });
 });

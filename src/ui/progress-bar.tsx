@@ -23,21 +23,21 @@ export const ProgressBar = forwardRef<ProgressBarRef, Props>(
     useImperativeHandle(
       ref,
       () => ({
-          setProgress: (value: number) => {
-            progress.value = withTiming(value, {
-              duration: 250,
-              easing: Easing.inOut(Easing.quad),
-            });
-          },
-        }),
-      [progress]
+        setProgress: (value: number) => {
+          progress.value = withTiming(value, {
+            duration: 250,
+            easing: Easing.inOut(Easing.quad),
+          });
+        },
+      }),
+      [progress],
     );
 
     const style = useAnimatedStyle(() => ({
-        width: `${progress.value}%`,
-        backgroundColor: '#000',
-        height: 2,
-      }));
+      width: `${progress.value}%`,
+      backgroundColor: '#000',
+      height: 2,
+    }));
     return (
       <View
         testID={'progress-bar-container'}
@@ -46,5 +46,5 @@ export const ProgressBar = forwardRef<ProgressBarRef, Props>(
         <Animated.View testID={'progress-bar'} style={style} />
       </View>
     );
-  }
+  },
 );
