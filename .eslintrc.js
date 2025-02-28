@@ -15,6 +15,7 @@ module.exports = {
   },
   plugins: [
     'unicorn',
+    'prettier',
     '@typescript-eslint',
     'unused-imports',
     'tailwindcss',
@@ -38,6 +39,7 @@ module.exports = {
     '.eslintrc.js',
   ],
   rules: {
+    "prettier/prettier": "error",
     'import/no-duplicates': 'error',
     '@typescript-eslint/no-explicit-any': 'error',
     'unicorn/filename-case': [
@@ -113,6 +115,7 @@ module.exports = {
       files: ['src/translations/*.json'],
       extends: ['plugin:i18n-json/recommended'],
       rules: {
+        "@typescript-eslint/ban-types": "off",
         'i18n-json/valid-message-syntax': [
           2,
           {
@@ -146,7 +149,7 @@ module.exports = {
     {
       // Configuration for testing files
       files: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
-      extends: ['plugin:testing-library/react'],
+      extends: ['plugin:testing-library/react', "prettier"],
     },
   ],
 };
