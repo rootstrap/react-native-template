@@ -74,8 +74,8 @@ jobs:
 
       - name: 📱 Run Android Build
         if: ${{ inputs.android == true }}
-        run: pnpm build:${{ inputs.environment }}:android --non-interactive --no-wait --message "Build ${{ inputs.environment }}"
+        run: pnpm build:${{ inputs.environment }}:android --non-interactive --no-wait --message "Build ${{ inputs.environment }}" --local --non-interactive
 
-      - name: 📱 Run IOS Build
-        if: ${{ inputs.ios == true }}
-        run: pnpm build:${{ inputs.environment }}:ios --non-interactive --no-wait --message "Build ${{ inputs.environment }}"
+      # - name: 📱 Run IOS Build
+      #   if: ${{ inputs.ios == true }}
+      #   run: pnpm build:${{ inputs.environment }}:ios --non-interactive --no-wait --message "Build ${{ inputs.environment }}" --local --non-interactive
