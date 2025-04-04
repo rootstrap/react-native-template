@@ -1,9 +1,11 @@
 {
   "cli": {
-    "version": ">= 0.57.0"
+    "version": ">= 0.57.0",
+    "appVersionSource": "remote"
   },
   "build": {
     "production": {
+      "autoIncrement": true,
       "channel": "production",
       "distribution": "store",
       "pnpm": "8.15.4",
@@ -17,7 +19,8 @@
       "env": {
         "EXPO_NO_DOTENV": "1",
         "APP_ENV": "production",
-        "FLIPPER_DISABLE": "1"
+        "FLIPPER_DISABLE": "1",
+        "EAS_NO_DOCTOR": "1"
       },
       "prebuildCommand": "prebuild --skip-dependency-update react",
       "cache": {
@@ -25,6 +28,7 @@
       }
     },
     "staging": {
+      "autoIncrement": true,
       "channel": "staging",
       "distribution": "store",
       "pnpm": "8.15.4",
@@ -32,13 +36,14 @@
         "image": "latest"
       },
       "android": {
-        "buildType": "apk",
+        "buildType": "app-bundle",
         "image": "latest"
       },
       "env": {
         "APP_ENV": "staging",
         "EXPO_NO_DOTENV": "1",
-        "FLIPPER_DISABLE": "1"
+        "FLIPPER_DISABLE": "1",
+        "EAS_NO_DOCTOR": "1"
       },
       "prebuildCommand": "prebuild --skip-dependency-update react",
       "cache": {
@@ -46,6 +51,7 @@
       }
     },
     "qa": {
+      "autoIncrement": true,
       "channel": "qa",
       "distribution": "store",
       "pnpm": "8.15.4",
@@ -53,33 +59,36 @@
         "image": "latest"
       },
       "android": {
-        "buildType": "apk",
+        "buildType": "app-bundle",
         "image": "latest"
       },
       "env": {
         "APP_ENV": "qa",
         "EXPO_NO_DOTENV": "1",
-        "FLIPPER_DISABLE": "1"
+        "FLIPPER_DISABLE": "1",
+        "EAS_NO_DOCTOR": "1"
       },
-
       "prebuildCommand": "prebuild --skip-dependency-update react",
       "cache": {
         "key": "eas-1"
       }
     },
     "development": {
+      "autoIncrement": true,
       "developmentClient": true,
-      "distribution": "internal",
+      "distribution": "store",
       "pnpm": "8.15.4",
       "ios": {
         "image": "latest"
       },
       "android": {
+        "buildType": "app-bundle",
         "image": "latest"
       },
       "env": {
         "APP_ENV": "development",
-        "EXPO_NO_DOTENV": "1"
+        "EXPO_NO_DOTENV": "1",
+        "EAS_NO_DOCTOR": "1"
       },
       "prebuildCommand": "prebuild --skip-dependency-update react",
       "cache": {
@@ -108,6 +117,34 @@
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "ascAppId": "6746460022"
+      }
+    },
+    "staging": {
+      "ios": {
+        "ascAppId": "6745524568"
+      },
+      "android": {
+        "releaseStatus": "draft"
+      }
+    },
+    "qa": {
+      "ios": {
+        "ascAppId": "6745527331"
+      },
+      "android": {
+        "releaseStatus": "draft"
+      }
+    },
+    "development": {
+      "ios": {
+        "ascAppId": "6746459808"
+      },
+      "android": {
+        "releaseStatus": "draft"
+      }
+    }
   }
 }
