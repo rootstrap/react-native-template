@@ -57,22 +57,7 @@ jobs:
             os: macos-latest
           - platform: android
             os: ubuntu-latest
-    if: ${{ (inputs.android == true && matrix.platform == 'android') || (inputs.ios == true && matrix.platform == 'ios') }}
     steps:
-      - name: Do not run ios matrix if ios input is false
-        if: ${{ inputs.ios == false }} && ${{ matrix.platform == 'ios' }}
-        run: |
-          echo ${{ matrix.platform }}
-          echo ${{ inputs.ios }}
-          exit 1
-
-      - name: Do not run android matrix if android input is false
-        if: ${{ inputs.android == false }} && ${{ matrix.platform == 'android' }}
-        run: |
-          echo ${{ matrix.platform }}
-          echo ${{ inputs.android }}
-          exit 1
-
       - name: Check for EXPO_TOKEN
         run: |
           if [ -z "${{ secrets.EXPO_TOKEN }}" ]; then
@@ -102,3 +87,12 @@ jobs:
 
       - name: 📱 Run Build for ${{ matrix.platform }}
         run: pnpm build:${{ inputs.environment }}:${{ matrix.platform }} --non-interactive --no-wait --message "Build ${{ inputs.environment }} for ${{ matrix.platform }}" --local
+
+      - name: Upload ${{ matrix.platform }} Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform }}-build-${{ inputs.environment }}
+          path: |
+            *.apk
+            *.aab
+            *.ipa
