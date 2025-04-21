@@ -60,11 +60,17 @@ jobs:
     steps:
       - name: Do not run ios matrix if ios input is false
         if: ${{ inputs.ios == false }} && ${{ matrix.platform == 'ios' }}
-        run: exit 1
+        run: |
+          echo ${{ matrix.platform }}
+          echo ${{ inputs.ios }}
+          exit 1
 
       - name: Do not run android matrix if android input is false
         if: ${{ inputs.android == false }} && ${{ matrix.platform == 'android' }}
-        run: exit 1
+        run: |
+          echo ${{ matrix.platform }}
+          echo ${{ inputs.android }}
+          exit 1
 
       - name: Check for EXPO_TOKEN
         run: |
