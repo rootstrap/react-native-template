@@ -46,7 +46,7 @@ on:
 
 jobs:
   Build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     environment: app-${{ inputs.environment }}
     steps:
       - name: Check for EXPO_TOKEN
@@ -70,8 +70,6 @@ jobs:
       - name: 📦 Setup Node + PNPM + install deps
         uses: ./.github/actions/setup-node-pnpm-install
 
-      # In secrets.ENVIRONMENT_FILE we have the whole environment file for the current environment
-      # we need to create a local .env file with the content of the environment file
       - name: Create environment file
         run: echo "${{ secrets.ENVIRONMENT_FILE }}" > .env.${{ inputs.environment }}
 
@@ -82,6 +80,6 @@ jobs:
         if: ${{ inputs.android == true }}
         run: pnpm build:${{ inputs.environment }}:android --non-interactive --no-wait --message "Build ${{ inputs.environment }}" --local --non-interactive
 
-      # - name: 📱 Run IOS Build
-      #   if: ${{ inputs.ios == true }}
-      #   run: pnpm build:${{ inputs.environment }}:ios --non-interactive --no-wait --message "Build ${{ inputs.environment }}" --local --non-interactive
+      - name: 📱 Run IOS Build
+        if: ${{ inputs.ios == true }}
+        run: pnpm build:${{ inputs.environment }}:ios --non-interactive --no-wait --message "Build ${{ inputs.environment }}" --local --non-interactive
