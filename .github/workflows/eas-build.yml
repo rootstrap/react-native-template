@@ -49,6 +49,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     environment: app-${{ inputs.environment }}
     strategy:
+      fail-fast: false
       matrix:
         platform: [ios, android]
         include:
@@ -56,6 +57,7 @@ jobs:
             os: macos-latest
           - platform: android
             os: ubuntu-latest
+    if: ${{ (inputs.android == true && matrix.platform == 'android') || (inputs.ios == true && matrix.platform == 'ios') }}
     steps:
       - name: Do not run ios matrix if ios input is false
         if: ${{ inputs.ios == false }} && ${{ matrix.platform == 'ios' }}
