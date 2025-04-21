@@ -49,7 +49,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     environment: app-${{ inputs.environment }}
     strategy:
-      fail-fast: false
       matrix:
         platform: [ios, android]
         include:
@@ -58,13 +57,19 @@ jobs:
           - platform: android
             os: ubuntu-latest
     steps:
-      - name: Skip iOS matrix if iOS input is false
-        if: ${{ inputs.ios == false && matrix.platform == 'ios' }}
-        run: echo "Skipping iOS build"
+      - name: Do not run ios matrix if ios input is false
+        if: ${{ inputs.ios == false }} && ${{ matrix.platform == 'ios' }}
+        run: |
+          echo ${{ matrix.platform }}
+          echo ${{ inputs.ios }}
+          exit 1
 
-      - name: Skip Android matrix if Android input is false
-        if: ${{ inputs.android == false && matrix.platform == 'android' }}
-        run: echo "Skipping Android build"
+      - name: Do not run android matrix if android input is false
+        if: ${{ inputs.android == false }} && ${{ matrix.platform == 'android' }}
+        run: |
+          echo ${{ matrix.platform }}
+          echo ${{ inputs.android }}
+          exit 1
 
       - name: Check for EXPO_TOKEN
         run: |
