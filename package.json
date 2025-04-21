@@ -25,6 +25,7 @@
     "build:qa:ios": "cross-env APP_ENV=qa EXPO_NO_DOTENV=1 eas build --profile qa --platform ios",
     "build:qa:web": "cross-env APP_ENV=qa EXPO_NO_DOTENV=1 expo export -c --platform web",
     "credentials:qa:ios": "APP_ENV=qa eas credentials:configure-build --profile=qa --platform ios",
+    "credentials:qa:android": "APP_ENV=qa eas credentials:configure-build --profile=qa --platform android",
     "submit:qa:mobile": "cross-env APP_ENV=qa eas submit",
     "start:staging": "cross-env APP_ENV=staging pnpm run start",
     "prebuild:staging": "cross-env APP_ENV=staging pnpm run prebuild",

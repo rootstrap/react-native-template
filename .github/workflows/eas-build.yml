@@ -46,9 +46,26 @@ on:
 
 jobs:
   Build:
-    runs-on: macos-latest
+    runs-on: ${{ matrix.os }}
     environment: app-${{ inputs.environment }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ios, android]
+        include:
+          - platform: ios
+            os: macos-latest
+          - platform: android
+            os: ubuntu-latest
     steps:
+      - name: Do not run ios matrix if ios input is false
+        if: ${{ inputs.ios == false }} && ${{ matrix.platform == 'ios' }}
+        run: exit 1
+
+      - name: Do not run android matrix if android input is false
+        if: ${{ inputs.android == false }} && ${{ matrix.platform == 'android' }}
+        run: exit 1
+
       - name: Check for EXPO_TOKEN
         run: |
           if [ -z "${{ secrets.EXPO_TOKEN }}" ]; then
@@ -76,10 +93,5 @@ jobs:
       - name: ⚙️ Run Prebuild
         run: pnpm prebuild:${{ inputs.environment }}
 
-      - name: 📱 Run Android Build
-        if: ${{ inputs.android == true }}
-        run: pnpm build:${{ inputs.environment }}:android --non-interactive --no-wait --message "Build ${{ inputs.environment }}" --local --non-interactive
-
-      - name: 📱 Run IOS Build
-        if: ${{ inputs.ios == true }}
-        run: pnpm build:${{ inputs.environment }}:ios --non-interactive --no-wait --message "Build ${{ inputs.environment }}" --local --non-interactive
+      - name: 📱 Run Build for ${{ matrix.platform }}
+        run: pnpm build:${{ inputs.environment }}:${{ matrix.platform }} --non-interactive --no-wait --message "Build ${{ inputs.environment }} for ${{ matrix.platform }}" --local
