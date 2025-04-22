@@ -1,9 +1,11 @@
 {
   "cli": {
-    "version": ">= 0.57.0"
+    "version": ">= 0.57.0",
+    "appVersionSource": "remote"
   },
   "build": {
     "production": {
+      "autoIncrement": true,
       "channel": "production",
       "distribution": "store",
       "pnpm": "8.15.4",
@@ -25,6 +27,7 @@
       }
     },
     "staging": {
+      "autoIncrement": true,
       "channel": "staging",
       "distribution": "store",
       "pnpm": "8.15.4",
@@ -46,6 +49,7 @@
       }
     },
     "qa": {
+      "autoIncrement": true,
       "channel": "qa",
       "distribution": "store",
       "pnpm": "8.15.4",
@@ -61,13 +65,13 @@
         "EXPO_NO_DOTENV": "1",
         "FLIPPER_DISABLE": "1"
       },
-
       "prebuildCommand": "prebuild --skip-dependency-update react",
       "cache": {
         "key": "eas-1"
       }
     },
     "development": {
+      "autoIncrement": true,
       "developmentClient": true,
       "distribution": "internal",
       "pnpm": "8.15.4",
