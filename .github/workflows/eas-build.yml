@@ -15,9 +15,19 @@
 # Based on the ANDROID and IOS inputs, we trigger the build for the corresponding platform with the corresponding flags.
 
 # 🚨 GITHUB SECRETS REQUIRED:
-#         - EXPO_TOKEN: Expo token to authenticate with EAS
-#         - You can get it from https://expo.dev/settings/access-tokens
-
+#         - EXPO_TOKEN: Expo token to authenticate with EAS to sync version numbers and submit the build.
+#                             You can get it from https://expo.dev/settings/access-tokens
+#         - NEW_VERSION_NUMBER_PAT: A fine-grained Personal Access Token.
+#                             This token is used to commit and push to protected branches.
+#                             You can generate one from here: https://github.com/settings/tokens?type=beta
+#                             Set the token name to something meaningful, e.g. "New version number PAT for <Project name>".
+#                             Set the Repository access to "Only select repositories" and select this repository.
+#                             Set the following Repo permissions:
+#                                 - Contents: Read & write (to commit and push)
+#                             Make sure to add it to the repo secrets with the name NEW_VERSION_NUMBER_PAT:
+#                                 - Go to Repository Settings > Secrets and variables > Actions > New repository secret
+#                                   - Name: NEW_VERSION_NUMBER_PAT
+#                                   - Value: The Personal Access Token you created
 name: 'EAS Build (Android & IOS) (EAS)'
 
 on:
@@ -50,6 +60,8 @@ on:
 jobs:
   Build:
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
     environment: app-${{ inputs.environment }}
     strategy:
       fail-fast: false
@@ -61,10 +73,14 @@ jobs:
           - platform: android
             os: ubuntu-latest
     steps:
-      - name: Check for EXPO_TOKEN
+      - name: Check if all required secrets exist
         run: |
           if [ -z "${{ secrets.EXPO_TOKEN }}" ]; then
             echo "You must provide an EXPO_TOKEN secret linked to this project's Expo account in this repo's secrets. Learn more: https://docs.expo.dev/eas-update/github-actions"
+            exit 1
+          fi
+          if [ -z "${{ secrets.NEW_VERSION_NUMBER_PAT }}" ]; then
+            echo "echo "NEW_VERSION_NUMBER_PAT secret not found. Please create a fine-grained Personal Access Token following the instructions in the workflow file.""
             exit 1
           fi
 
@@ -78,6 +94,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          token: ${{ secrets.NEW_VERSION_NUMBER_PAT }}
 
       - name: 📦 Setup Node + PNPM + install deps
         uses: ./.github/actions/setup-node-pnpm-install
@@ -88,13 +105,15 @@ jobs:
       - name: Update version in package.json
         if: inputs.new-version
         run: |
-          pnpm version ${{ inputs.new-version }}
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          pnpm version ${{ inputs.new-version }} -m "chore: set app version to ${{ inputs.new-version }}"
 
-      - name: ⚙️ Run Prebuild
-        run: pnpm prebuild:${{ inputs.environment }}
+      # - name: ⚙️ Run Prebuild
+      #   run: pnpm prebuild:${{ inputs.environment }}
 
-      - name: 📱 Run Build for ${{ matrix.platform }}
-        run: pnpm build:${{ inputs.environment }}:${{ matrix.platform }} --non-interactive --no-wait --message "Build ${{ inputs.environment }} for ${{ matrix.platform }}" --local
+      # - name: 📱 Run Build for ${{ matrix.platform }}
+      #   run: pnpm build:${{ inputs.environment }}:${{ matrix.platform }} --non-interactive --no-wait --message "Build ${{ inputs.environment }} for ${{ matrix.platform }}" --local
 
       - name: 📦 Push changes to repository
         if: inputs.new-version
