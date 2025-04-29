@@ -116,10 +116,10 @@ jobs:
       #   run: pnpm build:${{ inputs.environment }}:${{ matrix.platform }} --non-interactive --no-wait --message "Build ${{ inputs.environment }} for ${{ matrix.platform }}" --local
 
       - name: 📦 Push changes to repository
-        continue-on-error: true
         if: inputs.new-version
         run: |
-          git push
+          # Return 0 if push fails and echo an error message
+          git push || echo "Skipping push: version was already updated." 
 
       - name: Upload ${{ matrix.platform }} Build
         uses: actions/upload-artifact@v4
