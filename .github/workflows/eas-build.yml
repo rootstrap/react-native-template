@@ -58,15 +58,21 @@ on:
         default: true
 
 jobs:
-  Validate:
+  validate-new-version:
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
       - name: Checkout
+        if: inputs.new-version
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - name: Install Node.js
+        if: inputs.new-version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
       - name: Validate new version
         if: inputs.new-version
         run: |
@@ -76,13 +82,12 @@ jobs:
           echo "Current version: $CURRENT_VERSION"
           echo "New version: $NEW_VERSION"
       
-          npx semver -r ">=$CURRENT_VERSION" "$NEW_VERSION" > /dev/null
+          npx semver -r ">=$CURRENT_VERSION" "$NEW_VERSION" > /dev/null || (echo "❌ New version must be greater than or equal to current version ($CURRENT_VERSION)" && exit 1) 
       
-          if [ $? -ne 0 ]; then
-            echo "❌ New version must be greater than or equal to current version ($CURRENT_VERSION)"
-            exit 1
-          fi
-  Build:
+          echo "✅ New version is valid"
+
+  build:
+    needs: validate-new-version
     runs-on: ${{ matrix.os }}
     permissions:
       contents: write
@@ -129,20 +134,31 @@ jobs:
       - name: Update version in package.json
         if: inputs.new-version
         run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          if [ "$CURRENT_VERSION" == "${{inputs.new-version}}" ]; then
+            echo "Current version is already ${{ inputs.new-version }}, no need to update"
+            exit 0
+          fi
+
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           pnpm version ${{ inputs.new-version }} -m "chore: set app version to ${{ inputs.new-version }}"
+      
+      - name: Setup latest version of Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        if: matrix.platform == 'ios'
+        with:
+          xcode-version: latest
 
-      # - name: ⚙️ Run Prebuild
-      #   run: pnpm prebuild:${{ inputs.environment }}
+      - name: ⚙️ Run Prebuild
+        run: pnpm prebuild:${{ inputs.environment }}
 
-      # - name: 📱 Run Build for ${{ matrix.platform }}
-      #   run: pnpm build:${{ inputs.environment }}:${{ matrix.platform }} --non-interactive --no-wait --message "Build ${{ inputs.environment }} for ${{ matrix.platform }}" --local
+      - name: 📱 Run Build for ${{ matrix.platform }}
+        run: pnpm build:${{ inputs.environment }}:${{ matrix.platform }} --non-interactive --no-wait --message "Build ${{ inputs.environment }} for ${{ matrix.platform }}" --local
 
       - name: 📦 Push changes to repository
         if: inputs.new-version
         run: |
-          # Return 0 if push fails and echo an error message
           git push || echo "Skipping push: version was already updated." 
 
       - name: Upload ${{ matrix.platform }} Build
