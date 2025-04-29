@@ -116,6 +116,7 @@ jobs:
       #   run: pnpm build:${{ inputs.environment }}:${{ matrix.platform }} --non-interactive --no-wait --message "Build ${{ inputs.environment }} for ${{ matrix.platform }}" --local
 
       - name: 📦 Push changes to repository
+        continue-on-error: true
         if: inputs.new-version
         run: |
           git push
