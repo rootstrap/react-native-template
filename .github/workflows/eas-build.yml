@@ -58,6 +58,30 @@ on:
         default: true
 
 jobs:
+  Validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Validate new version
+        if: inputs.new-version
+        run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          NEW_VERSION="${{ inputs.new-version }}"
+      
+          echo "Current version: $CURRENT_VERSION"
+          echo "New version: $NEW_VERSION"
+      
+          npx semver -r ">=$CURRENT_VERSION" "$NEW_VERSION" > /dev/null
+      
+          if [ $? -ne 0 ]; then
+            echo "❌ New version must be greater than or equal to current version ($CURRENT_VERSION)"
+            exit 1
+          fi
   Build:
     runs-on: ${{ matrix.os }}
     permissions:
