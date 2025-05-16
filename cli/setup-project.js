@@ -130,7 +130,7 @@ const updateGitHubWorkflows = (projectName) => {
       fileName: '.github/PULL_REQUEST_TEMPLATE.md',
       replacements: [
         {
-          searchValue: /^[\s\S]*?(?=## What does this do\?)/,
+          searchValue: /^[\s\S]*?(?=#### Jira board reference:)/,
           replaceValue: '',
         },
       ],
