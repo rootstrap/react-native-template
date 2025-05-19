@@ -6,11 +6,6 @@
 # This workflow is used to trigger a build on EAS.
 # Can be triggered manually from the actions tab.
 
-# This action accepts those inputs:
-#        `environment`, which is used to generate a build for a specific environment (development, staging, QA, production). We use staging by default.
-#        `android`, true by default, set to true if you don't want to trigger build for Android.
-#        `ios`, false by default, set to true if you  want to trigger build for IOS.
-
 # Before triggering the build, we run a pre-build script to generate the necessary native folders based on the APP_ENV.
 # Based on the ANDROID and IOS inputs, we trigger the build for the corresponding platform with the corresponding flags.
 
@@ -28,33 +23,25 @@
 #                                 - Go to Repository Settings > Secrets and variables > Actions > New repository secret
 #                                   - Name: NEW_VERSION_NUMBER_PAT
 #                                   - Value: The Personal Access Token you created
-name: 'EAS Build (Android & IOS) (EAS)'
+
+name: 'Build & Deploy'
 
 on:
   workflow_dispatch:
     inputs:
-      environment:
+      platform:
         type: choice
-        description: 'Environment'
-        required: true
-        default: 'staging'
+        description: Platform to build for
         options:
-          - development
-          - staging
-          - qa
-          - production
+          - android
+          - ios
       new-version:
         type: string
-        description: 'New version (e.g. 1.0.0)'
-      android:
+        description: 'New version (e.g. 1.0.0) (optional)'
+      auto-submit:
         type: boolean
-        description: 'Build for Android'
-        required: true
-        default: true
-      ios:
-        type: boolean
-        description: 'Build for iOS'
-        required: true
+        description: 'Auto-submit the build to the store'
+        required: false
         default: true
 
 jobs:
@@ -88,20 +75,25 @@ jobs:
 
   build:
     needs: validate-new-version
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ inputs.platform == 'ios' && 'macos-latest' || 'ubuntu-latest' }}
     permissions:
       contents: write
-    environment: app-${{ inputs.environment }}
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [ios, android]
-        include:
-          - platform: ios
-            os: macos-latest
-          - platform: android
-            os: ubuntu-latest
+    environment: ${{ github.ref_name == 'main' && 'production' || github.ref_name == 'staging' && 'staging' || github.ref_name == 'qa' && 'qa' || github.ref_name == 'development' && 'development' }}
     steps:
+      - name: Set environment variable
+        run: |
+          if [[ "${{ github.ref_name }}" == "main" ]]; then
+            echo "ENV=production" >> $GITHUB_ENV
+          elif [[ "${{ github.ref_name }}" == "staging" ]]; then
+            echo "ENV=staging" >> $GITHUB_ENV
+          elif [[ "${{ github.ref_name }}" == "qa" ]]; then
+            echo "ENV=qa" >> $GITHUB_ENV
+          elif [[ "${{ github.ref_name }}" == "development" ]]; then
+            echo "ENV=development" >> $GITHUB_ENV
+          else
+            echo "Invalid branch: ${{ github.ref_name }}. You can only build for main, staging, qa or development branches."
+            exit 1
+          fi
       - name: Check if all required secrets exist
         run: |
           if [ -z "${{ secrets.EXPO_TOKEN }}" ]; then
@@ -109,7 +101,7 @@ jobs:
             exit 1
           fi
           if [ -z "${{ secrets.NEW_VERSION_NUMBER_PAT }}" ]; then
-            echo "echo "NEW_VERSION_NUMBER_PAT secret not found. Please create a fine-grained Personal Access Token following the instructions in the workflow file.""
+            echo "NEW_VERSION_NUMBER_PAT secret not found. Please create a fine-grained Personal Access Token following the instructions in the workflow file."
             exit 1
           fi
 
@@ -129,7 +121,7 @@ jobs:
         uses: ./.github/actions/setup-node-pnpm-install
 
       - name: Create environment file
-        run: echo "${{ secrets.ENVIRONMENT_FILE }}" > .env.${{ inputs.environment }}
+        run: echo "${{ secrets.ENVIRONMENT_FILE }}" > .env.${{ env.ENV }}
 
       - name: Update version in package.json
         if: inputs.new-version
@@ -146,26 +138,43 @@ jobs:
       
       - name: Setup latest version of Xcode
         uses: maxim-lobanov/setup-xcode@v1
-        if: matrix.platform == 'ios'
+        if: inputs.platform == 'ios'
         with:
           xcode-version: latest
 
-      - name: ⚙️ Run Prebuild
-        run: pnpm prebuild:${{ inputs.environment }}
+      - name: Set Up JDK
+        uses: actions/setup-java@v3
+        if: inputs.platform == 'android'
+        with:
+          distribution: 'zulu' # See 'Supported distributions' for available options
+          java-version: '17'
 
-      - name: 📱 Run Build for ${{ matrix.platform }}
-        run: pnpm build:${{ inputs.environment }}:${{ matrix.platform }} --non-interactive --no-wait --message "Build ${{ inputs.environment }} for ${{ matrix.platform }}" --local
+      - name: ⚙️ Run Prebuild
+        run: pnpm prebuild:${{ env.ENV }}
+
+      - name: 📱 Run Build for ${{ inputs.platform }}
+        run: |
+          pnpm build:${{ env.ENV }}:${{ inputs.platform }} --non-interactive --no-wait --message "Build ${{ env.ENV }} for ${{ inputs.platform }}" --local
+          if [ "${{ inputs.platform }}" = "android" ]; then
+            ls -1 ./*.aab > path.txt
+          elif [ "${{ inputs.platform }}" = "ios" ]; then
+            ls -1 ./*.ipa > path.txt
+          fi
+      - name: Upload ${{ inputs.platform }} Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.platform }}-build-${{ env.ENV }}
+          path: |
+            *.apks
+            *.apk
+            *.aab
+            *.ipa
+
+      - name: 📱 Submit ${{ inputs.platform }} app to the store
+        if: inputs.auto-submit
+        run: pnpm submit:${{ env.ENV }}:mobile --platform=${{ inputs.platform }} --path=$(cat path.txt) --no-wait --non-interactive
 
       - name: 📦 Push changes to repository
         if: inputs.new-version
         run: |
           git push || echo "Skipping push: version was already updated." 
-
-      - name: Upload ${{ matrix.platform }} Build
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.platform }}-build-${{ inputs.environment }}
-          path: |
-            *.apk
-            *.aab
-            *.ipa
