@@ -5,7 +5,10 @@ import {
   type ForgotPasswordFormProps,
 } from './forgot-password-form';
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  onSubmitMock.mockClear();
+});
 
 const onSubmitMock: jest.Mock<ForgotPasswordFormProps['onSubmit']> = jest.fn();
 

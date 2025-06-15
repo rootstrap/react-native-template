@@ -7,7 +7,7 @@ type ColorName = keyof typeof colors;
 export const Colors = () => (
   <>
     <Title text="Colors" />
-    {(Object.keys(colors) as ColorName[]).map((name) => (
+    {(Object.keys(colors) as Array<ColorName>).map((name) => (
       <Color name={name} key={name} />
     ))}
   </>

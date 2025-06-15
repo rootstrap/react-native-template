@@ -21,6 +21,6 @@ export const Image = ({
   />
 );
 
-export const preloadImages = (sources: string[]) => {
+export const preloadImages = (sources: Array<string>) => {
   NImage.prefetch(sources);
 };

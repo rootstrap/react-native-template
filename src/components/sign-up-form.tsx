@@ -1,36 +1,32 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { type SubmitHandler, useForm } from 'react-hook-form';
 import { KeyboardAvoidingView } from 'react-native';
-import z from 'zod';
+import { object, string, type z } from 'zod';
 
 import { Button, ControlledInput, Text, View } from '@/components/ui';
 import { translate } from '@/lib';
 
 const MIN_PASSWORD_LENGTH = 6;
 
-const passwordSchema = z
-  .string({ required_error: translate('auth.signUp.error.passwordRequired') })
-  .min(MIN_PASSWORD_LENGTH, translate('auth.signUp.error.shortPassword'));
+const passwordSchema = string({
+  required_error: translate('auth.signUp.error.passwordRequired'),
+}).min(MIN_PASSWORD_LENGTH, translate('auth.signUp.error.shortPassword'));
 
-const schema = z
-  .object({
-    email: z
-      .string({ required_error: translate('auth.signUp.error.emailRequired') })
-      .email(translate('auth.signUp.error.emailInvalid')),
-    name: z.string({
-      required_error: translate('auth.signUp.error.nameRequired'),
-    }),
-    password: passwordSchema,
-    passwordConfirmation: z.string({
-      required_error: translate(
-        'auth.signUp.error.passwordConfirmationRequired',
-      ),
-    }),
-  })
-  .refine((data) => data.password === data.passwordConfirmation, {
-    message: translate('auth.signUp.error.passwordsDoNotMatch'),
-    path: ['passwordConfirmation'],
-  });
+const schema = object({
+  email: string({
+    required_error: translate('auth.signUp.error.emailRequired'),
+  }).email(translate('auth.signUp.error.emailInvalid')),
+  name: string({
+    required_error: translate('auth.signUp.error.nameRequired'),
+  }),
+  password: passwordSchema,
+  passwordConfirmation: string({
+    required_error: translate('auth.signUp.error.passwordConfirmationRequired'),
+  }),
+}).refine((data) => data.password === data.passwordConfirmation, {
+  message: translate('auth.signUp.error.passwordsDoNotMatch'),
+  path: ['passwordConfirmation'],
+});
 
 export type FormType = z.infer<typeof schema>;
 

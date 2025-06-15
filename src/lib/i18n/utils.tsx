@@ -1,5 +1,5 @@
 import type TranslateOptions from 'i18next';
-import i18n from 'i18next';
+import { changeLanguage as i18nChangeLanguage, t } from 'i18next';
 import memoize from 'lodash.memoize';
 import { useCallback } from 'react';
 import { NativeModules, Platform } from 'react-native';
@@ -18,14 +18,13 @@ export const LOCAL = 'local';
 export const getLanguage = () => storage.getString(LOCAL); // 'Marc' getItem<Language | undefined>(LOCAL);
 
 export const translate = memoize(
-  (key: TxKeyPath, options = undefined) =>
-    i18n.t(key, options) as unknown as string,
+  (key: TxKeyPath, options = undefined) => t(key, options) as unknown as string,
   (key: TxKeyPath, options: typeof TranslateOptions) =>
     options ? key + JSON.stringify(options) : key,
 );
 
 export const changeLanguage = (lang: Language) => {
-  i18n.changeLanguage(lang);
+  i18nChangeLanguage(lang);
   if (Platform.OS === 'ios' || Platform.OS === 'android') {
     if (__DEV__) {
       NativeModules.DevSettings.reload();

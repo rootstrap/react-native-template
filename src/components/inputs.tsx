@@ -5,7 +5,7 @@ import { Checkbox, Input, Radio, Select, Switch, View } from '@/components/ui';
 
 import { Title } from './title';
 
-const options: OptionType[] = [
+const options: Array<OptionType> = [
   { value: 'chocolate', label: 'Chocolate' },
   { value: 'strawberry', label: 'Strawberry' },
   { value: 'vanilla', label: 'Vanilla' },

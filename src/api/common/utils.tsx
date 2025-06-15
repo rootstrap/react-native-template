@@ -15,9 +15,12 @@ export function getQueryKey<T extends KeyParams>(key: string, params?: T) {
 }
 
 // for infinite query pages  to flatList data
-export function normalizePages<T>(pages?: PaginateQuery<T>[]): T[] {
+export function normalizePages<T>(pages?: Array<PaginateQuery<T>>): Array<T> {
   return pages
-    ? pages.reduce((prev: T[], current) => [...prev, ...current.results], [])
+    ? pages.reduce(
+        (prev: Array<T>, current) => [...prev, ...current.results],
+        [],
+      )
     : [];
 }
 

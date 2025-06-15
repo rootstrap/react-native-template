@@ -1,4 +1,4 @@
-import i18n from 'i18next';
+import { use } from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
 import en from '../../translations/en.json';
@@ -12,7 +12,8 @@ jest.mock('../storage', () => ({
   },
 }));
 
-i18n.use(initReactI18next).init({
+// eslint-disable-next-line react-hooks/rules-of-hooks
+use(initReactI18next).init({
   lng: 'en',
   fallbackLng: 'en',
 

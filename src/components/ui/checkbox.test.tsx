@@ -1,7 +1,7 @@
 /* eslint-disable max-lines-per-function */
 import 'react-native';
 
-import { cleanup, fireEvent, render, screen, setup } from '@/lib/test-utils';
+import { cleanup, fireEvent, render, screen } from '@/lib/test-utils';
 
 import { Checkbox, Radio, Switch } from './checkbox';
 
@@ -14,7 +14,7 @@ describe('Checkbox component', () => {
 
   it('<Checkbox /> renders correctly and call on change on Press', async () => {
     const mockOnChange = jest.fn((checked) => checked);
-    const { user } = setup(
+    render(
       <Checkbox
         testID="checkbox"
         onChange={mockOnChange}
@@ -34,14 +34,14 @@ describe('Checkbox component', () => {
       'agree',
     );
 
-    await user.press(screen.getByTestId('checkbox'));
+    fireEvent.press(screen.getByTestId('checkbox'));
     expect(mockOnChange).toHaveBeenCalledTimes(1);
     expect(mockOnChange).toHaveBeenCalledWith(true);
   });
 
   it("<CheckBox/> shouldn't change value while disabled", async () => {
     const mockOnChange = jest.fn((checked) => checked);
-    const { user } = setup(
+    render(
       <Checkbox
         disabled={true}
         testID="checkbox"
@@ -52,12 +52,12 @@ describe('Checkbox component', () => {
     );
     expect(screen.getByTestId('checkbox')).toBeOnTheScreen();
     expect(screen.getByTestId('checkbox')).toBeDisabled();
-    await user.press(screen.getByTestId('checkbox'));
+    fireEvent.press(screen.getByTestId('checkbox'));
     expect(mockOnChange).toHaveBeenCalledTimes(0);
   });
   it('<CheckBox/> Should render the correct label', async () => {
     const mockOnChange = jest.fn((checked) => checked);
-    const { user } = setup(
+    render(
       <Checkbox
         disabled={true}
         testID="checkbox"
@@ -80,7 +80,7 @@ describe('Checkbox component', () => {
       'agree',
     );
     expect(screen.getByTestId(CHECKBOX_LABEL)).toHaveTextContent(AGREE_TERMS);
-    await user.press(screen.getByTestId('checkbox'));
+    fireEvent.press(screen.getByTestId('checkbox'));
     expect(mockOnChange).toHaveBeenCalledTimes(0);
   });
 
@@ -119,7 +119,7 @@ describe('Radio component ', () => {
 
   it('<Radio /> renders correctly and call on change on Press', async () => {
     const mockOnChange = jest.fn((checked) => checked);
-    const { user } = setup(
+    render(
       <Radio
         testID="radio"
         onChange={mockOnChange}
@@ -133,14 +133,14 @@ describe('Radio component ', () => {
     expect(screen.getByTestId('radio')).not.toBeChecked();
     expect(screen.getByTestId('radio').props.accessibilityRole).toBe('radio');
     expect(screen.getByTestId('radio').props.accessibilityLabel).toBe('agree');
-    await user.press(screen.getByTestId('radio'));
+    fireEvent.press(screen.getByTestId('radio'));
     expect(mockOnChange).toHaveBeenCalledTimes(1);
     expect(mockOnChange).toHaveBeenCalledWith(true);
   });
 
   it('<Radio /> should render the correct label', async () => {
     const mockOnChange = jest.fn((checked) => checked);
-    const { user } = setup(
+    render(
       <Radio
         testID="radio"
         onChange={mockOnChange}
@@ -158,14 +158,14 @@ describe('Radio component ', () => {
     );
     expect(screen.getByTestId('radio').props.accessibilityRole).toBe('radio');
     expect(screen.getByTestId('radio').props.accessibilityLabel).toBe('agree');
-    await user.press(screen.getByTestId(RADIO_LABEL));
+    fireEvent.press(screen.getByTestId(RADIO_LABEL));
     expect(mockOnChange).toHaveBeenCalledTimes(1);
     expect(mockOnChange).toHaveBeenCalledWith(true);
   });
 
   it("<Radio/> shouldn't change value while disabled", async () => {
     const mockOnChange = jest.fn((checked) => checked);
-    const { user } = setup(
+    render(
       <Radio
         disabled={true}
         testID="radio"
@@ -176,7 +176,7 @@ describe('Radio component ', () => {
     );
     expect(screen.getByTestId('radio')).toBeOnTheScreen();
     expect(screen.getByTestId('radio')).toBeDisabled();
-    await user.press(screen.getByTestId('radio'));
+    fireEvent.press(screen.getByTestId('radio'));
     expect(mockOnChange).toHaveBeenCalledTimes(0);
   });
 });
@@ -186,7 +186,7 @@ describe('Switch component ', () => {
 
   it('<Switch /> renders correctly and call on change on Press', async () => {
     const mockOnChange = jest.fn((checked) => checked);
-    const { user } = setup(
+    render(
       <Switch
         testID="switch"
         onChange={mockOnChange}
@@ -202,14 +202,14 @@ describe('Switch component ', () => {
     );
     expect(screen.getByTestId('switch').props.accessibilityRole).toBe('switch');
     expect(screen.getByTestId('switch').props.accessibilityLabel).toBe('agree');
-    await user.press(screen.getByTestId('switch'));
+    fireEvent.press(screen.getByTestId('switch'));
     expect(mockOnChange).toHaveBeenCalledTimes(1);
     expect(mockOnChange).toHaveBeenCalledWith(true);
   });
 
   it('<Switch /> should render the correct label', async () => {
     const mockOnChange = jest.fn((checked) => checked);
-    const { user } = setup(
+    render(
       <Switch
         testID="switch"
         onChange={mockOnChange}
@@ -226,14 +226,14 @@ describe('Switch component ', () => {
     );
     expect(screen.getByTestId('switch').props.accessibilityRole).toBe('switch');
     expect(screen.getByTestId('switch').props.accessibilityLabel).toBe('agree');
-    await user.press(screen.getByTestId(SWITCH_LABEL));
+    fireEvent.press(screen.getByTestId(SWITCH_LABEL));
     expect(mockOnChange).toHaveBeenCalledTimes(1);
     expect(mockOnChange).toHaveBeenCalledWith(true);
   });
 
   it("<Switch/> shouldn't change value while disabled", async () => {
     const mockOnChange = jest.fn((checked) => checked);
-    const { user } = setup(
+    render(
       <Switch
         disabled={true}
         testID="switch"
@@ -243,7 +243,7 @@ describe('Switch component ', () => {
       />,
     );
     expect(screen.getByTestId('switch')).toBeOnTheScreen();
-    await user.press(screen.getByTestId('switch'));
+    fireEvent.press(screen.getByTestId('switch'));
     expect(mockOnChange).toHaveBeenCalledTimes(0);
   });
 

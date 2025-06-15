@@ -19,7 +19,7 @@ jest.mock('react-native-mmkv', () => {
   return {
     MMKV: jest.fn().mockImplementation(() => ({
       set: (key: string, value: string) => mockStorage.set(key, value),
-      getString: (key: string) => mockStorage.get(key) || null,
+      getString: (key: string) => mockStorage.get(key) ?? null,
       delete: (key: string) => mockStorage.delete(key),
     })),
   };

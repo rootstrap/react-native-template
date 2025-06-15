@@ -3,23 +3,19 @@ import { Link } from 'expo-router';
 import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
-import z from 'zod';
+import { object, string, type z } from 'zod';
 
 import { Button, ControlledInput, Text, View } from '@/components/ui';
 import { translate } from '@/lib';
 
 const MIN_CHARS = 6;
-const schema = z.object({
-  email: z
-    .string({
-      required_error: translate('auth.signIn.validation.emailRequired'),
-    })
-    .email(translate('auth.signIn.validation.invalidEmail')),
-  password: z
-    .string({
-      required_error: translate('auth.signIn.validation.passwordRequired'),
-    })
-    .min(MIN_CHARS, translate('auth.signIn.validation.passwordMinChars')),
+const schema = object({
+  email: string({
+    required_error: translate('auth.signIn.validation.emailRequired'),
+  }).email(translate('auth.signIn.validation.invalidEmail')),
+  password: string({
+    required_error: translate('auth.signIn.validation.passwordRequired'),
+  }).min(MIN_CHARS, translate('auth.signIn.validation.passwordMinChars')),
 });
 
 export type FormType = z.infer<typeof schema>;

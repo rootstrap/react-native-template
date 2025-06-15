@@ -9,7 +9,10 @@ import { translate } from '@/lib';
 
 const schema = z.object({
   email: z
-    .string()
+    .string({
+      required_error: 'Required',
+    })
+    .min(1, 'Required')
     .email(translate('forgotPassword.emailInvalidFormatFormError')),
 });
 

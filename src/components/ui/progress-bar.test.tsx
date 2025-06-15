@@ -15,9 +15,7 @@ describe('ProgressBar component', () => {
   it('sets initial progress correctly', () => {
     render(<ProgressBar initialProgress={50} />);
     const progressBar = screen.getByTestId(PROGRESS_BAR);
-    expect(progressBar.props.style).toEqual(
-      expect.objectContaining({ width: '50%' }),
-    );
+    expect(getAnimatedStyle(progressBar)).toMatchObject({ width: '50%' });
   });
 
   it('setProgress function works correctly', async () => {

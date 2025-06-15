@@ -59,7 +59,7 @@ const List = Platform.OS === 'web' ? FlashList : BottomSheetFlatList;
 export type OptionType = { label: string; value: string | number };
 
 type OptionsProps = {
-  options: OptionType[];
+  options: Array<OptionType>;
   onSelect: (option: OptionType) => void;
   value?: string | number;
   testID?: string;
@@ -136,7 +136,7 @@ export interface SelectProps {
   label?: string;
   disabled?: boolean;
   error?: string;
-  options?: OptionType[];
+  options?: Array<OptionType>;
   onSelect?: (value: string | number) => void;
   placeholder?: string;
   testID?: string;

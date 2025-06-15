@@ -12,7 +12,7 @@ describe('Colors component', () => {
 
   it('should render Color components for each color group', () => {
     render(<Colors />);
-    const colorNames = Object.keys(colors) as (keyof typeof colors)[];
+    const colorNames = Object.keys(colors) as Array<keyof typeof colors>;
 
     colorNames.forEach((name: keyof typeof colors) => {
       if (typeof colors[name] !== 'string') {

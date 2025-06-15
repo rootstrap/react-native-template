@@ -1,5 +1,5 @@
 export type PaginateQuery<T> = {
-  results: T[];
+  results: Array<T>;
   count: number;
   next: string | null;
   previous: string | null;
@@ -7,6 +7,6 @@ export type PaginateQuery<T> = {
 
 export type ApiResponse<T> =
   | {
-      errors: string[];
+      errors: Array<string>;
     }
   | T;
