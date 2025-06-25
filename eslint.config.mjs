@@ -31,6 +31,7 @@ export default defineConfig([
     '.vscode',
     'docs/',
     'cli/',
+    'expo-env.d.ts',
     '*.config.js',
     'lint-staged.config.js',
     'i18next-syntax-validation.js',
@@ -95,7 +96,7 @@ export default defineConfig([
 
       'import/prefer-default-export': 'off',
       'import/no-cycle': ['error', { maxDepth: '∞' }],
-      'prettier/prettier': ['error', { ignores: ['expo-env.d.ts'] }],
+      'prettier/prettier': 'error',
     },
   },
   {
