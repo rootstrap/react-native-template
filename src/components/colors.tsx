@@ -1,5 +1,5 @@
-import { Text, View } from '@/ui';
-import colors from '@/ui/colors';
+import { Text, View } from '@/components/ui';
+import colors from '@/components/ui/colors';
 
 import { Title } from './title';
 type ColorName = keyof typeof colors;
@@ -7,7 +7,7 @@ type ColorName = keyof typeof colors;
 export const Colors = () => (
   <>
     <Title text="Colors" />
-    {(Object.keys(colors) as ColorName[]).map((name) => (
+    {(Object.keys(colors) as Array<ColorName>).map((name) => (
       <Color name={name} key={name} />
     ))}
   </>

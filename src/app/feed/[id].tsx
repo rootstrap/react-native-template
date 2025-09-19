@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 
-import { FocusAwareStatusBar, View } from '@/ui';
+import { FocusAwareStatusBar, View } from '@/components/ui';
 
 export default function Post() {
   return (

@@ -2,8 +2,8 @@ import { act, renderHook } from '@testing-library/react-hooks';
 import { waitFor } from '@testing-library/react-native';
 import dayjs from 'dayjs';
 
-import { fireEvent, render, screen } from '@/core/test-utils';
-import { Text, TouchableOpacity, View } from '@/ui';
+import { Text, TouchableOpacity, View } from '@/components/ui';
+import { fireEvent, render, screen } from '@/lib/test-utils';
 
 import {
   AuthProvider,
@@ -19,7 +19,7 @@ jest.mock('react-native-mmkv', () => {
   return {
     MMKV: jest.fn().mockImplementation(() => ({
       set: (key: string, value: string) => mockStorage.set(key, value),
-      getString: (key: string) => mockStorage.get(key) || null,
+      getString: (key: string) => mockStorage.get(key) ?? null,
       delete: (key: string) => mockStorage.delete(key),
     })),
   };

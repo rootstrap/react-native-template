@@ -8,8 +8,14 @@ import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { z } from 'zod';
 
 import { useUpdatePassword } from '@/api/auth/use-update-password';
-import { translate } from '@/core';
-import { Button, ControlledInput, FocusAwareStatusBar, Text, View } from '@/ui';
+import {
+  Button,
+  ControlledInput,
+  FocusAwareStatusBar,
+  Text,
+  View,
+} from '@/components/ui';
+import { translate } from '@/lib';
 
 type FormValues = { password: string; passwordConfirmation: string };
 const MIN_CHARS = 6;

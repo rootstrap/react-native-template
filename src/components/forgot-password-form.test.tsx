@@ -1,11 +1,14 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@/core/test-utils';
+import { cleanup, fireEvent, render, screen, waitFor } from '@/lib/test-utils';
 
 import {
   ForgotPasswordForm,
   type ForgotPasswordFormProps,
 } from './forgot-password-form';
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  onSubmitMock.mockClear();
+});
 
 const onSubmitMock: jest.Mock<ForgotPasswordFormProps['onSubmit']> = jest.fn();
 

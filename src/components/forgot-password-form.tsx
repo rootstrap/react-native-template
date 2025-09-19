@@ -4,12 +4,15 @@ import { useTranslation } from 'react-i18next';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { z } from 'zod';
 
-import { translate } from '@/core';
-import { Button, ControlledInput, Text, View } from '@/ui';
+import { Button, ControlledInput, Text, View } from '@/components/ui';
+import { translate } from '@/lib';
 
 const schema = z.object({
   email: z
-    .string()
+    .string({
+      required_error: 'Required',
+    })
+    .min(1, 'Required')
     .email(translate('forgotPassword.emailInvalidFormatFormError')),
 });
 

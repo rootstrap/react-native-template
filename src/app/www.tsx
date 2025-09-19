@@ -3,8 +3,8 @@ import React, { useEffect } from 'react';
 import { View } from 'react-native';
 import { WebView } from 'react-native-webview';
 
-import { translate } from '@/core';
-import { Text } from '@/ui';
+import { Text } from '@/components/ui';
+import { translate } from '@/lib';
 
 export default function WWW() {
   const router = useRouter();

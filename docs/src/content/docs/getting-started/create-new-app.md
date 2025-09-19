@@ -17,7 +17,7 @@ First make sure you have the following tools installed on your machine:
 - [Git](https://git-scm.com/)
 - [Watchman](https://facebook.github.io/watchman/docs/install#buildinstall), required only for macOS or Linux users
 - [Pnpm](https://pnpm.io/installation)
-- [VS Code Editor](https://code.visualstudio.com/download)
+- [Cursor](https://www.cursor.com/) is recommended but you can use [VS Code Editor](https://code.visualstudio.com/download).
 
 ## Initializing a new project
 
@@ -36,7 +36,7 @@ npx create-rootstrap-rn-app@latest MyApp
 The command will create an expo app named `MyApp` and install all the dependencies added by the starter.
 
 :::note
-Because we're using the Expo custom dev client to support native dependencies with the starter. The Expo Go app is not an option to consider here; instead, you need to create the app and install it on your simulator or device to start using it.
+Because we're using the Expo custom dev client to support native dependencies with the starter, The Expo Go app is not an option to consider here. Instead, you need to create the app and install it on your simulator or device to start using it.
 :::
 
 :::note
@@ -48,17 +48,17 @@ The name must satisfy the following rules:
 - All characters must be alphanumeric or an underscore [a-zA-Z0-9_].
   :::
 
-## Open Project on VS Code
+## Open Project on Cursor or VS Code
 
-VS code is the recommended editor for this starter, The starter comes with a list of recommended extensions, settings and project snippets that we think will improve your coding experience.
+Cursor is the recommended editor for this starter, The starter comes with a list of recommended extensions, settings and project snippets that we think will improve your coding experience.
 
-Open the project on VS Code using the following command:
+Open the project on Cursor using the following command:
 
 ```bash
-code .
+cursor .
 ```
 
-When you open the project on VS Code you will see a popup asking you to install the recommended extensions, The easy way is to install all recommended extensions by clicking on `Install All` button.
+When you open the project on Cursor you will see a popup asking you to install the recommended extensions, The easy way is to install all recommended extensions by clicking on `Install All` button.
 
 To ensure that your code is properly validated and formatted, we highly recommend installing all of the recommended extensions. However, if you're hesitant to install them all, we suggest at least installing the following extensions, as they are essential to our code validation and formatting on file save:
 
@@ -80,7 +80,6 @@ Here is the complete list of recommended extensions:
 - [Cobalt 2 theme](https://marketplace.visualstudio.com/items?itemName=ahmadawais.theme-cobalt2)
 - [Turbo console log](https://marketplace.visualstudio.com/items?itemName=ChakrounAnas.turbo-console-log)
 - [i18n Ally](https://marketplace.visualstudio.com/items?itemName=lokallise.i18n-ally)
-- [Github copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot)
 - [Pretty TypeScript Errors](https://marketplace.visualstudio.com/items?itemName=yoavbls.pretty-ts-errors)
 
 ## Running the app

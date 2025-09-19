@@ -1,9 +1,9 @@
 import React, { useCallback, useMemo } from 'react';
 
-import { translate, useSelectedLanguage } from '@/core';
-import type { Language } from '@/core/i18n/resources';
-import type { OptionType } from '@/ui';
-import { Options, useModal } from '@/ui';
+import type { OptionType } from '@/components/ui';
+import { Options, useModal } from '@/components/ui';
+import { translate, useSelectedLanguage } from '@/lib';
+import type { Language } from '@/lib/i18n/resources';
 
 import { Item } from './item';
 

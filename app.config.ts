@@ -1,7 +1,23 @@
-/* eslint-disable max-lines-per-function */
 import type { ConfigContext, ExpoConfig } from '@expo/config';
+import type { AppIconBadgeConfig } from 'app-icon-badge/types';
 
 import { ClientEnv, Env } from './env';
+
+const appIconBadgeConfig: AppIconBadgeConfig = {
+  enabled: Env.APP_ENV !== 'production',
+  badges: [
+    {
+      text: Env.APP_ENV,
+      type: 'banner',
+      color: 'white',
+    },
+    {
+      text: Env.VERSION.toString(),
+      type: 'ribbon',
+      color: 'white',
+    },
+  ],
+};
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -14,11 +30,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   orientation: 'portrait',
   icon: './assets/icon.png',
   userInterfaceStyle: 'automatic',
-  splash: {
-    image: './assets/splash.png',
-    resizeMode: 'cover',
-    backgroundColor: '#2E3C4B',
-  },
+  newArchEnabled: true,
   updates: {
     fallbackToCacheTimeout: 0,
     url: `https://u.expo.dev/${Env.EAS_PROJECT_ID}`,
@@ -50,6 +62,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   plugins: [
     [
+      'expo-splash-screen',
+      {
+        backgroundColor: '#000000',
+        image: './assets/splash-icon.png',
+        imageWidth: 150,
+      },
+    ],
+    [
       'expo-font',
       {
         fonts: ['./assets/fonts/Inter.ttf'],
@@ -58,24 +78,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-dev-client',
     'expo-localization',
     'expo-router',
-    [
-      'app-icon-badge',
-      {
-        enabled: Env.APP_ENV !== 'production',
-        badges: [
-          {
-            text: Env.APP_ENV,
-            type: 'banner',
-            color: 'white',
-          },
-          {
-            text: Env.VERSION.toString(),
-            type: 'ribbon',
-            color: 'white',
-          },
-        ],
-      },
-    ],
+    ['app-icon-badge', appIconBadgeConfig],
+    ['react-native-edge-to-edge'],
   ],
   extra: {
     ...ClientEnv,

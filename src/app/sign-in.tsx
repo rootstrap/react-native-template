@@ -3,9 +3,8 @@ import React from 'react';
 import { showMessage } from 'react-native-flash-message';
 
 import { useLogin } from '@/api/auth/use-login';
-import type { LoginFormProps } from '@/components/login-form';
-import { LoginForm } from '@/components/login-form';
-import { FocusAwareStatusBar } from '@/ui';
+import { LoginForm, type LoginFormProps } from '@/components/login-form';
+import { FocusAwareStatusBar } from '@/components/ui';
 
 export default function Login() {
   const router = useRouter();

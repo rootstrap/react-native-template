@@ -67,7 +67,7 @@ jobs:
           echo "UPDATE_FROM_TEMPLATE_PAT secret not found. Please create a fine-grained Personal Access Token following the instructions in the workflow file."
           exit 1
       - name: Checkout project repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           path: project
@@ -120,7 +120,7 @@ jobs:
           sudo apt install wiggle
       - name: Checkout update release of template
         if: ${{ env.BRANCH_EXISTS == 'false' }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: ${{ env.TEMPLATE_REPOSITORY }}
           ref: ${{ env.TEMPLATE_UPDATE_VERSION }}

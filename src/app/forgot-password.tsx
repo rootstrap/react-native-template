@@ -7,7 +7,7 @@ import {
   ForgotPasswordForm,
   type FormType as ForgotPasswordFormType,
 } from '@/components/forgot-password-form';
-import { FocusAwareStatusBar } from '@/ui';
+import { FocusAwareStatusBar } from '@/components/ui';
 
 export default function ForgotPassword() {
   const { t } = useTranslation();

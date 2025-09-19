@@ -1,6 +1,7 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import { pluginLineNumbers } from '@expressive-code/plugin-line-numbers';
+import starlightLlmsTxt from 'starlight-llms-txt';
 
 const site = 'https://rootstrap.github.io';
 const base = 'react-native-template';
@@ -12,6 +13,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'Rootstrap React Native Template',
+      plugins: [starlightLlmsTxt()],
       description: `Your All-in-One Solution for Building Outstanding React Native/Expo Apps. From editor setup to store submission, we've got you covered!`,
       expressiveCode: {
         themes: ['dracula', 'solarized-light'],

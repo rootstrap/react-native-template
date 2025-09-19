@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 📦 Checkout project repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -24,7 +24,7 @@ jobs:
         uses: ./.github/actions/setup-node-pnpm-install
 
       - name: Run Tests
-        run: export NODE_OPTIONS=--experimental-vm-modules && pnpm test:ci
+        run: pnpm test:ci
 
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master

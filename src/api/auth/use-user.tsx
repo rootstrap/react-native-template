@@ -34,6 +34,6 @@ export const useUser = createQuery<User>({
   fetcher: getUser,
 });
 
-export const useDeleteUser = createMutation<{}, DeleteUserVariables>({
+export const useDeleteUser = createMutation<void, DeleteUserVariables>({
   mutationFn: deleteUser,
 });

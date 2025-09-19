@@ -77,9 +77,9 @@ client.interceptors.request.use(
 // Response interceptor to handle tokens
 client.interceptors.response.use(
   (response) => {
-    const accessToken = response.headers[HEADER_KEYS.ACCESS_TOKEN] || '';
-    const refreshToken = response.headers[HEADER_KEYS.REFRESH_TOKEN] || '';
-    const userId = response.headers[HEADER_KEYS.USER_ID] || '';
+    const accessToken = response.headers[HEADER_KEYS.ACCESS_TOKEN] ?? '';
+    const refreshToken = response.headers[HEADER_KEYS.REFRESH_TOKEN] ?? '';
+    const userId = response.headers[HEADER_KEYS.USER_ID] ?? '';
 
     const expiration = response.headers[HEADER_KEYS.EXPIRY]
       ? dayjs

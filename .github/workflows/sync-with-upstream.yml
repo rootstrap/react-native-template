@@ -60,7 +60,7 @@ jobs:
           echo "UPDATE_FROM_UPSTREAM_PAT secret not found. Please create a fine-grained Personal Access Token following the instructions in the workflow file."
           exit 1
       - name: Checkout template repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.UPDATE_FROM_UPSTREAM_PAT }}
