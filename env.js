@@ -17,6 +17,7 @@ const z = require('zod');
 
 const packageJSON = require('./package.json');
 const path = require('path');
+<<<<<<< HEAD
 
 const APP_ENV =
   /** @type {z.infer<typeof clientEnvSchema>['APP_ENV']} */
@@ -66,6 +67,11 @@ const easEnvironmentFilePath = environmentFiles[APP_ENV];
 const localEnvironmentFilePath = path.resolve(__dirname, `.env.${APP_ENV}`);
 
 const envPath = isEASBuild ? easEnvironmentFilePath : localEnvironmentFilePath;
+=======
+const APP_ENV = process.env.APP_ENV ?? 'development';
+// eslint-disable-next-line no-undef
+const envPath = path.resolve(__dirname, `.env.${APP_ENV}`);
+>>>>>>> c7bb80d
 
 require('dotenv').config({
   path: envPath,

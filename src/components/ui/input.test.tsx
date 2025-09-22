@@ -33,7 +33,7 @@ describe('Input component ', () => {
     render(<Input testID="input" placeholder="Enter your username" />);
     expect(screen.getByTestId('input')).toBeOnTheScreen();
     expect(
-      screen.getByPlaceholderText('Enter your username'),
+      screen.getByPlaceholderText('Enter your username')
     ).toBeOnTheScreen();
   });
 
@@ -48,8 +48,13 @@ describe('Input component ', () => {
     render(<Input testID="input" error="This is an error message" />);
     expect(screen.getByTestId('input')).toBeOnTheScreen();
 
+<<<<<<< HEAD
     expect(screen.getByTestId(INPUT_ERROR)).toHaveTextContent(
       'This is an error message',
+=======
+    expect(screen.getByTestId('input-error')).toHaveTextContent(
+      'This is an error message'
+>>>>>>> c7bb80d
     );
   });
   it('should render the label, error message & placeholder correctly ', () => {
@@ -59,17 +64,23 @@ describe('Input component ', () => {
         label="Username"
         placeholder="Enter your username"
         error="This is an error message"
-      />,
+      />
     );
     expect(screen.getByTestId('input')).toBeOnTheScreen();
 
     expect(screen.getByTestId('input-label')).toHaveTextContent('Username');
+<<<<<<< HEAD
     expect(screen.getByTestId(INPUT_ERROR)).toBeOnTheScreen();
     expect(screen.getByTestId(INPUT_ERROR)).toHaveTextContent(
       'This is an error message',
+=======
+    expect(screen.getByTestId('input-error')).toBeOnTheScreen();
+    expect(screen.getByTestId('input-error')).toHaveTextContent(
+      'This is an error message'
+>>>>>>> c7bb80d
     );
     expect(
-      screen.getByPlaceholderText('Enter your username'),
+      screen.getByPlaceholderText('Enter your username')
     ).toBeOnTheScreen();
   });
 
@@ -93,7 +104,7 @@ describe('Input component ', () => {
   it('should trigger onChangeText event correctly', async () => {
     const onChangeText = jest.fn();
     const { user } = setup(
-      <Input testID="input" onChangeText={onChangeText} />,
+      <Input testID="input" onChangeText={onChangeText} />
     );
 
     const input = screen.getByTestId('input');

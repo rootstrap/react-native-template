@@ -30,7 +30,13 @@ const _useAuth = create<AuthState>((set, get) => ({
       } else {
         get().signOut();
       }
+<<<<<<< HEAD
     } catch {
+=======
+    } catch (e) {
+      // only to remove eslint error, handle the error properly
+      console.error(e);
+>>>>>>> c7bb80d
       // catch error here
       // Maybe sign_out user!
     }

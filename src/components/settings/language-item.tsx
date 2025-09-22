@@ -2,7 +2,12 @@ import React, { useCallback, useMemo } from 'react';
 
 import type { OptionType } from '@/components/ui';
 import { Options, useModal } from '@/components/ui';
+<<<<<<< HEAD
 import { translate, useSelectedLanguage } from '@/lib';
+=======
+import { useSelectedLanguage } from '@/lib';
+import { translate } from '@/lib';
+>>>>>>> c7bb80d
 import type { Language } from '@/lib/i18n/resources';
 
 import { Item } from './item';

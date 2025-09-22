@@ -1,6 +1,16 @@
 import { Stack } from 'expo-router';
 
+<<<<<<< HEAD
 import { FocusAwareStatusBar, View } from '@/components/ui';
+=======
+import { usePost } from '@/api';
+import {
+  ActivityIndicator,
+  FocusAwareStatusBar,
+  Text,
+  View,
+} from '@/components/ui';
+>>>>>>> c7bb80d
 
 export default function Post() {
   return (

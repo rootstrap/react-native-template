@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { forwardRef, useImperativeHandle } from 'react';
+=======
+import React, { forwardRef, useImperativeHandle } from 'react';
+>>>>>>> c7bb80d
 import { View } from 'react-native';
 import Animated, {
   Easing,
@@ -20,15 +24,21 @@ export type ProgressBarRef = {
 export const ProgressBar = forwardRef<ProgressBarRef, Props>(
   ({ initialProgress = 0, className = '' }, ref) => {
     const progress = useSharedValue<number>(initialProgress ?? 0);
+<<<<<<< HEAD
     useImperativeHandle(
       ref,
       () => ({
+=======
+    useImperativeHandle(ref, () => {
+      return {
+>>>>>>> c7bb80d
         setProgress: (value: number) => {
           progress.value = withTiming(value, {
             duration: 250,
             easing: Easing.inOut(Easing.quad),
           });
         },
+<<<<<<< HEAD
       }),
       [progress],
     );
@@ -47,4 +57,22 @@ export const ProgressBar = forwardRef<ProgressBarRef, Props>(
       </View>
     );
   },
+=======
+      };
+    }, [progress]);
+
+    const style = useAnimatedStyle(() => {
+      return {
+        width: `${progress.value}%`,
+        backgroundColor: '#000',
+        height: 2,
+      };
+    });
+    return (
+      <View className={twMerge(` bg-[#EAEAEA]`, className)}>
+        <Animated.View style={style} />
+      </View>
+    );
+  }
+>>>>>>> c7bb80d
 );
