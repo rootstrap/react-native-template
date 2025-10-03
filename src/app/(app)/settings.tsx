@@ -18,14 +18,9 @@ import {
   Text,
   View,
 } from '@/components/ui';
-<<<<<<< HEAD
 import { Website } from '@/components/ui/icons';
 import { translate } from '@/lib';
 import { Env } from '@/lib/env';
-=======
-import { Github, Rate, Share, Support, Website } from '@/components/ui/icons';
-import { translate, useAuth } from '@/lib';
->>>>>>> c7bb80d
 
 export default function Settings() {
   const { logout } = useAuth();

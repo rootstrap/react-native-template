@@ -88,7 +88,7 @@ export const Options = forwardRef<BottomSheetModal, OptionsProps>(
           testID={testID ? `${testID}-item-${item.value}` : undefined}
         />
       ),
-      [onSelect, value, testID]
+      [onSelect, value, testID],
     );
 
     return (
@@ -109,7 +109,7 @@ export const Options = forwardRef<BottomSheetModal, OptionsProps>(
         />
       </Modal>
     );
-  }
+  },
 );
 
 const Option = memo(
@@ -120,7 +120,6 @@ const Option = memo(
   }: PressableProps & {
     selected?: boolean;
     label: string;
-<<<<<<< HEAD
   }) => (
     <Pressable
       className="flex-row items-center border-b border-neutral-300 bg-white px-3 py-2 dark:border-neutral-700 dark:bg-neutral-800"
@@ -130,19 +129,6 @@ const Option = memo(
       {selected && <Check />}
     </Pressable>
   ),
-=======
-  }) => {
-    return (
-      <Pressable
-        className="flex-row items-center border-b border-neutral-300 bg-white px-3 py-2 dark:border-neutral-700 dark:bg-neutral-800"
-        {...props}
-      >
-        <Text className="flex-1 dark:text-neutral-100 ">{label}</Text>
-        {selected && <Check />}
-      </Pressable>
-    );
-  }
->>>>>>> c7bb80d
 );
 
 export interface SelectProps {
@@ -177,7 +163,7 @@ export const Select = (props: SelectProps) => {
       onSelect?.(option.value);
       modal.dismiss();
     },
-    [modal, onSelect]
+    [modal, onSelect],
   );
 
   const styles = useMemo(
@@ -186,7 +172,7 @@ export const Select = (props: SelectProps) => {
         error: Boolean(error),
         disabled,
       }),
-    [error, disabled]
+    [error, disabled],
   );
 
   const textValue = useMemo(
@@ -194,7 +180,7 @@ export const Select = (props: SelectProps) => {
       value !== undefined
         ? (options?.filter((t) => t.value === value)?.[0]?.label ?? placeholder)
         : placeholder,
-    [value, options, placeholder]
+    [value, options, placeholder],
   );
 
   return (
@@ -240,7 +226,7 @@ export const Select = (props: SelectProps) => {
 
 // only used with react-hook-form
 export function ControlledSelect<T extends FieldValues>(
-  props: ControlledSelectProps<T>
+  props: ControlledSelectProps<T>,
 ) {
   const { name, control, rules, onSelect: onNSelect, ...selectProps } = props;
 
@@ -250,7 +236,7 @@ export function ControlledSelect<T extends FieldValues>(
       field.onChange(value);
       onNSelect?.(value);
     },
-    [field, onNSelect]
+    [field, onNSelect],
   );
   return (
     <Select

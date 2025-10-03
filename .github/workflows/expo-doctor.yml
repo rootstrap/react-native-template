@@ -44,19 +44,9 @@ jobs:
       - name: 📦 Setup Node + PNPM + install deps
         uses: ./.github/actions/setup-node-pnpm-install
 
-<<<<<<< HEAD
       - name: 🚑 Run Doctor Checks
         run: |
           chmod +x .github/scripts/expo-doctor.sh
-=======
-      - name: Run prebuild
-        run: pnpm run prebuild
-
-      - name: 🚑 Run Doctor Checks
-        run: |
-          chmod +x .github/scripts/expo-doctor.sh
-          rm -rf ios android
->>>>>>> c7bb80d
           .github/scripts/expo-doctor.sh
 
       - name: Add doctor report as comment on PR
@@ -64,8 +54,4 @@ jobs:
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           header: expo-doctor
-<<<<<<< HEAD
           path: .expo/expo-doctor.md
-=======
-          path: .expo/expo-doctor.md
->>>>>>> c7bb80d

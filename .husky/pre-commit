@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-=======
-
->>>>>>> c7bb80d
 . "$(dirname "$0")/common.sh"
 
 

@@ -78,22 +78,15 @@ export const Modal = forwardRef(
       detached = false,
       ...props
     }: ModalProps,
-    ref: ModalRef
+    ref: ModalRef,
   ) => {
-<<<<<<< HEAD
     const detachedProps = useMemo(() => getDetachedProps(detached), [detached]);
-=======
-    const detachedProps = React.useMemo(
-      () => getDetachedProps(detached),
-      [detached]
-    );
->>>>>>> c7bb80d
     const modal = useModal();
     const snapPoints = useMemo(() => _snapPoints, [_snapPoints]);
 
     useImperativeHandle(
       ref,
-      () => (modal.ref.current as BottomSheetModal) || null
+      () => (modal.ref.current as BottomSheetModal) || null,
     );
 
     const renderHandleComponent = useCallback(
@@ -103,7 +96,7 @@ export const Modal = forwardRef(
           <ModalHeader title={title} dismiss={modal.dismiss} />
         </>
       ),
-      [title, modal.dismiss]
+      [title, modal.dismiss],
     );
 
     return (
@@ -113,16 +106,12 @@ export const Modal = forwardRef(
         ref={modal.ref}
         index={0}
         snapPoints={snapPoints}
-<<<<<<< HEAD
         backdropComponent={props.backdropComponent ?? renderBackdrop}
-=======
-        backdropComponent={props.backdropComponent || renderBackdrop}
->>>>>>> c7bb80d
         enableDynamicSizing={false}
         handleComponent={renderHandleComponent}
       />
     );
-  }
+  },
 );
 
 /**
@@ -173,7 +162,6 @@ const getDetachedProps = (detached: boolean) => {
  * ModalHeader
  */
 
-<<<<<<< HEAD
 const ModalHeader = memo(({ title, dismiss }: ModalHeaderProps) => (
   <>
     {title && (
@@ -183,19 +171,6 @@ const ModalHeader = memo(({ title, dismiss }: ModalHeaderProps) => (
           <Text className="text-center text-[16px] font-bold text-[#26313D] dark:text-white">
             {title}
           </Text>
-=======
-const ModalHeader = React.memo(({ title, dismiss }: ModalHeaderProps) => {
-  return (
-    <>
-      {title && (
-        <View className="flex-row px-2 py-4">
-          <View className="size-[24px]" />
-          <View className="flex-1">
-            <Text className="text-center text-[16px] font-bold text-[#26313D] dark:text-white">
-              {title}
-            </Text>
-          </View>
->>>>>>> c7bb80d
         </View>
       </View>
     )}
@@ -203,7 +178,6 @@ const ModalHeader = React.memo(({ title, dismiss }: ModalHeaderProps) => {
   </>
 ));
 
-<<<<<<< HEAD
 const CloseButton = ({ close }: { close: () => void }) => (
   <Pressable
     onPress={close}
@@ -219,17 +193,6 @@ const CloseButton = ({ close }: { close: () => void }) => (
       height={24}
       fill="none"
       viewBox="0 0 24 24"
-=======
-const CloseButton = ({ close }: { close: () => void }) => {
-  return (
-    <Pressable
-      onPress={close}
-      className="absolute right-3 top-3 size-[24px] items-center justify-center "
-      hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
-      accessibilityLabel="close modal"
-      accessibilityRole="button"
-      accessibilityHint="closes the modal"
->>>>>>> c7bb80d
     >
       <Path d="M18.707 6.707a1 1 0 0 0-1.414-1.414L12 10.586 6.707 5.293a1 1 0 0 0-1.414 1.414L10.586 12l-5.293 5.293a1 1 0 1 0 1.414 1.414L12 13.414l5.293 5.293a1 1 0 0 0 1.414-1.414L13.414 12l5.293-5.293Z" />
     </Svg>

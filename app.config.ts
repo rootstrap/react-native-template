@@ -42,13 +42,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     supportsTablet: true,
     bundleIdentifier: Env.BUNDLE_ID,
-<<<<<<< HEAD
     config: {
       usesNonExemptEncryption: false,
-=======
-    infoPlist: {
-      ITSAppUsesNonExemptEncryption: false,
->>>>>>> c7bb80d
     },
   },
   experiments: {
@@ -69,11 +64,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     [
       'expo-splash-screen',
       {
-<<<<<<< HEAD
         backgroundColor: '#000000',
-=======
-        backgroundColor: '#2E3C4B',
->>>>>>> c7bb80d
         image: './assets/splash-icon.png',
         imageWidth: 150,
       },

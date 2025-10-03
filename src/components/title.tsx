@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-=======
-import * as React from 'react';
-
->>>>>>> c7bb80d
 import { Text, View } from '@/components/ui';
 
 type Props = {

@@ -1,21 +1,14 @@
 import { Link, Redirect, SplashScreen, Tabs } from 'expo-router';
 import { useCallback, useEffect } from 'react';
 
-<<<<<<< HEAD
 import { useAuth } from '@/components/providers/auth';
-=======
->>>>>>> c7bb80d
 import { Pressable, Text } from '@/components/ui';
 import {
   Feed as FeedIcon,
   Settings as SettingsIcon,
   Style as StyleIcon,
 } from '@/components/ui/icons';
-<<<<<<< HEAD
 import { useIsFirstTime } from '@/lib';
-=======
-import { useAuth, useIsFirstTime } from '@/lib';
->>>>>>> c7bb80d
 
 export default function TabLayout() {
   const { isAuthenticated, ready } = useAuth();

@@ -6,10 +6,7 @@ import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { object, string, type z } from 'zod';
 
 import { Button, ControlledInput, Text, View } from '@/components/ui';
-<<<<<<< HEAD
 import { translate } from '@/lib';
-=======
->>>>>>> c7bb80d
 
 const MIN_CHARS = 6;
 const schema = object({
@@ -41,7 +38,6 @@ export const LoginForm = ({
       behavior="padding"
       keyboardVerticalOffset={10}
     >
-<<<<<<< HEAD
       <View className="flex-1 justify-center gap-8 p-4">
         <Text testID="form-title" className="text-center text-2xl">
           {translate('auth.signIn.title')}
@@ -63,22 +59,6 @@ export const LoginForm = ({
             placeholder="***"
             secureTextEntry={true}
           />
-=======
-      <View className="flex-1 justify-center p-4">
-        <View className="items-center justify-center">
-          <Text
-            testID="form-title"
-            className="pb-6 text-center text-4xl font-bold"
-          >
-            Sign In
-          </Text>
-
-          <Text className="mb-6 max-w-xs text-center text-gray-500">
-            Welcome! 👋 This is a demo login screen! Feel free to use any email
-            and password to sign in and try it out.
-          </Text>
-        </View>
->>>>>>> c7bb80d
 
           <Button
             testID="login-button"

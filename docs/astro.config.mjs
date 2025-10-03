@@ -8,18 +8,11 @@ const base = 'react-native-template';
 
 // https://astro.build/config
 export default defineConfig({
-<<<<<<< HEAD
   site,
   base,
   integrations: [
     starlight({
       title: 'Rootstrap React Native Template',
-=======
-  site: 'https://starter.obytes.com/',
-  integrations: [
-    starlight({
-      title: 'Obytes Starter | React Native Template',
->>>>>>> c7bb80d
       plugins: [starlightLlmsTxt()],
       description: `Your All-in-One Solution for Building Outstanding React Native/Expo Apps. From editor setup to store submission, we've got you covered!`,
       expressiveCode: {

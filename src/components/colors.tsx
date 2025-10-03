@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-=======
-import React from 'react';
-
->>>>>>> c7bb80d
 import { Text, View } from '@/components/ui';
 import colors from '@/components/ui/colors';
 

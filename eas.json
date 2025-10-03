@@ -1,11 +1,7 @@
 {
   "cli": {
-<<<<<<< HEAD
     "version": ">= 3.8.1",
     "appVersionSource": "remote"
-=======
-    "version": ">= 3.8.1"
->>>>>>> c7bb80d
   },
   "build": {
     "production": {
@@ -23,22 +19,14 @@
       "env": {
         "EXPO_NO_DOTENV": "1",
         "APP_ENV": "production",
-<<<<<<< HEAD
         "FLIPPER_DISABLE": "1",
         "EAS_NO_DOCTOR": "1"
-=======
-        "FLIPPER_DISABLE": "1"
->>>>>>> c7bb80d
       }
     },
     "staging": {
       "autoIncrement": true,
       "channel": "staging",
-<<<<<<< HEAD
       "distribution": "store",
-=======
-      "distribution": "internal",
->>>>>>> c7bb80d
       "pnpm": "9.12.3",
       "ios": {
         "image": "latest"
@@ -50,7 +38,6 @@
       "env": {
         "APP_ENV": "staging",
         "EXPO_NO_DOTENV": "1",
-<<<<<<< HEAD
         "FLIPPER_DISABLE": "1",
         "EAS_NO_DOCTOR": "1"
       }
@@ -72,19 +59,12 @@
         "EXPO_NO_DOTENV": "1",
         "FLIPPER_DISABLE": "1",
         "EAS_NO_DOCTOR": "1"
-=======
-        "FLIPPER_DISABLE": "1"
->>>>>>> c7bb80d
       }
     },
     "development": {
       "autoIncrement": true,
       "developmentClient": true,
-<<<<<<< HEAD
       "distribution": "store",
-=======
-      "distribution": "internal",
->>>>>>> c7bb80d
       "pnpm": "9.12.3",
       "ios": {
         "image": "latest"
@@ -95,29 +75,10 @@
       },
       "env": {
         "APP_ENV": "development",
-<<<<<<< HEAD
         "EXPO_NO_DOTENV": "1",
         "EAS_NO_DOCTOR": "1"
       },
       "channel": "development"
-=======
-        "EXPO_NO_DOTENV": "1"
-      }
-    },
-    "simulator": {
-      "pnpm": "9.12.3",
-      "ios": {
-        "simulator": true,
-        "image": "latest"
-      },
-      "android": {
-        "image": "latest"
-      },
-      "env": {
-        "APP_ENV": "development",
-        "EXPO_NO_DOTENV": "1"
-      }
->>>>>>> c7bb80d
     }
   },
   "submit": {

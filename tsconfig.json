@@ -4,17 +4,8 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
-<<<<<<< HEAD
-      "@/*": [
-        "./src/*"
-      ],
-      "@env": [
-        "./src/lib/env.js"
-      ]
-=======
       "@/*": ["./src/*"],
       "@env": ["./src/lib/env.js"]
->>>>>>> c7bb80d
     },
     "esModuleInterop": true,
     "checkJs": true
@@ -36,8 +27,4 @@
     "expo-env.d.ts",
     "nativewind-env.d.ts"
   ]
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> c7bb80d
