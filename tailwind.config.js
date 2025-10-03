@@ -1,4 +1,5 @@
 const colors = require('./src/components/ui/colors');
+const fontFamily = require('./src/components/ui/font-family');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -8,9 +9,7 @@ module.exports = {
   darkMode: 'class',
   theme: {
     extend: {
-      fontFamily: {
-        inter: ['Inter'],
-      },
+      fontFamily,
       colors,
     },
   },
