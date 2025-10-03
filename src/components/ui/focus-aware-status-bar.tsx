@@ -9,9 +9,13 @@ export const FocusAwareStatusBar = ({ hidden = false }: Props) => {
   const isFocused = useIsFocused();
   const { colorScheme } = useColorScheme();
 
+<<<<<<< HEAD
   if (Platform.OS === 'web') {
     return null;
   }
+=======
+  if (Platform.OS === 'web') return null;
+>>>>>>> c7bb80d
 
   return isFocused ? (
     <SystemBars
