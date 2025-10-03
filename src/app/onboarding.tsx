@@ -8,7 +8,10 @@ import {
   Text,
   View,
 } from '@/components/ui';
+<<<<<<< HEAD
 import { translate } from '@/lib';
+=======
+>>>>>>> c7bb80d
 import { useIsFirstTime } from '@/lib/hooks';
 export default function Onboarding() {
   const [, setIsFirstTime] = useIsFirstTime();

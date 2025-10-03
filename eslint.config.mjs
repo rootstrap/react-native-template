@@ -4,11 +4,17 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig, globalIgnores } from 'eslint/config';
 import expoConfig from 'eslint-config-expo/flat.js';
 import i18nJsonPlugin from 'eslint-plugin-i18n-json';
+<<<<<<< HEAD
 import pluginJest from 'eslint-plugin-jest';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import reactCompiler from 'eslint-plugin-react-compiler';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import sonarjs from 'eslint-plugin-sonarjs';
+=======
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import reactCompiler from 'eslint-plugin-react-compiler';
+import simpleImportSort from 'eslint-plugin-simple-import-sort';
+>>>>>>> c7bb80d
 import tailwind from 'eslint-plugin-tailwindcss';
 import testingLibrary from 'eslint-plugin-testing-library';
 // eslint-disable-next-line import/no-named-as-default, import/no-named-as-default-member, import/namespace
@@ -32,10 +38,13 @@ export default defineConfig([
     'docs/',
     'cli/',
     'expo-env.d.ts',
+<<<<<<< HEAD
     '*.config.js',
     'lint-staged.config.js',
     'i18next-syntax-validation.js',
     'env.js',
+=======
+>>>>>>> c7bb80d
   ]),
   expoConfig,
   eslintPluginPrettierRecommended,
@@ -46,11 +55,16 @@ export default defineConfig([
       'simple-import-sort': simpleImportSort,
       unicorn: eslintPluginUnicorn,
       'unused-imports': unusedImports,
+<<<<<<< HEAD
       sonarjs,
       jest: pluginJest,
     },
     rules: {
       'import/no-duplicates': 'error',
+=======
+    },
+    rules: {
+>>>>>>> c7bb80d
       'max-params': ['error', 3],
       'max-lines-per-function': ['error', 70],
       'tailwindcss/classnames-order': [
@@ -64,12 +78,15 @@ export default defineConfig([
       'react/no-inline-styles': 'off',
       'react/destructuring-assignment': 'off',
       'react/require-default-props': 'off',
+<<<<<<< HEAD
       'react/jsx-fragments': ['error', 'syntax'],
       'react/jsx-no-useless-fragment': 'error',
       'react/no-children-prop': ['error', { allowFunctions: true }],
       'no-nested-ternary': 'error',
       'no-unneeded-ternary': 'error',
       'prefer-template': 'error',
+=======
+>>>>>>> c7bb80d
       'unicorn/filename-case': [
         'error',
         {
@@ -88,6 +105,7 @@ export default defineConfig([
           caughtErrorsIgnorePattern: '^_',
         },
       ],
+<<<<<<< HEAD
       curly: [2, 'all'],
       'object-shorthand': 'error',
       'arrow-body-style': ['error', 'as-needed'],
@@ -103,16 +121,26 @@ export default defineConfig([
     files: ['**/__mocks__/**'],
     rules: {
       '@typescript-eslint/no-require-imports': 'off',
+=======
+      'import/prefer-default-export': 'off',
+      'import/no-cycle': ['error', { maxDepth: '∞' }],
+      'prettier/prettier': ['error', { ignores: ['expo-env.d.ts'] }],
+>>>>>>> c7bb80d
     },
   },
   {
     files: ['**/*.ts', '**/*.tsx'],
     languageOptions: {
+<<<<<<< HEAD
       parser,
+=======
+      parser: parser,
+>>>>>>> c7bb80d
       parserOptions: {
         project: './tsconfig.json',
         sourceType: 'module',
       },
+<<<<<<< HEAD
       globals: pluginJest.environments.globals.globals,
     },
     rules: {
@@ -132,6 +160,14 @@ export default defineConfig([
       ],
       '@typescript-eslint/consistent-type-imports': [
         'error',
+=======
+    },
+    rules: {
+      ...configs.recommended.rules,
+      '@typescript-eslint/comma-dangle': 'off',
+      '@typescript-eslint/consistent-type-imports': [
+        'warn',
+>>>>>>> c7bb80d
         {
           prefer: 'type-imports',
           fixStyle: 'inline-type-imports',
@@ -149,13 +185,20 @@ export default defineConfig([
     },
     rules: {
       ...i18nJsonPlugin.configs.recommended.rules,
+<<<<<<< HEAD
       '@typescript-eslint/ban-types': 'off',
+=======
+>>>>>>> c7bb80d
       'i18n-json/valid-message-syntax': [
         2,
         {
           syntax: path.resolve(
             __dirname,
+<<<<<<< HEAD
             './scripts/i18next-syntax-validation.js',
+=======
+            './scripts/i18next-syntax-validation.js'
+>>>>>>> c7bb80d
           ),
         },
       ],
