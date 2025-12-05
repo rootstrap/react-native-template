@@ -8,8 +8,7 @@
       "@env": ["./src/lib/env.js"]
     },
     "esModuleInterop": true,
-    "checkJs": true,
-    "skipLibCheck": true
+    "checkJs": true
   },
   "exclude": [
     "node_modules",
