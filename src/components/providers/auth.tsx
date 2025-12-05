@@ -7,7 +7,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { MMKV } from 'react-native-mmkv';
+import { createMMKV } from 'react-native-mmkv';
 
 import { client } from '@/api';
 
@@ -15,7 +15,7 @@ const unauthorizedHttpStatusCode = 401;
 
 const storageKey = 'auth-storage';
 
-export const authStorage = new MMKV({
+export const authStorage = createMMKV({
   id: storageKey,
 });
 
@@ -47,10 +47,7 @@ export const getTokenDetails = () => ({
 });
 
 export const clearTokens = () => {
-  authStorage.delete(HEADER_KEYS.ACCESS_TOKEN);
-  authStorage.delete(HEADER_KEYS.REFRESH_TOKEN);
-  authStorage.delete(HEADER_KEYS.USER_ID);
-  authStorage.delete(HEADER_KEYS.EXPIRY);
+  authStorage.clearAll();
 };
 
 // Request interceptor to add Authorization header
