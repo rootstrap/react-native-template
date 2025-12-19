@@ -1,6 +1,6 @@
 import { cleanup, fireEvent, render, screen } from '@/lib/test-utils';
 
-import { LoginForm } from './login-form';
+import { LoginForm } from '../../src/components/login-form';
 
 afterEach(cleanup);
 

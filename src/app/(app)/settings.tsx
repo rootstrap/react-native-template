@@ -65,7 +65,7 @@ export default function Settings() {
               <Item text="settings.account.password" />
             </Link>
           </ItemsContainer>
-          <ItemsContainer title="settings.generale">
+          <ItemsContainer title="settings.general">
             <LanguageItem />
             <ThemeItem />
           </ItemsContainer>

@@ -3,7 +3,7 @@ import 'react-native';
 
 import { cleanup, fireEvent, render, screen } from '@/lib/test-utils';
 
-import { Checkbox, Radio, Switch } from './checkbox';
+import { Checkbox, Radio, Switch } from '../../../src/components/ui/checkbox';
 
 afterEach(cleanup);
 

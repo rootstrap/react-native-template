@@ -3,7 +3,7 @@ import { AxiosError, AxiosHeaders } from 'axios';
 
 import interceptors from '@/api/common/interceptors';
 
-import { client } from './client';
+import { client } from '../../../src/api/common/client';
 
 const testRequestInterceptors = () => {
   describe('request interceptors', () => {

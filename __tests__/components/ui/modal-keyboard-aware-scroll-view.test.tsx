@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react-native';
 import { View } from 'react-native';
 
-import BottomSheetKeyboardAwareScrollView from './modal-keyboard-aware-scroll-view';
+import BottomSheetKeyboardAwareScrollView from '../../../src/components/ui/modal-keyboard-aware-scroll-view';
 
 describe('BottomSheetKeyboardAwareScrollView component', () => {
   it('renders correctly', () => {
