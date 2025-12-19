@@ -12,6 +12,24 @@
 
 This repository is a fork of [Obytes Starter](https://github.com/obytes/react-native-template-obytes), which provides a solid foundation. We periodically sync with the original repo to stay up-to-date with their improvements, while making our own adjustments and optimizations to streamline our setup process.
 
+## 📋 Node.js Version Management
+
+This template specifies a recommended Node.js version in the `.nvmrc` file. We recommend using a Node.js version manager such as [fnm](https://github.com/Schniz/fnm) or [nvm](https://github.com/nvm-sh/nvm) to ensure you're using the correct version.
+
+**With fnm:**
+```sh
+fnm install
+fnm use
+```
+
+**With nvm:**
+```sh
+nvm install
+nvm use
+```
+
+The version manager will automatically read the `.nvmrc` file and switch to the correct Node.js version for this project.
+
 # Overview
 
 As a team of experienced developers at Rootstrap, we have spent years building high-quality React Native applications. Our initial starter kit was designed for React Native CLI apps. However, with the strong recommendation to work with Expo since React Native 0.75, we recognized the need to adapt quickly and leverage the best tools available.
