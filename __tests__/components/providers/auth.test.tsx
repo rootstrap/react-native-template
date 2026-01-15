@@ -11,7 +11,7 @@ import {
   getTokenDetails,
   storeTokens,
   useAuth,
-} from './auth';
+} from '../../../src/components/providers/auth';
 
 // Mock MMKV Storage
 jest.mock('react-native-mmkv', () => {

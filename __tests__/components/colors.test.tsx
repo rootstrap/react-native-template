@@ -2,7 +2,7 @@ import { render, screen, within } from '@testing-library/react-native';
 
 import { colors } from '@/components/ui';
 
-import { Colors } from './colors';
+import { Colors } from '../../src/components/colors';
 
 describe('Colors component', () => {
   it('should render the Title component', () => {
