@@ -5,3 +5,5 @@ import '@testing-library/react-native/extend-expect';
 global.window = {};
 // @ts-ignore
 global.window = global;
+
+jest.mock('react-native-mmkv');

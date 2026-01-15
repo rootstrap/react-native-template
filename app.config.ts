@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function */
 import type { ConfigContext, ExpoConfig } from '@expo/config';
 import type { AppIconBadgeConfig } from 'app-icon-badge/types';
 
@@ -61,6 +62,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     bundler: 'metro',
   },
   plugins: [
+    [
+      'expo-build-properties',
+      {
+        ios: {
+          deploymentTarget: '16.0',
+        },
+      },
+    ],
     [
       'expo-splash-screen',
       {
