@@ -25,6 +25,7 @@
 #                                   - Value: The Personal Access Token you created
 
 name: 'Build & Deploy'
+run-name: Build & Deploy - ${{inputs.platform}}
 
 on:
   workflow_dispatch:
