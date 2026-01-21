@@ -32,16 +32,8 @@ import type {
   BottomSheetBackdropProps,
   BottomSheetModalProps,
 } from '@gorhom/bottom-sheet';
-import type { ForwardedRef } from 'react';
 import { BottomSheetModal, useBottomSheet } from '@gorhom/bottom-sheet';
-import {
-  forwardRef,
-  memo,
-  useCallback,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-} from 'react';
+import * as React from 'react';
 import { Pressable, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { Path, Svg } from 'react-native-svg';
@@ -52,7 +44,7 @@ type ModalProps = BottomSheetModalProps & {
   title?: string;
 };
 
-type ModalRef = ForwardedRef<BottomSheetModal>;
+type ModalRef = React.ForwardedRef<BottomSheetModal>;
 
 type ModalHeaderProps = {
   title?: string;
@@ -60,59 +52,52 @@ type ModalHeaderProps = {
 };
 
 export function useModal() {
-  const ref = useRef<BottomSheetModal>(null);
-  const present = useCallback((data?: never) => {
+  const ref = React.useRef<BottomSheetModal>(null);
+  const present = React.useCallback((data?: any) => {
     ref.current?.present(data);
   }, []);
-  const dismiss = useCallback(() => {
+  const dismiss = React.useCallback(() => {
     ref.current?.dismiss();
   }, []);
   return { ref, present, dismiss };
 }
 
-export const Modal = forwardRef(
-  (
-    {
-      snapPoints: _snapPoints = ['60%'],
-      title,
-      detached = false,
-      ...props
-    }: ModalProps,
-    ref: ModalRef,
-  ) => {
-    const detachedProps = useMemo(() => getDetachedProps(detached), [detached]);
-    const modal = useModal();
-    const snapPoints = useMemo(() => _snapPoints, [_snapPoints]);
+export function Modal({ ref, snapPoints: _snapPoints = ['60%'] as (string | number)[], title, detached = false, ...props }: ModalProps & { ref?: ModalRef }) {
+  const detachedProps = React.useMemo(
+    () => getDetachedProps(detached),
+    [detached],
+  );
+  const modal = useModal();
+  const snapPoints = React.useMemo(() => _snapPoints, [_snapPoints]);
 
-    useImperativeHandle(
-      ref,
-      () => modal.ref.current as BottomSheetModal,
-    );
+  React.useImperativeHandle(
+    ref,
+    () => (modal.ref.current as BottomSheetModal) || null,
+  );
 
-    const renderHandleComponent = useCallback(
-      () => (
-        <>
-          <View className="mb-8 mt-2 h-1 w-12 self-center rounded-lg bg-gray-400 dark:bg-gray-700" />
-          <ModalHeader title={title} dismiss={modal.dismiss} />
-        </>
-      ),
-      [title, modal.dismiss],
-    );
+  const renderHandleComponent = React.useCallback(
+    () => (
+      <>
+        <View className="mb-8 mt-2 h-1 w-12 self-center rounded-lg bg-gray-400 dark:bg-gray-700" />
+        <ModalHeader title={title} dismiss={modal.dismiss} />
+      </>
+    ),
+    [title, modal.dismiss],
+  );
 
-    return (
-      <BottomSheetModal
-        {...props}
-        {...detachedProps}
-        ref={modal.ref}
-        index={0}
-        snapPoints={snapPoints}
-        backdropComponent={props.backdropComponent ?? renderBackdrop}
-        enableDynamicSizing={false}
-        handleComponent={renderHandleComponent}
-      />
-    );
-  },
-);
+  return (
+    <BottomSheetModal
+      {...props}
+      {...detachedProps}
+      ref={modal.ref}
+      index={0}
+      snapPoints={snapPoints}
+      backdropComponent={props.backdropComponent || renderBackdrop}
+      enableDynamicSizing={false}
+      handleComponent={renderHandleComponent}
+    />
+  );
+}
 
 /**
  * Custom Backdrop
@@ -120,15 +105,13 @@ export const Modal = forwardRef(
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-function CustomBackdrop({ style }: Readonly<BottomSheetBackdropProps>) {
+function CustomBackdrop({ style }: BottomSheetBackdropProps) {
   const { close } = useBottomSheet();
-  const FADE_IN_DURATION = 50;
-  const FADE_OUT_DURATION = 20;
   return (
     <AnimatedPressable
       onPress={() => close()}
-      entering={FadeIn.duration(FADE_IN_DURATION)}
-      exiting={FadeOut.duration(FADE_OUT_DURATION)}
+      entering={FadeIn.duration(50)}
+      exiting={FadeOut.duration(20)}
       style={[style, { backgroundColor: 'rgba(0, 0, 0, 0.4)' }]}
     />
   );
@@ -162,23 +145,25 @@ function getDetachedProps(detached: boolean) {
  * ModalHeader
  */
 
-const ModalHeader = memo(({ title, dismiss }: ModalHeaderProps) => (
-  <>
-    {title !== undefined && (
-      <View className="flex-row px-2 py-4">
-        <View className="size-[24px]" />
-        <View className="flex-1">
-          <Text className="text-center text-[16px] font-bold text-[#26313D] dark:text-white">
-            {title}
-          </Text>
+const ModalHeader = React.memo(({ title, dismiss }: ModalHeaderProps) => {
+  return (
+    <>
+      {title && (
+        <View className="flex-row px-2 py-4">
+          <View className="size-[24px]" />
+          <View className="flex-1">
+            <Text className="text-center text-[16px] font-bold text-[#26313D] dark:text-white">
+              {title}
+            </Text>
+          </View>
         </View>
-      </View>
-    )}
-    <CloseButton close={dismiss} />
-  </>
-));
+      )}
+      <CloseButton close={dismiss} />
+    </>
+  );
+});
 
-function CloseButton({ close }: Readonly<{ close: () => void }>) {
+function CloseButton({ close }: { close: () => void }) {
   return (
     <Pressable
       onPress={close}

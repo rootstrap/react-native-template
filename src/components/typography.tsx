@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 import { Text, View } from '@/components/ui';
 
 import { Title } from './title';
@@ -15,8 +17,9 @@ export function Typography() {
         <Text className="text-lg ">H4: Lorem ipsum dolor sit</Text>
         <Text className="text-base">
           Lorem ipsum dolor sit amet consectetur, adipisicing elit. Cumque quasi
-          aut, expedita tempore ratione quidem in, corporis quia minus et dolorem
-          sunt temporibus iusto consequatur culpa. Omnis sequi debitis recusandae?
+          aut, expedita tempore ratione quidem in, corporis quia minus et
+          dolorem sunt temporibus iusto consequatur culpa. Omnis sequi debitis
+          recusandae?
         </Text>
       </View>
     </>

@@ -7,10 +7,6 @@ import { render, userEvent } from '@testing-library/react-native';
 import * as React from 'react';
 import '@shopify/flash-list/jestSetup';
 
-jest.mock('@dev-plugins/react-query', () => ({
-  useReactQueryDevTools: jest.fn(),
-}));
-
 function createAppWrapper() {
   return ({ children }: { children: React.ReactNode }) => (
     <BottomSheetModalProvider>

@@ -6,7 +6,7 @@ import type {
 import type { PaginateQuery } from '../types';
 
 type KeyParams = {
-  [key: string]: unknown;
+  [key: string]: any;
 };
 export const DEFAULT_LIMIT = 10;
 
@@ -15,12 +15,9 @@ export function getQueryKey<T extends KeyParams>(key: string, params?: T) {
 }
 
 // for infinite query pages  to flatList data
-export function normalizePages<T>(pages?: Array<PaginateQuery<T>>): Array<T> {
+export function normalizePages<T>(pages?: PaginateQuery<T>[]): T[] {
   return pages
-    ? pages.reduce(
-        (prev: Array<T>, current) => [...prev, ...current.results],
-        [],
-      )
+    ? pages.reduce((prev: T[], current) => [...prev, ...current.results], [])
     : [];
 }
 
@@ -31,11 +28,15 @@ export function getUrlParameters(
   if (url === null) {
     return null;
   }
-  const urlObj = new URL(url);
-  const params: { [key: string]: string } = {};
-  urlObj.searchParams.forEach((value, key) => {
-    params[key] = value;
-  });
+  const regex = /[?&]([^=#]+)=([^&#]*)/g;
+  const params = {};
+  let match;
+  while ((match = regex.exec(url))) {
+    if (match[1] !== null) {
+      // @ts-expect-error - Dynamic key assignment
+      params[match[1]] = match[2];
+    }
+  }
   return params;
 }
 
@@ -48,41 +49,3 @@ export const getNextPageParam: GetPreviousPageParamFunction<
   unknown,
   PaginateQuery<unknown>
 > = page => getUrlParameters(page.next)?.offset ?? null;
-
-type GenericObject = { [key: string]: unknown };
-
-function isGenericObject(value: unknown): value is GenericObject {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-export function toCamelCase(obj: GenericObject): GenericObject {
-  const newObj: GenericObject = {};
-  for (const key in obj) {
-    if (Object.hasOwn(obj, key)) {
-      const newKey = key.replaceAll(/_([a-z])/g, g => g[1].toUpperCase());
-      const value = obj[key];
-      if (isGenericObject(value)) {
-        newObj[newKey] = toCamelCase(value);
-      }
-      else {
-        newObj[newKey] = value;
-      }
-    }
-  }
-  return newObj;
-}
-
-function camelToSnake(key: string): string {
-  return key.replaceAll(/([a-z])([A-Z])/g, '$1_$2').toLowerCase();
-}
-
-export function toSnakeCase(obj: GenericObject): GenericObject {
-  const newObj: GenericObject = {};
-
-  for (const [key, value] of Object.entries(obj)) {
-    const newKey = camelToSnake(key);
-    newObj[newKey]
-      = isGenericObject(value) && value !== null ? toSnakeCase(value) : value;
-  }
-  return newObj;
-}

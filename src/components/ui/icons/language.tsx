@@ -1,7 +1,8 @@
 import type { SvgProps } from 'react-native-svg';
+import * as React from 'react';
 import Svg, { G, Path, Text, TSpan } from 'react-native-svg';
 
-export function Language({ ...props }: Readonly<SvgProps>) {
+export function Language({ ...props }: SvgProps) {
   return (
     <Svg width={100} height={71} {...props}>
       <G fill="none" fillRule="evenodd">

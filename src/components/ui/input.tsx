@@ -6,14 +6,8 @@ import type {
 } from 'react-hook-form';
 import type { TextInputProps } from 'react-native';
 import * as React from 'react';
-import { forwardRef, useCallback, useMemo, useState } from 'react';
 import { useController } from 'react-hook-form';
-import {
-  I18nManager,
-  TextInput as NTextInput,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { I18nManager, TextInput as NTextInput, StyleSheet, View } from 'react-native';
 import { tv } from 'tailwind-variants';
 
 import colors from './colors';
@@ -72,15 +66,15 @@ export type InputControllerType<T extends FieldValues> = {
   rules?: RuleType<T>;
 };
 
-type ControlledInputProps<T extends FieldValues> = NInputProps & InputControllerType<T>;
+type ControlledInputProps<T extends FieldValues> = {} & NInputProps & InputControllerType<T>;
 
-export const Input = forwardRef<NTextInput, NInputProps>((props, ref) => {
+export function Input({ ref, ...props }: NInputProps & { ref?: React.Ref<NTextInput | null> }) {
   const { label, error, testID, ...inputProps } = props;
-  const [isFocussed, setIsFocussed] = useState(false);
-  const onBlur = useCallback(() => setIsFocussed(false), []);
-  const onFocus = useCallback(() => setIsFocussed(true), []);
+  const [isFocussed, setIsFocussed] = React.useState(false);
+  const onBlur = React.useCallback(() => setIsFocussed(false), []);
+  const onFocus = React.useCallback(() => setIsFocussed(true), []);
 
-  const styles = useMemo(
+  const styles = React.useMemo(
     () =>
       inputTv({
         error: Boolean(error),
@@ -92,9 +86,9 @@ export const Input = forwardRef<NTextInput, NInputProps>((props, ref) => {
 
   return (
     <View className={styles.container()}>
-      {label !== undefined && (
+      {label && (
         <Text
-          testID={testID === undefined ? undefined : `${testID}-label`}
+          testID={testID ? `${testID}-label` : undefined}
           className={styles.label()}
         >
           {label}
@@ -114,9 +108,9 @@ export const Input = forwardRef<NTextInput, NInputProps>((props, ref) => {
           inputProps.style,
         ])}
       />
-      {error !== undefined && (
+      {error && (
         <Text
-          testID={testID === undefined ? undefined : `${testID}-error`}
+          testID={testID ? `${testID}-error` : undefined}
           className="text-sm text-danger-400 dark:text-danger-600"
         >
           {error}
@@ -124,11 +118,11 @@ export const Input = forwardRef<NTextInput, NInputProps>((props, ref) => {
       )}
     </View>
   );
-});
+}
 
 // only used with react-hook-form
 export function ControlledInput<T extends FieldValues>(
-  props: Readonly<ControlledInputProps<T>>,
+  props: ControlledInputProps<T>,
 ) {
   const { name, control, rules, ...inputProps } = props;
 
@@ -138,7 +132,7 @@ export function ControlledInput<T extends FieldValues>(
       ref={field.ref}
       autoCapitalize="none"
       onChangeText={field.onChange}
-      value={field.value ?? ''}
+      value={(field.value as string) || ''}
       {...inputProps}
       error={fieldState.error?.message}
     />

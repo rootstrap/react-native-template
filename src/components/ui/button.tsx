@@ -1,10 +1,9 @@
 import type { PressableProps, View } from 'react-native';
 import type { VariantProps } from 'tailwind-variants';
-import { forwardRef, useMemo } from 'react';
+import * as React from 'react';
 import { ActivityIndicator, Pressable, Text } from 'react-native';
 import { tv } from 'tailwind-variants';
 
-const TEXT_WHITE = 'text-white';
 const button = tv({
   slots: {
     container: 'my-2 flex flex-row items-center justify-center rounded-md px-4',
@@ -22,7 +21,7 @@ const button = tv({
       secondary: {
         container: 'bg-primary-600',
         label: 'text-secondary-600',
-        indicator: TEXT_WHITE,
+        indicator: 'text-white',
       },
       outline: {
         container: 'border border-neutral-400',
@@ -31,8 +30,8 @@ const button = tv({
       },
       destructive: {
         container: 'bg-red-600',
-        label: TEXT_WHITE,
-        indicator: TEXT_WHITE,
+        label: 'text-white',
+        indicator: 'text-white',
       },
       ghost: {
         container: 'bg-transparent',
@@ -93,60 +92,44 @@ type Props = {
   textClassName?: string;
 } & ButtonVariants & Omit<PressableProps, 'disabled'>;
 
-export const Button = forwardRef<View, Props>(
-  (
-    {
-      label: text,
-      loading = false,
-      variant = 'default',
-      disabled = false,
-      size = 'default',
-      className = '',
-      testID,
-      textClassName = '',
-      ...props
-    },
-    ref,
-  ) => {
-    const styles = useMemo(
-      () => button({ variant, disabled, size }),
-      [variant, disabled, size],
-    );
+export function Button({ ref, label: text, loading = false, variant = 'default', disabled = false, size = 'default', className = '', testID, textClassName = '', ...props }: Props & { ref?: React.RefObject<View | null> }) {
+  const styles = React.useMemo(
+    () => button({ variant, disabled, size }),
+    [variant, disabled, size],
+  );
 
-    const renderContent = (): PressableProps['children'] => {
-      if (props?.children != null) {
-        return props.children;
-      }
-
-      if (loading) {
-        return (
-          <ActivityIndicator
-            size="small"
-            className={styles.indicator()}
-            testID={testID === undefined ? undefined : `${testID}-activity-indicator`}
-          />
-        );
-      }
-      return (
-        <Text
-          testID={testID === undefined ? undefined : `${testID}-label`}
-          className={styles.label({ className: textClassName })}
-        >
-          {text}
-        </Text>
-      );
-    };
-
-    return (
-      <Pressable
-        disabled={disabled || loading}
-        className={styles.container({ className })}
-        {...props}
-        ref={ref}
-        testID={testID}
-      >
-        {renderContent()}
-      </Pressable>
-    );
-  },
-);
+  return (
+    <Pressable
+      disabled={disabled || loading}
+      className={styles.container({ className })}
+      {...props}
+      ref={ref}
+      testID={testID}
+    >
+      {props.children
+        ? (
+            props.children
+          )
+        : (
+            <>
+              {loading
+                ? (
+                    <ActivityIndicator
+                      size="small"
+                      className={styles.indicator()}
+                      testID={testID ? `${testID}-activity-indicator` : undefined}
+                    />
+                  )
+                : (
+                    <Text
+                      testID={testID ? `${testID}-label` : undefined}
+                      className={styles.label({ className: textClassName })}
+                    >
+                      {text}
+                    </Text>
+                  )}
+            </>
+          )}
+    </Pressable>
+  );
+}

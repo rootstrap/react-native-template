@@ -1,18 +1,18 @@
 import type { OptionType } from '@/components/ui';
 
-import { useState } from 'react';
+import * as React from 'react';
 import { Checkbox, Input, Radio, Select, Switch, View } from '@/components/ui';
 
 import { Title } from './title';
 
-const options: Array<OptionType> = [
+const options: OptionType[] = [
   { value: 'chocolate', label: 'Chocolate' },
   { value: 'strawberry', label: 'Strawberry' },
   { value: 'vanilla', label: 'Vanilla' },
 ];
 
 export function Inputs() {
-  const [value, setValue] = useState<string | number | undefined>();
+  const [value, setValue] = React.useState<string | number | undefined>();
   return (
     <>
       <Title text="Form" />
@@ -35,7 +35,7 @@ export function Inputs() {
 }
 
 function CheckboxExample() {
-  const [checked, setChecked] = useState(false);
+  const [checked, setChecked] = React.useState(false);
   return (
     <Checkbox.Root
       checked={checked}
@@ -50,7 +50,7 @@ function CheckboxExample() {
 }
 
 function RadioExample() {
-  const [selected, setSelected] = useState(false);
+  const [selected, setSelected] = React.useState(false);
   return (
     <Radio.Root
       checked={selected}
@@ -65,7 +65,7 @@ function RadioExample() {
 }
 
 function SwitchExample() {
-  const [active, setActive] = useState(false);
+  const [active, setActive] = React.useState(false);
   return (
     <Switch.Root
       checked={active}

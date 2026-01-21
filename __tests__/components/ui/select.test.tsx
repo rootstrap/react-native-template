@@ -1,17 +1,16 @@
 /* eslint-disable max-lines-per-function */
 
 import type { OptionType } from '@/components/ui';
-import { cleanup, fireEvent, render, screen, setup } from '@/lib/test-utils';
 
-import { Select } from '../../../src/components/ui/select';
+import * as React from 'react';
+import { cleanup, render, screen, setup } from '@/lib/test-utils';
+
+import { Select } from './select';
 
 afterEach(cleanup);
 
-describe('Select component ', () => {
-  const SELECT_TRIGGER = 'select-trigger';
-  const SELECT_LABEL = 'select-label';
-  const SELECT_ERROR = 'select-error';
-  const options: Array<OptionType> = [
+describe('select component ', () => {
+  const options: OptionType[] = [
     { value: 'chocolate', label: 'Chocolate' },
     { value: 'strawberry', label: 'Strawberry' },
     { value: 'vanilla', label: 'Vanilla' },
@@ -26,8 +25,8 @@ describe('Select component ', () => {
         testID="select"
       />,
     );
-    expect(screen.getByTestId(SELECT_TRIGGER)).toBeOnTheScreen();
-    expect(screen.getByTestId(SELECT_LABEL)).toBeOnTheScreen();
+    expect(screen.getByTestId('select-trigger')).toBeOnTheScreen();
+    expect(screen.getByTestId('select-label')).toBeOnTheScreen();
   });
 
   it('should render the label correctly ', () => {
@@ -40,9 +39,9 @@ describe('Select component ', () => {
         testID="select"
       />,
     );
-    expect(screen.getByTestId(SELECT_TRIGGER)).toBeOnTheScreen();
-    expect(screen.getByTestId(SELECT_LABEL)).toBeOnTheScreen();
-    expect(screen.getByTestId(SELECT_LABEL)).toHaveTextContent('Select');
+    expect(screen.getByTestId('select-trigger')).toBeOnTheScreen();
+    expect(screen.getByTestId('select-label')).toBeOnTheScreen();
+    expect(screen.getByTestId('select-label')).toHaveTextContent('Select');
   });
 
   it('should render the error correctly ', () => {
@@ -56,15 +55,15 @@ describe('Select component ', () => {
         error="Please select an option"
       />,
     );
-    expect(screen.getByTestId(SELECT_TRIGGER)).toBeOnTheScreen();
-    expect(screen.getByTestId(SELECT_ERROR)).toBeOnTheScreen();
-    expect(screen.getByTestId(SELECT_ERROR)).toHaveTextContent(
+    expect(screen.getByTestId('select-trigger')).toBeOnTheScreen();
+    expect(screen.getByTestId('select-error')).toBeOnTheScreen();
+    expect(screen.getByTestId('select-error')).toHaveTextContent(
       'Please select an option',
     );
   });
 
   it('should open options modal on press', async () => {
-    setup(
+    const { user } = setup(
       <Select
         label="Select"
         options={options}
@@ -73,8 +72,8 @@ describe('Select component ', () => {
       />,
     );
 
-    const selectTrigger = screen.getByTestId(SELECT_TRIGGER);
-    fireEvent.press(selectTrigger);
+    const selectTrigger = screen.getByTestId('select-trigger');
+    await user.press(selectTrigger);
 
     expect(screen.getByTestId('select-item-chocolate')).toBeOnTheScreen();
     expect(screen.getByTestId('select-item-strawberry')).toBeOnTheScreen();

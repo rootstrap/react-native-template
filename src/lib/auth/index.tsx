@@ -16,11 +16,11 @@ const _useAuth = create<AuthState>((set, get) => ({
   status: 'idle',
   token: null,
   signIn: (token) => {
-    void setToken(token);
+    setToken(token);
     set({ status: 'signIn', token });
   },
   signOut: () => {
-    void removeToken();
+    removeToken();
     set({ status: 'signOut', token: null });
   },
   hydrate: () => {
@@ -33,7 +33,9 @@ const _useAuth = create<AuthState>((set, get) => ({
         get().signOut();
       }
     }
-    catch {
+    catch (e) {
+      // only to remove eslint error, handle the error properly
+      console.error(e);
       // catch error here
       // Maybe sign_out user!
     }

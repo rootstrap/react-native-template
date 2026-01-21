@@ -1,14 +1,14 @@
 /* eslint-disable max-lines-per-function */
+import * as React from 'react';
 import { I18nManager } from 'react-native';
 
 import { cleanup, render, screen, setup } from '@/lib/test-utils';
 
-import { Input } from '../../../src/components/ui/input';
+import { Input } from './input';
 
 afterEach(cleanup);
 
-describe('Input component ', () => {
-  const INPUT_ERROR = 'input-error';
+describe('input component ', () => {
   it('renders correctly ', () => {
     render(<Input testID="input" />);
     expect(screen.getByTestId('input')).toBeOnTheScreen();
@@ -48,7 +48,7 @@ describe('Input component ', () => {
     render(<Input testID="input" error="This is an error message" />);
     expect(screen.getByTestId('input')).toBeOnTheScreen();
 
-    expect(screen.getByTestId(INPUT_ERROR)).toHaveTextContent(
+    expect(screen.getByTestId('input-error')).toHaveTextContent(
       'This is an error message',
     );
   });
@@ -64,8 +64,8 @@ describe('Input component ', () => {
     expect(screen.getByTestId('input')).toBeOnTheScreen();
 
     expect(screen.getByTestId('input-label')).toHaveTextContent('Username');
-    expect(screen.getByTestId(INPUT_ERROR)).toBeOnTheScreen();
-    expect(screen.getByTestId(INPUT_ERROR)).toHaveTextContent(
+    expect(screen.getByTestId('input-error')).toBeOnTheScreen();
+    expect(screen.getByTestId('input-error')).toHaveTextContent(
       'This is an error message',
     );
     expect(
@@ -98,8 +98,7 @@ describe('Input component ', () => {
 
     const input = screen.getByTestId('input');
     await user.type(input, '123456789');
-    const PRESSED_KEYS_COUNT = 9;
-    expect(onChangeText).toHaveBeenCalledTimes(PRESSED_KEYS_COUNT); // every character is a change event
+    expect(onChangeText).toHaveBeenCalledTimes(9); // every character is a change event
     expect(onChangeText).toHaveBeenCalledWith('123456789');
   });
   it('should be disabled when disabled prop is true', () => {

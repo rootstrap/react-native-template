@@ -22,10 +22,7 @@ import {
   SCROLLABLE_TYPE,
 } from '@gorhom/bottom-sheet';
 import { memo } from 'react';
-import {
-  KeyboardAwareScrollView,
-
-} from 'react-native-keyboard-controller';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import Reanimated from 'react-native-reanimated';
 
 const AnimatedScrollView
