@@ -11,7 +11,7 @@ import {
   getTokenDetails,
   storeTokens,
   useAuth,
-} from './auth';
+} from '../../../src/components/providers/auth';
 
 // Mock API client interceptors
 jest.mock('@/api', () => ({

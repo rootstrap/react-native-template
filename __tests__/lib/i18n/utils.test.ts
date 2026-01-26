@@ -1,12 +1,12 @@
 import { use } from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-import en from '../../translations/en.json';
-import { storage } from '../storage';
-import type { TxKeyPath } from './utils';
-import { getLanguage, translate } from './utils';
+import en from '../../../src/translations/en.json';
+import { storage } from '../../../src/lib/storage';
+import type { TxKeyPath } from '../../../src/lib/i18n/utils';
+import { getLanguage, translate } from '../../../src/lib/i18n/utils';
 
-jest.mock('../storage', () => ({
+jest.mock('../../../src/lib/storage', () => ({
   storage: {
     getString: jest.fn().mockReturnValue('en'),
   },

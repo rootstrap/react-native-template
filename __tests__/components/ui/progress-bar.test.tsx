@@ -2,8 +2,8 @@ import { render, screen } from '@testing-library/react-native';
 import { createRef } from 'react';
 import { getAnimatedStyle } from 'react-native-reanimated';
 
-import type { ProgressBarRef } from './progress-bar';
-import { ProgressBar } from './progress-bar';
+import type { ProgressBarRef } from '../../../src/components/ui/progress-bar';
+import { ProgressBar } from '../../../src/components/ui/progress-bar';
 
 describe('ProgressBar component', () => {
   const PROGRESS_BAR = 'progress-bar';

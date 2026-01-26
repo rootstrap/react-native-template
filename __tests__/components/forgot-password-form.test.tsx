@@ -3,7 +3,7 @@ import { cleanup, fireEvent, render, screen, waitFor } from '@/lib/test-utils';
 import {
   ForgotPasswordForm,
   type ForgotPasswordFormProps,
-} from './forgot-password-form';
+} from '../../src/components/forgot-password-form';
 
 afterEach(() => {
   cleanup();

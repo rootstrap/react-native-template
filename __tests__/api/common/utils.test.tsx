@@ -1,4 +1,4 @@
-import { getUrlParameters, toCamelCase, toSnakeCase } from './utils';
+import { getUrlParameters, toCamelCase, toSnakeCase } from '../../../src/api/common/utils';
 
 describe('utils', () => {
   describe('toCamelCase', () => {

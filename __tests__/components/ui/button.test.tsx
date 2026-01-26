@@ -3,7 +3,7 @@ import { Text } from 'react-native';
 
 import { cleanup, render, screen, setup } from '@/lib/test-utils';
 
-import { Button } from './button';
+import { Button } from '../../../src/components/ui/button';
 
 afterEach(cleanup);
 

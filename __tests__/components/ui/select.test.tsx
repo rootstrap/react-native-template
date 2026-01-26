@@ -3,7 +3,7 @@
 import type { OptionType } from '@/components/ui';
 import { cleanup, fireEvent, render, screen, setup } from '@/lib/test-utils';
 
-import { Select } from './select';
+import { Select } from '../../../src/components/ui/select';
 
 afterEach(cleanup);
 
