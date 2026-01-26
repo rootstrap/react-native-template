@@ -1,27 +1,27 @@
-import { type MMKV } from 'react-native-mmkv';
-
 import { getItem, removeItem, setItem, storage } from '@/lib/storage';
 
 const TEST_VALUE = 123;
 const TEST_NUMBER = 42;
 
 // Mock react-native-mmkv
-jest.mock('react-native-mmkv', () => ({
-  MMKV: jest.fn().mockImplementation(() => ({
-    getString: jest.fn(),
-    set: jest.fn(),
-    delete: jest.fn(),
-  })),
-}));
-
+// Note: The mock is already set up globally in jest-setup.ts
+// We just need to cast the storage to access jest mock functions
 function setupMockStorage() {
-  const mockStorage = storage as jest.Mocked<MMKV>;
+  const mockStorage = storage as unknown as {
+    getString: jest.Mock;
+    set: jest.Mock;
+    remove: jest.Mock;
+  };
   jest.clearAllMocks();
   return mockStorage;
 }
 
 describe('storage utilities', () => {
-  let mockStorage: jest.Mocked<MMKV>;
+  let mockStorage: {
+    getString: jest.Mock;
+    set: jest.Mock;
+    remove: jest.Mock;
+  };
 
   beforeEach(() => {
     mockStorage = setupMockStorage();
@@ -83,10 +83,10 @@ describe('storage utilities', () => {
   });
 
   describe('removeItem', () => {
-    it('should delete the key from storage', async () => {
+    it('should remove the key from storage', async () => {
       await removeItem('test-key');
 
-      expect(mockStorage.delete).toHaveBeenCalledWith('test-key');
+      expect(mockStorage.remove).toHaveBeenCalledWith('test-key');
     });
   });
 });

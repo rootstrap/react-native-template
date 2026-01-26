@@ -13,18 +13,6 @@ import {
   useAuth,
 } from '../../../src/components/providers/auth';
 
-// Mock MMKV Storage
-jest.mock('react-native-mmkv', () => {
-  const mockStorage = new Map();
-  return {
-    MMKV: jest.fn().mockImplementation(() => ({
-      set: (key: string, value: string) => mockStorage.set(key, value),
-      getString: (key: string) => mockStorage.get(key) ?? null,
-      delete: (key: string) => mockStorage.delete(key),
-    })),
-  };
-});
-
 // Mock API client interceptors
 jest.mock('@/api', () => ({
   client: {
