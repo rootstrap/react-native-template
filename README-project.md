@@ -7,11 +7,29 @@ Mobile App </h1>
 ## Requirements
 
 - [React Native dev environment](https://reactnative.dev/docs/environment-setup)
-- [Node.js LTS release](https://nodejs.org/en/)
+- [Node.js](https://nodejs.org/en/) (version specified in `.nvmrc`)
 - [Git](https://git-scm.com/)
 - [Watchman](https://facebook.github.io/watchman/docs/install#buildinstall), required only for macOS or Linux users
 - [Pnpm](https://pnpm.io/installation)
 - [Cursor](https://www.cursor.com/) or [VS Code Editor](https://code.visualstudio.com/download) ⚠️ Make sure to install all recommended extension from `.vscode/extensions.json`
+
+### Node.js Version Management
+
+This project uses a `.nvmrc` file to specify the recommended Node.js version. We recommend using a Node.js version manager such as [fnm](https://github.com/Schniz/fnm) or [nvm](https://github.com/nvm-sh/nvm) to ensure you're using the correct version:
+
+**With fnm:**
+```sh
+fnm install
+fnm use
+```
+
+**With nvm:**
+```sh
+nvm install
+nvm use
+```
+
+The version manager will automatically read the `.nvmrc` file and switch to the correct Node.js version.
 
 ## 👋 Quick start
 
