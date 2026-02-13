@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 import { forwardRef, useMemo } from 'react';
+=======
+/* eslint-disable better-tailwindcss/no-unknown-classes */
+>>>>>>> f6309e9
 import type { PressableProps, View } from 'react-native';
-import { ActivityIndicator, Pressable, Text } from 'react-native';
 import type { VariantProps } from 'tailwind-variants';
+import * as React from 'react';
+import { ActivityIndicator, Pressable, Text } from 'react-native';
 import { tv } from 'tailwind-variants';
 
 const TEXT_WHITE = 'text-white';
@@ -86,12 +91,55 @@ const button = tv({
 });
 
 type ButtonVariants = VariantProps<typeof button>;
-interface Props extends ButtonVariants, Omit<PressableProps, 'disabled'> {
+type Props = {
   label?: string;
   loading?: boolean;
   className?: string;
   textClassName?: string;
+} & ButtonVariants & Omit<PressableProps, 'disabled'>;
+
+export function Button({ ref, label: text, loading = false, variant = 'default', disabled = false, size = 'default', className = '', testID, textClassName = '', ...props }: Props & { ref?: React.RefObject<View | null> }) {
+  const styles = React.useMemo(
+    () => button({ variant, disabled, size }),
+    [variant, disabled, size],
+  );
+
+  return (
+    <Pressable
+      disabled={disabled || loading}
+      className={styles.container({ className })}
+      {...props}
+      ref={ref}
+      testID={testID}
+    >
+      {props.children
+        ? (
+            props.children
+          )
+        : (
+            <>
+              {loading
+                ? (
+                    <ActivityIndicator
+                      size="small"
+                      className={styles.indicator()}
+                      testID={testID ? `${testID}-activity-indicator` : undefined}
+                    />
+                  )
+                : (
+                    <Text
+                      testID={testID ? `${testID}-label` : undefined}
+                      className={styles.label({ className: textClassName })}
+                    >
+                      {text}
+                    </Text>
+                  )}
+            </>
+          )}
+    </Pressable>
+  );
 }
+<<<<<<< HEAD
 
 export const Button = forwardRef<View, Props>(
   (
@@ -150,3 +198,5 @@ export const Button = forwardRef<View, Props>(
     );
   },
 );
+=======
+>>>>>>> f6309e9

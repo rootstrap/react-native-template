@@ -1,17 +1,29 @@
+<<<<<<< HEAD:__tests__/components/ui/select.test.tsx
 /* eslint-disable max-lines-per-function */
 
 import type { OptionType } from '@/components/ui';
 import { cleanup, fireEvent, render, screen, setup } from '@/lib/test-utils';
+=======
+import type { OptionType } from '@/components/ui';
+
+import * as React from 'react';
+import { cleanup, render, screen, setup } from '@/lib/test-utils';
+>>>>>>> f6309e9:src/components/ui/select.test.tsx
 
 import { Select } from '../../../src/components/ui/select';
 
 afterEach(cleanup);
 
+<<<<<<< HEAD:__tests__/components/ui/select.test.tsx
 describe('Select component ', () => {
   const SELECT_TRIGGER = 'select-trigger';
   const SELECT_LABEL = 'select-label';
   const SELECT_ERROR = 'select-error';
   const options: Array<OptionType> = [
+=======
+describe('select component ', () => {
+  const options: OptionType[] = [
+>>>>>>> f6309e9:src/components/ui/select.test.tsx
     { value: 'chocolate', label: 'Chocolate' },
     { value: 'strawberry', label: 'Strawberry' },
     { value: 'vanilla', label: 'Vanilla' },
@@ -56,9 +68,15 @@ describe('Select component ', () => {
         error="Please select an option"
       />,
     );
+<<<<<<< HEAD:__tests__/components/ui/select.test.tsx
     expect(screen.getByTestId(SELECT_TRIGGER)).toBeOnTheScreen();
     expect(screen.getByTestId(SELECT_ERROR)).toBeOnTheScreen();
     expect(screen.getByTestId(SELECT_ERROR)).toHaveTextContent(
+=======
+    expect(screen.getByTestId('select-trigger')).toBeOnTheScreen();
+    expect(screen.getByTestId('select-error')).toBeOnTheScreen();
+    expect(screen.getByTestId('select-error')).toHaveTextContent(
+>>>>>>> f6309e9:src/components/ui/select.test.tsx
       'Please select an option',
     );
   });

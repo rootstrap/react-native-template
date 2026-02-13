@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Stack } from 'expo-router';
 
 import { FocusAwareStatusBar, View } from '@/components/ui';
@@ -10,3 +11,6 @@ export default function Post() {
     </View>
   );
 }
+=======
+export { PostDetailScreen as default } from '@/features/feed/post-detail-screen';
+>>>>>>> f6309e9

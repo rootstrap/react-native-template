@@ -67,7 +67,81 @@ In conclusion, when you want to release a new QA version, manually execute `new-
 
 ## Setup Release Process to your app
 
+<<<<<<< HEAD
 To setup the release process for your app, you need to follow the steps from our [EAS instructions file](https://github.com/rootstrap/react-native-template/blob/master/EAS.md).
+=======
+To setup the release process to your app, you need to follow these steps:
+
+### Run Build Locally
+
+First, make sure to create an [Expo](expo.dev) account then create a new organization for your project.
+
+When then name of your organization is ready, you need to update the `EXPO_ACCOUNT_OWNER` variable in `env.ts` file with the name of your organization.
+
+**For QA release:**
+
+```bash
+pnpm run prebuild:preview
+```
+
+The above command will regenerate the iOS and Android folders based on the `preview` configuration.
+
+Then run the following command to build the app using EAS:
+
+:::caution
+You need to be logged in to EAS using `eas login` command before running this command. check [step 1 and 2 from EAS docs](https://docs.expo.dev/build/setup/) for more details.
+:::
+
+```bash
+pnpm run build:preview:ios
+pnpm run build:preview:android
+```
+
+The above commands will generate the required credentials for the build and store them in EAS servers so that we can use them later to trigger the build from GitHub actions.
+
+**For production release:**
+
+```bash
+pnpm run prebuild:production
+pnpm run build:production:ios
+pnpm run build:production:android
+```
+
+In case you want to submit the app to the App Store and Google Play, you need to check eas submit configuration and follow the steps from [EAS docs](https://docs.expo.dev/submit/introduction/).
+
+### Setup GitHub Actions
+
+All github workflows are already ready to be used in the starter. You just need to add the required secrets to your GitHub repo:
+
+- GH_TOKEN: A [Github token](https://github.com/settings/tokens) with access to your repo.
+
+- EXPO_TOKEN: Expo token to authenticate with EAS. You can get generate yours [here](https://expo.dev/settings/access-tokens)
+
+### Github action and env variables
+
+For simplicity, we assume that all your environment variables are already added to your `.env` file and have been pushed to your repository.
+
+If you prefer not to push the `.env` file (recommended), you need to add all your environment variables to GitHub secrets. Then, use `create-envfile` action to create the env file on the fly before the prebuild script.
+
+```yaml
+## .github/workflows/eas-build-prod.yml
+
+- name: Create envfile
+  uses: SpicyPizza/create-envfile@v2.0
+  with:
+    envkey_DEBUG: false
+    envkey_SECRET_KEY: ${{ secrets.PRODUCTION_SECRET_KEY }}
+    file_name: .env
+
+- name: ⏱️ EAS Build
+  uses: ./.github/actions/eas-build
+  with:
+    EXPO_PUBLIC_APP_ENV: production
+    EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+```
+
+This action will create a new `.env` file with the `DEBUG` and `SECRET_KEY` variables you added to the action. so make sure to include all your env variables to the action.
+>>>>>>> f6309e9
 
 ## Create new release
 

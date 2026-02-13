@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useRouter } from 'expo-router';
 
 import { Cover } from '@/components/cover';
@@ -53,3 +54,6 @@ export default function Onboarding() {
     </View>
   );
 }
+=======
+export { OnboardingScreen as default } from '@/features/onboarding/onboarding-screen';
+>>>>>>> f6309e9

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { forwardRef, useCallback, useMemo, useState } from 'react';
 import type {
   Control,
@@ -13,6 +14,12 @@ import {
   TextInput as NTextInput,
   View,
 } from 'react-native';
+=======
+/* eslint-disable better-tailwindcss/no-unknown-classes */
+import type { TextInputProps } from 'react-native';
+import * as React from 'react';
+import { I18nManager, TextInput as NTextInput, StyleSheet, View } from 'react-native';
+>>>>>>> f6309e9
 import { tv } from 'tailwind-variants';
 
 import colors from './colors';
@@ -23,7 +30,7 @@ const inputTv = tv({
     container: 'mb-2',
     label: 'text-grey-100 mb-1 text-lg dark:text-neutral-100',
     input:
-      'mt-0 rounded-xl border-[0.5px] border-neutral-300 bg-neutral-100 px-4 py-3 font-inter text-base  font-medium leading-5 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white',
+      'font-inter mt-0 rounded-xl border-[0.5px] border-neutral-300 bg-neutral-100 px-4 py-3 text-base/5 font-medium dark:border-neutral-700 dark:bg-neutral-800 dark:text-white',
   },
 
   variants: {
@@ -51,12 +58,13 @@ const inputTv = tv({
   },
 });
 
-export interface NInputProps extends TextInputProps {
+export type NInputProps = {
   label?: string;
   disabled?: boolean;
   error?: string;
-}
+} & TextInputProps;
 
+<<<<<<< HEAD
 type TRule<T extends FieldValues> =
   | Omit<
       RegisterOptions<T>,
@@ -89,7 +97,33 @@ export const Input = forwardRef<NTextInput, NInputProps>((props, ref) => {
         disabled: Boolean(props.disabled),
       }),
     [error, isFocussed, props.disabled],
+=======
+export function Input({ ref, ...props }: NInputProps & { ref?: React.Ref<NTextInput | null> }) {
+  const { label, error, testID, onBlur: onBlurProp, onFocus: onFocusProp, ...inputProps } = props;
+  const [isFocussed, setIsFocussed] = React.useState(false);
+
+  const onBlur = React.useCallback(
+    (e: any) => {
+      setIsFocussed(false);
+      onBlurProp?.(e);
+    },
+    [onBlurProp],
+>>>>>>> f6309e9
   );
+
+  const onFocus = React.useCallback(
+    (e: any) => {
+      setIsFocussed(true);
+      onFocusProp?.(e);
+    },
+    [onFocusProp],
+  );
+
+  const styles = inputTv({
+    error: Boolean(error),
+    focused: isFocussed,
+    disabled: Boolean(props.disabled),
+  });
 
   return (
     <View className={styles.container()}>
@@ -125,6 +159,7 @@ export const Input = forwardRef<NTextInput, NInputProps>((props, ref) => {
       )}
     </View>
   );
+<<<<<<< HEAD
 });
 
 // only used with react-hook-form
@@ -144,4 +179,6 @@ export function ControlledInput<T extends FieldValues>(
       error={fieldState.error?.message}
     />
   );
+=======
+>>>>>>> f6309e9
 }

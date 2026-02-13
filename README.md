@@ -8,7 +8,11 @@
 
 ![expo](https://img.shields.io/github/package-json/dependency-version/rootstrap/react-native-template/expo?label=expo) ![react-native](https://img.shields.io/github/package-json/dependency-version/rootstrap/react-native-template/react-native?label=react-native) ![GitHub Repo stars](https://img.shields.io/github/stars/rootstrap/react-native-template) ![GitHub commit activity (branch)](https://img.shields.io/github/commit-activity/m/rootstrap/react-native-template) ![GitHub issues](https://img.shields.io/github/issues/rootstrap/react-native-template) ![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/rootstrap/react-native-template)
 
+<<<<<<< HEAD
 📱 A template for your next React Native project 🚀, Made with developer experience and performance first: Expo, TypeScript, NativeWind, Husky, Lint-Staged, expo-router, react-query, react-hook-form, I18n and preconfigured for EAS.
+=======
+📱 A template for your next React Native project 🚀, Made with developer experience and performance first: Expo, TypeScript, TailwindCSS, Husky, Lint-Staged, expo-router, react-query, TanStack Form, I18n.
+>>>>>>> f6309e9
 
 This repository is a fork of [Obytes Starter](https://github.com/obytes/react-native-template-obytes), which provides a solid foundation. We periodically sync with the original repo to stay up-to-date with their improvements, while making our own adjustments and optimizations to streamline our setup process.
 
@@ -42,6 +46,7 @@ This template brings several key advantages. It provides our team with a consist
 
 ## ⭐ Key Features
 
+<<<<<<< HEAD
 - 🎉 [TypeScript](https://www.typescriptlang.org/) for type checking, to help you catch bugs and improve code quality.
 - 💅 A minimal UI kit built with [NativeWind](https://www.nativewind.dev/), which provides a range of pre-defined classes for styling your app.
 - ⚙️ Support for multiple environment builds, including Production, Staging, QA and Development, using Expo configuration.
@@ -56,6 +61,24 @@ This template brings several key advantages. It provides our team with a consist
 - 🧵 A good approach for handling forms with [react-hook-form](https://react-hook-form.com/) and [zod](https://github.com/colinhacks/zod) for validation + keyboard handling.
 - 🎯 Localization with [i18next](https://www.i18next.com/), along with Eslint for validation.
 - Unit testing with [Jest](https://jestjs.io/) and [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/) setup to help you write tests for your app.
+=======
+- ✅ Latest Expo SDK with Custom Dev Client: Leverage the best of the Expo ecosystem while maintaining full control over your app.
+- 🎉 [TypeScript](https://www.typescriptlang.org/) for enhanced code quality and bug prevention through static type checking.
+- 💅 Minimal UI kit built with [TailwindCSS](https://www.nativewind.dev/), featuring common components essential for your app.
+- ⚙️ Multi-environment build support (Production, Staging, Development) using Expo configuration.
+- 🦊 Husky for Git Hooks: Automate your git hooks and enforce code standards.
+- 💡 Clean project structure with Absolute Imports for easier code navigation and management.
+- 🚫 Lint-staged: Run Eslint and TypeScript checks on Git staged files to maintain code quality.
+- 🗂 VSCode recommended extensions, settings, and snippets for an enhanced developer experience.
+- ☂️ Pre-installed [Expo Router](https://docs.expo.dev/router/introduction/) with examples for comprehensive app navigation.
+- 💫 Auth flow implementation using [Zustand](https://github.com/pmndrs/zustand) for state management and [react-native-mmkv](https://github.com/mrousavy/react-native-mmkv) for secure data storage.
+- 🛠 10+ [Github Actions](https://github.com/features/actions) workflows for building, releasing, testing, and distributing your app.
+- 🔥 [React Query](https://react-query.tanstack.com/) and [axios](https://github.com/axios/axios) for efficient data fetching and state management.
+- 🧵 Robust form handling with [TanStack Form](https://tanstack.com/form/latest) and [zod](https://github.com/colinhacks/zod) for validation, plus keyboard handling.
+- 🎯 Localization support with [i18next](https://www.i18next.com/), including Eslint for validation.
+- 🧪 Unit testing setup with [Jest](https://jestjs.io/) and [React Testing Library](https://testing-library.com/docs/react-testing-library/intro/).
+- 🔍 E2E testing capabilities with [Maestro](https://maestro.mobile.dev/) for comprehensive app testing.
+>>>>>>> f6309e9
 
 ## ✍️ Documentation 🚧 UNDER CONSTRUCTION 🚧
 
@@ -102,7 +125,7 @@ Check this [file](https://github.com/rootstrap/rs-gpt-review/blob/main/.github/w
 - [Flash list](https://github.com/Shopify/flash-list)
 - [React Query](https://tanstack.com/query/v4)
 - [Axios](https://axios-http.com/docs/intro)
-- [React Hook Form](https://react-hook-form.com/)
+- [TanStack Form](https://tanstack.com/form/latest)
 - [i18next](https://www.i18next.com/)
 - [zustand](https://github.com/pmndrs/zustand)
 - [React Native MMKV](https://github.com/mrousavy/react-native-mmkv)
