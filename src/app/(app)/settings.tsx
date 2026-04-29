@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* eslint-disable max-lines-per-function */
 import { Link } from 'expo-router';
 import { useColorScheme } from 'nativewind';
@@ -115,3 +116,6 @@ export default function Settings() {
     </>
   );
 }
+=======
+export { SettingsScreen as default } from '@/features/settings/settings-screen';
+>>>>>>> f6309e9

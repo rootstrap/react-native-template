@@ -1,4 +1,8 @@
+<<<<<<< HEAD:__tests__/components/ui/input.test.tsx
 /* eslint-disable max-lines-per-function */
+=======
+import * as React from 'react';
+>>>>>>> f6309e9:src/components/ui/input.test.tsx
 import { I18nManager } from 'react-native';
 
 import { cleanup, render, screen, setup } from '@/lib/test-utils';
@@ -7,8 +11,12 @@ import { Input } from '../../../src/components/ui/input';
 
 afterEach(cleanup);
 
+<<<<<<< HEAD:__tests__/components/ui/input.test.tsx
 describe('Input component ', () => {
   const INPUT_ERROR = 'input-error';
+=======
+describe('input component ', () => {
+>>>>>>> f6309e9:src/components/ui/input.test.tsx
   it('renders correctly ', () => {
     render(<Input testID="input" />);
     expect(screen.getByTestId('input')).toBeOnTheScreen();
@@ -48,7 +56,11 @@ describe('Input component ', () => {
     render(<Input testID="input" error="This is an error message" />);
     expect(screen.getByTestId('input')).toBeOnTheScreen();
 
+<<<<<<< HEAD:__tests__/components/ui/input.test.tsx
     expect(screen.getByTestId(INPUT_ERROR)).toHaveTextContent(
+=======
+    expect(screen.getByTestId('input-error')).toHaveTextContent(
+>>>>>>> f6309e9:src/components/ui/input.test.tsx
       'This is an error message',
     );
   });
@@ -64,8 +76,13 @@ describe('Input component ', () => {
     expect(screen.getByTestId('input')).toBeOnTheScreen();
 
     expect(screen.getByTestId('input-label')).toHaveTextContent('Username');
+<<<<<<< HEAD:__tests__/components/ui/input.test.tsx
     expect(screen.getByTestId(INPUT_ERROR)).toBeOnTheScreen();
     expect(screen.getByTestId(INPUT_ERROR)).toHaveTextContent(
+=======
+    expect(screen.getByTestId('input-error')).toBeOnTheScreen();
+    expect(screen.getByTestId('input-error')).toHaveTextContent(
+>>>>>>> f6309e9:src/components/ui/input.test.tsx
       'This is an error message',
     );
     expect(

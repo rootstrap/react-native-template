@@ -1,22 +1,34 @@
-/* eslint-disable max-lines-per-function */
+/* eslint-disable better-tailwindcss/no-unknown-classes */
+import type { BottomSheetModal } from '@gorhom/bottom-sheet';
+import type { PressableProps } from 'react-native';
+import type { SvgProps } from 'react-native-svg';
 import {
   BottomSheetFlatList,
-  type BottomSheetModal,
+
 } from '@gorhom/bottom-sheet';
 import { FlashList } from '@shopify/flash-list';
+<<<<<<< HEAD
 import { useColorScheme } from 'nativewind';
 import { forwardRef, memo, useCallback, useMemo } from 'react';
 import type { FieldValues } from 'react-hook-form';
 import { useController } from 'react-hook-form';
 import { Platform, Pressable, type PressableProps, View } from 'react-native';
 import type { SvgProps } from 'react-native-svg';
+=======
+import * as React from 'react';
+import { Platform, Pressable, View } from 'react-native';
+>>>>>>> f6309e9
 import Svg, { Path } from 'react-native-svg';
 import { tv } from 'tailwind-variants';
 
+import { useUniwind } from 'uniwind';
 import colors from '@/components/ui/colors';
-import { CaretDown } from '@/components/ui/icons';
 
+<<<<<<< HEAD
 import type { InputControllerType } from './input';
+=======
+import { CaretDown } from '@/components/ui/icons';
+>>>>>>> f6309e9
 import { Modal, useModal } from './modal';
 import { Text } from './text';
 
@@ -25,7 +37,7 @@ const selectTv = tv({
     container: 'mb-4',
     label: 'text-grey-100 mb-1 text-lg dark:text-neutral-100',
     input:
-      'border-grey-50 mt-0 flex-row items-center justify-center rounded-xl border-[0.5px] p-3  dark:border-neutral-500 dark:bg-neutral-800',
+      'border-grey-50 mt-0 flex-row items-center justify-center rounded-xl border-[0.5px] p-3 dark:border-neutral-500 dark:bg-neutral-800',
     inputValue: 'dark:text-neutral-100',
   },
 
@@ -69,6 +81,7 @@ function keyExtractor(item: OptionType) {
   return `select-item-${item.value}`;
 }
 
+<<<<<<< HEAD
 export const Options = forwardRef<BottomSheetModal, OptionsProps>(
   ({ options, onSelect, value, testID }, ref) => {
     const HEIGHT_MARGIN = 100;
@@ -111,6 +124,46 @@ export const Options = forwardRef<BottomSheetModal, OptionsProps>(
     );
   },
 );
+=======
+export function Options({ ref, options, onSelect, value, testID }: OptionsProps & { ref?: React.RefObject<BottomSheetModal | null> }) {
+  const height = options.length * 70 + 100;
+  const snapPoints = React.useMemo(() => [height], [height]);
+  const { theme } = useUniwind();
+  const isDark = theme === 'dark';
+
+  const renderSelectItem = React.useCallback(
+    ({ item }: { item: OptionType }) => (
+      <Option
+        key={`select-item-${item.value}`}
+        label={item.label}
+        selected={value === item.value}
+        onPress={() => onSelect(item)}
+        testID={testID ? `${testID}-item-${item.value}` : undefined}
+      />
+    ),
+    [onSelect, value, testID],
+  );
+
+  return (
+    <Modal
+      ref={ref}
+      index={0}
+      snapPoints={snapPoints}
+      backgroundStyle={{
+        backgroundColor: isDark ? colors.neutral[800] : colors.white,
+      }}
+    >
+      <List
+        data={options}
+        keyExtractor={keyExtractor}
+        renderItem={renderSelectItem}
+        testID={testID ? `${testID}-modal` : undefined}
+        estimatedItemSize={52}
+      />
+    </Modal>
+  );
+}
+>>>>>>> f6309e9
 
 const Option = memo(
   ({
@@ -120,6 +173,7 @@ const Option = memo(
   }: PressableProps & {
     selected?: boolean;
     label: string;
+<<<<<<< HEAD
   }) => (
     <Pressable
       className="flex-row items-center border-b border-neutral-300 bg-white px-3 py-2 dark:border-neutral-700 dark:bg-neutral-800"
@@ -129,9 +183,22 @@ const Option = memo(
       {selected && <Check />}
     </Pressable>
   ),
+=======
+  }) => {
+    return (
+      <Pressable
+        className="flex-row items-center border-b border-neutral-300 bg-white px-3 py-2 dark:border-neutral-700 dark:bg-neutral-800"
+        {...props}
+      >
+        <Text className="flex-1 dark:text-neutral-100">{label}</Text>
+        {selected && <Check />}
+      </Pressable>
+    );
+  },
+>>>>>>> f6309e9
 );
 
-export interface SelectProps {
+export type SelectProps = {
   value?: string | number;
   label?: string;
   disabled?: boolean;
@@ -140,12 +207,9 @@ export interface SelectProps {
   onSelect?: (value: string | number) => void;
   placeholder?: string;
   testID?: string;
-}
-interface ControlledSelectProps<T extends FieldValues>
-  extends SelectProps,
-    InputControllerType<T> {}
+};
 
-export const Select = (props: SelectProps) => {
+export function Select(props: SelectProps) {
   const {
     label,
     value,
@@ -178,7 +242,7 @@ export const Select = (props: SelectProps) => {
   const textValue = useMemo(
     () =>
       value !== undefined
-        ? (options?.filter((t) => t.value === value)?.[0]?.label ?? placeholder)
+        ? (options?.filter(t => t.value === value)?.[0]?.label ?? placeholder)
         : placeholder,
     [value, options, placeholder],
   );
@@ -222,6 +286,7 @@ export const Select = (props: SelectProps) => {
       />
     </>
   );
+<<<<<<< HEAD
 };
 
 // only used with react-hook-form
@@ -246,22 +311,26 @@ export function ControlledSelect<T extends FieldValues>(
       {...selectProps}
     />
   );
+=======
+>>>>>>> f6309e9
 }
 
-const Check = ({ ...props }: SvgProps) => (
-  <Svg
-    width={25}
-    height={24}
-    fill="none"
-    viewBox="0 0 25 24"
-    {...props}
-    className="stroke-black dark:stroke-white"
-  >
-    <Path
-      d="m20.256 6.75-10.5 10.5L4.506 12"
-      strokeWidth={2.438}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
+function Check({ ...props }: SvgProps) {
+  return (
+    <Svg
+      width={25}
+      height={24}
+      fill="none"
+      viewBox="0 0 25 24"
+      {...props}
+      className="stroke-black dark:stroke-white"
+    >
+      <Path
+        d="m20.256 6.75-10.5 10.5L4.506 12"
+        strokeWidth={2.438}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}

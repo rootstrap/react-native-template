@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React from 'react';
 
 import { Buttons } from '@/components/buttons';
@@ -21,3 +22,6 @@ export default function Style() {
     </>
   );
 }
+=======
+export { StyleScreen as default } from '@/features/style-demo/style-screen';
+>>>>>>> f6309e9

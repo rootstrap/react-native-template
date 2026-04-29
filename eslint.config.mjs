@@ -1,23 +1,24 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { defineConfig, globalIgnores } from 'eslint/config';
-import expoConfig from 'eslint-config-expo/flat.js';
+import antfu from '@antfu/eslint-config';
+import betterTailwindcss from 'eslint-plugin-better-tailwindcss';
 import i18nJsonPlugin from 'eslint-plugin-i18n-json';
+<<<<<<< HEAD
 import pluginJest from 'eslint-plugin-jest';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import reactCompiler from 'eslint-plugin-react-compiler';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import sonarjs from 'eslint-plugin-sonarjs';
 import tailwind from 'eslint-plugin-tailwindcss';
+=======
+import reactCompiler from 'eslint-plugin-react-compiler';
+>>>>>>> f6309e9
 import testingLibrary from 'eslint-plugin-testing-library';
-// eslint-disable-next-line import/no-named-as-default, import/no-named-as-default-member, import/namespace
-import eslintPluginUnicorn from 'eslint-plugin-unicorn';
-import unusedImports from 'eslint-plugin-unused-imports';
-import { configs, parser } from 'typescript-eslint';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+<<<<<<< HEAD
 export default defineConfig([
   globalIgnores([
     'dist/*',
@@ -48,35 +49,77 @@ export default defineConfig([
       'unused-imports': unusedImports,
       sonarjs,
       jest: pluginJest,
+=======
+export default antfu(
+  {
+    // Enable React and TypeScript support
+    react: true,
+    typescript: true,
+
+    // Disable JSON processing for translation files (handled by i18n-json plugin)
+    jsonc: false,
+
+    // Use ESLint Stylistic for formatting
+    stylistic: {
+      indent: 2,
+      quotes: 'single',
+      semi: true,
+>>>>>>> f6309e9
     },
+
+    // Global ignores
+    ignores: [
+      'dist/*',
+      'node_modules',
+      '__tests__/',
+      'coverage',
+      '.expo',
+      '.expo-shared',
+      'android',
+      'ios',
+      '.vscode',
+      'docs/',
+      'cli/',
+      'expo-env.d.ts',
+      'migration/*',
+    ],
+  },
+
+  // Custom rules
+  {
     rules: {
       'import/no-duplicates': 'error',
       'max-params': ['error', 3],
-      'max-lines-per-function': ['error', 70],
-      'tailwindcss/classnames-order': [
-        'warn',
-        {
-          officialSorting: true,
-        },
-      ],
-      'tailwindcss/no-custom-classname': 'off',
+      'max-lines-per-function': ['error', 110],
       'react/display-name': 'off',
       'react/no-inline-styles': 'off',
       'react/destructuring-assignment': 'off',
       'react/require-default-props': 'off',
+<<<<<<< HEAD
       'react/jsx-fragments': ['error', 'syntax'],
       'react/jsx-no-useless-fragment': 'error',
       'react/no-children-prop': ['error', { allowFunctions: true }],
       'no-nested-ternary': 'error',
       'no-unneeded-ternary': 'error',
       'prefer-template': 'error',
+=======
+      'react-refresh/only-export-components': 'warn', // Too strict for React Native
+>>>>>>> f6309e9
       'unicorn/filename-case': [
         'error',
         {
           case: 'kebabCase',
-          ignore: ['/android', '/ios'],
+          ignore: [
+            '/android',
+            '/ios',
+            'README.md',
+            'README-project.md',
+            'ISSUE_TEMPLATE.md',
+            'PULL_REQUEST_TEMPLATE.md',
+          ],
         },
       ],
+<<<<<<< HEAD
       'simple-import-sort/imports': 'error',
       'simple-import-sort/exports': 'error',
       'unused-imports/no-unused-imports': 'error',
@@ -103,10 +146,22 @@ export default defineConfig([
     files: ['**/__mocks__/**'],
     rules: {
       '@typescript-eslint/no-require-imports': 'off',
+=======
+      'node/prefer-global/process': 'off', // process is commonly used in React Native configs
+      'ts/no-require-imports': 'off', // Sometimes needed for mocks
+      'ts/no-use-before-define': 'off', // Allow forward references in React components
+      'no-console': 'off', // Console is useful for debugging
+      'no-cond-assign': 'off', // Allow assignment in conditions when intentional
+      'regexp/no-super-linear-backtracking': 'off', // Relax regex performance rules
+      'regexp/no-unused-capturing-group': 'off', // Allow unused capturing groups
+>>>>>>> f6309e9
     },
   },
+
+  // TypeScript-specific rules
   {
     files: ['**/*.ts', '**/*.tsx'],
+<<<<<<< HEAD
     languageOptions: {
       parser,
       parserOptions: {
@@ -132,6 +187,13 @@ export default defineConfig([
       ],
       '@typescript-eslint/consistent-type-imports': [
         'error',
+=======
+    rules: {
+      'ts/consistent-type-definitions': ['error', 'type'], // Prefer type over interface
+      'react-hooks/refs': 'off', // Allow useRef without exhaustive-deps
+      'ts/consistent-type-imports': [
+        'warn',
+>>>>>>> f6309e9
         {
           prefer: 'type-imports',
           fixStyle: 'inline-type-imports',
@@ -140,6 +202,35 @@ export default defineConfig([
       ],
     },
   },
+
+  // Better TailwindCSS plugin
+  {
+    files: ['**/*.{js,jsx,ts,tsx}'],
+    ...betterTailwindcss.configs.recommended,
+    settings: {
+      'better-tailwindcss': {
+        entryPoint: path.resolve(__dirname, './src/global.css'),
+      },
+    },
+    rules: {
+      ...betterTailwindcss.configs.recommended.rules,
+      'better-tailwindcss/no-unnecessary-whitespace': 'warn',
+      'better-tailwindcss/no-unknown-classes': 'warn',
+      'better-tailwindcss/enforce-consistent-line-wrapping': 'off', // Can be too strict for some cases
+    },
+  },
+
+  // React Compiler plugin
+  {
+    plugins: {
+      'react-compiler': reactCompiler,
+    },
+    rules: {
+      'react-compiler/react-compiler': 'error',
+    },
+  },
+
+  // i18n JSON validation
   {
     files: ['src/translations/*.json'],
     plugins: { 'i18n-json': i18nJsonPlugin },
@@ -160,28 +251,20 @@ export default defineConfig([
         },
       ],
       'i18n-json/valid-json': 2,
-      'i18n-json/sorted-keys': [
-        2,
-        {
-          order: 'asc',
-          indentSpaces: 2,
-        },
-      ],
+      'i18n-json/sorted-keys': [2, { order: 'asc', indentSpaces: 2 }],
       'i18n-json/identical-keys': [
         2,
-        {
-          filePath: path.resolve(__dirname, './src/translations/en.json'),
-        },
+        { filePath: path.resolve(__dirname, './src/translations/en.json') },
       ],
-      'prettier/prettier': [
-        0,
-        {
-          singleQuote: true,
-          endOfLine: 'auto',
-        },
-      ],
+      // Disable conflicting rules for i18n JSON files
+      'style/semi': 'off',
+      'style/comma-dangle': 'off',
+      'style/quotes': 'off',
+      'unused-imports/no-unused-vars': 'off',
     },
   },
+
+  // Testing Library rules
   {
     files: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
     plugins: { 'testing-library': testingLibrary },
@@ -189,4 +272,4 @@ export default defineConfig([
       ...testingLibrary.configs.react.rules,
     },
   },
-]);
+);

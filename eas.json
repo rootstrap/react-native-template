@@ -1,14 +1,18 @@
 {
   "cli": {
+<<<<<<< HEAD
     "version": ">= 3.8.1",
+=======
+>>>>>>> f6309e9
     "appVersionSource": "remote"
   },
   "build": {
     "production": {
       "autoIncrement": true,
       "channel": "production",
+      "autoIncrement": true,
       "distribution": "store",
-      "pnpm": "9.12.3",
+      "environment": "production",
       "ios": {
         "image": "latest"
       },
@@ -17,6 +21,7 @@
         "image": "latest"
       },
       "env": {
+<<<<<<< HEAD
         "EXPO_NO_DOTENV": "1",
         "APP_ENV": "production",
         "FLIPPER_DISABLE": "1",
@@ -28,6 +33,15 @@
       "channel": "staging",
       "distribution": "store",
       "pnpm": "9.12.3",
+=======
+        "EXPO_PUBLIC_APP_ENV": "production"
+      }
+    },
+    "preview": {
+      "channel": "preview",
+      "autoIncrement": true,
+      "distribution": "store",
+>>>>>>> f6309e9
       "ios": {
         "image": "latest"
       },
@@ -35,7 +49,9 @@
         "buildType": "app-bundle",
         "image": "latest"
       },
+      "environment": "preview",
       "env": {
+<<<<<<< HEAD
         "APP_ENV": "staging",
         "EXPO_NO_DOTENV": "1",
         "FLIPPER_DISABLE": "1",
@@ -59,13 +75,21 @@
         "EXPO_NO_DOTENV": "1",
         "FLIPPER_DISABLE": "1",
         "EAS_NO_DOCTOR": "1"
+=======
+        "EXPO_PUBLIC_APP_ENV": "preview"
+>>>>>>> f6309e9
       }
     },
     "development": {
       "autoIncrement": true,
       "developmentClient": true,
+<<<<<<< HEAD
       "distribution": "store",
       "pnpm": "9.12.3",
+=======
+      "distribution": "internal",
+      "environment": "development",
+>>>>>>> f6309e9
       "ios": {
         "image": "latest"
       },
@@ -74,6 +98,7 @@
         "image": "latest"
       },
       "env": {
+<<<<<<< HEAD
         "APP_ENV": "development",
         "EXPO_NO_DOTENV": "1",
         "EAS_NO_DOCTOR": "1"
@@ -111,5 +136,27 @@
         "releaseStatus": "draft"
       }
     }
+=======
+        "EXPO_PUBLIC_APP_ENV": "development"
+      }
+    },
+    "simulator": {
+      "environment": "development",
+      "ios": {
+        "simulator": true,
+        "image": "latest"
+      },
+      "android": {
+        "image": "latest"
+      },
+      "env": {
+        "EXPO_PUBLIC_APP_ENV": "development"
+      }
+    }
+  },
+  "submit": {
+    "preview": {},
+    "production": {}
+>>>>>>> f6309e9
   }
 }

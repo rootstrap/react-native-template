@@ -1,25 +1,37 @@
-// Import  global CSS file
-import '../../global.css';
-
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
+
 import { ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+<<<<<<< HEAD
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+=======
+import * as React from 'react';
+>>>>>>> f6309e9
 import { StyleSheet } from 'react-native';
 import FlashMessage from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
+import { useThemeConfig } from '@/components/ui/use-theme-config';
+import { hydrateAuth } from '@/features/auth/use-auth-store';
 
+<<<<<<< HEAD
 import { APIProvider } from '@/api';
 import interceptors from '@/api/common/interceptors';
 import { AuthProvider, useAuth } from '@/components/providers/auth';
 import { hydrateAuth, loadSelectedTheme, useIsFirstTime } from '@/lib';
 import { useThemeConfig } from '@/lib/use-theme-config';
+=======
+import { APIProvider } from '@/lib/api';
+import { loadSelectedTheme } from '@/lib/hooks/use-selected-theme';
+// Import  global CSS file
+import '../global.css';
+>>>>>>> f6309e9
 
 export { ErrorBoundary } from 'expo-router';
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const unstable_settings = {
   initialRouteName: '(app)',
 };
@@ -97,6 +109,7 @@ function Providers({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <GestureHandlerRootView
       style={styles.container}
+      // eslint-disable-next-line better-tailwindcss/no-unknown-classes
       className={theme.dark ? `dark` : undefined}
     >
       <KeyboardProvider>

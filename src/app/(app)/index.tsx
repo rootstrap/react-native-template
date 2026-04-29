@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { FocusAwareStatusBar, View } from '@/components/ui';
 
 export default function Feed() {
@@ -7,3 +8,6 @@ export default function Feed() {
     </View>
   );
 }
+=======
+export { FeedScreen as default } from '@/features/feed/feed-screen';
+>>>>>>> f6309e9

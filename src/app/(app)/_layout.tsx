@@ -1,4 +1,8 @@
 import { Link, Redirect, SplashScreen, Tabs } from 'expo-router';
+<<<<<<< HEAD
+=======
+import * as React from 'react';
+>>>>>>> f6309e9
 import { useCallback, useEffect } from 'react';
 
 import { useAuth } from '@/components/providers/auth';
@@ -8,7 +12,12 @@ import {
   Settings as SettingsIcon,
   Style as StyleIcon,
 } from '@/components/ui/icons';
+<<<<<<< HEAD
 import { useIsFirstTime } from '@/lib';
+=======
+import { useAuthStore as useAuth } from '@/features/auth/use-auth-store';
+import { useIsFirstTime } from '@/lib/hooks/use-is-first-time';
+>>>>>>> f6309e9
 
 export default function TabLayout() {
   const { isAuthenticated, ready } = useAuth();
@@ -18,8 +27,16 @@ export default function TabLayout() {
   }, []);
 
   useEffect(() => {
+<<<<<<< HEAD
     if (!ready) {
       hideSplash();
+=======
+    if (status !== 'idle') {
+      const timer = setTimeout(() => {
+        hideSplash();
+      }, 1000);
+      return () => clearTimeout(timer);
+>>>>>>> f6309e9
     }
   }, [hideSplash, ready]);
 
@@ -60,6 +77,7 @@ export default function TabLayout() {
   );
 }
 
+<<<<<<< HEAD
 const CreateNewPostLink = () => (
   <Link href="/feed/add-post" asChild>
     <Pressable>
@@ -67,3 +85,14 @@ const CreateNewPostLink = () => (
     </Pressable>
   </Link>
 );
+=======
+function CreateNewPostLink() {
+  return (
+    <Link href="/feed/add-post" asChild>
+      <Pressable>
+        <Text className="px-3 text-primary-300">Create</Text>
+      </Pressable>
+    </Link>
+  );
+}
+>>>>>>> f6309e9

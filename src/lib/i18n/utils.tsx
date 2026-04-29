@@ -1,14 +1,21 @@
 import type TranslateOptions from 'i18next';
+<<<<<<< HEAD
 import { changeLanguage as i18nChangeLanguage, t } from 'i18next';
 import memoize from 'lodash.memoize';
 import { useCallback } from 'react';
 import { NativeModules, Platform } from 'react-native';
-import { useMMKVString } from 'react-native-mmkv';
-import RNRestart from 'react-native-restart';
-
-import { storage } from '../storage';
+=======
 import type { Language, resources } from './resources';
 import type { RecursiveKeyOf } from './types';
+import i18n from 'i18next';
+import memoize from 'lodash.memoize';
+import { useCallback } from 'react';
+import { I18nManager, NativeModules, Platform } from 'react-native';
+
+>>>>>>> f6309e9
+import { useMMKVString } from 'react-native-mmkv';
+import RNRestart from 'react-native-restart';
+import { storage } from '../storage';
 
 type DefaultLocale = typeof resources.en.translation;
 export type TxKeyPath = RecursiveKeyOf<DefaultLocale>;
@@ -23,6 +30,7 @@ export const translate = memoize(
     options ? key + JSON.stringify(options) : key,
 );
 
+<<<<<<< HEAD
 export const changeLanguage = (lang: Language) => {
   i18nChangeLanguage(lang);
   if (Platform.OS === 'ios' || Platform.OS === 'android') {
@@ -32,24 +40,50 @@ export const changeLanguage = (lang: Language) => {
       RNRestart.restart();
     }
   } else if (Platform.OS === 'web') {
+=======
+export function changeLanguage(lang: Language) {
+  i18n.changeLanguage(lang);
+  if (lang === 'ar') {
+    I18nManager.forceRTL(true);
+  }
+  else {
+    I18nManager.forceRTL(false);
+  }
+  if (Platform.OS === 'ios' || Platform.OS === 'android') {
+    if (__DEV__)
+      NativeModules.DevSettings.reload();
+    else RNRestart.restart();
+  }
+  else if (Platform.OS === 'web') {
+>>>>>>> f6309e9
     window.location.reload();
   } else {
     throw new Error('Unexpected value for Platform.OS');
   }
-};
+}
 
-export const useSelectedLanguage = () => {
+export function useSelectedLanguage() {
   const [language, setLang] = useMMKVString(LOCAL);
 
   const setLanguage = useCallback(
     (lang: Language) => {
       setLang(lang);
+<<<<<<< HEAD
       if (lang !== undefined) {
         changeLanguage(lang);
       }
+=======
+      if (lang !== undefined)
+        changeLanguage(lang as Language);
+>>>>>>> f6309e9
     },
     [setLang],
   );
 
+<<<<<<< HEAD
   return { language, setLanguage };
 };
+=======
+  return { language: language as Language, setLanguage };
+}
+>>>>>>> f6309e9

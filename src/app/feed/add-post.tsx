@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { Stack } from 'expo-router';
 export default function AddPost() {
   return (
@@ -9,3 +10,6 @@ export default function AddPost() {
     />
   );
 }
+=======
+export { AddPostScreen as default } from '@/features/feed/add-post-screen';
+>>>>>>> f6309e9
