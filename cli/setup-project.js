@@ -34,6 +34,7 @@ const removeUnrelatedFiles = () => {
     'cli',
     '.github/workflows/deploy-cli.yml',
     'LICENSE',
+    'PROMPT_agent_docs.md',
   ]);
 };
 
@@ -149,6 +150,40 @@ const updateGitHubWorkflows = (projectName) => {
   ]);
 };
 
+const updateAgentDocs = (projectName) => {
+  projectFilesManager.replaceFilesContent([
+    {
+      fileName: 'AGENTS.md',
+      replacements: [
+        {
+          searchValue:
+            'This is a React Native + Expo template maintained by Rootstrap. It provides a production-ready starting point for mobile apps targeting iOS, Android, and Web. It is used as the base for client projects and internal tooling at Rootstrap.',
+          replaceValue: `${projectName} is a React Native + Expo mobile application. Update this description with what the project does and who it's for.`,
+        },
+      ],
+    },
+    {
+      fileName: 'agent_docs/architecture.md',
+      replacements: [
+        {
+          searchValue:
+            'This template ships four top-level concerns out of the box:\n\n- **Onboarding** — a one-time screen shown on first launch, gated by the `isFirstTime` flag persisted in MMKV.\n- **Authentication** — sign-in, sign-up, forgot-password, and update-password flows backed by Devise Token Auth.\n- **Feed** — a paginated post list with detail view and a create-post screen.\n- **Settings** — theme toggle, language selection, and account deletion.',
+          replaceValue: `- **Onboarding** — a one-time screen shown on first launch, gated by the \`isFirstTime\` flag persisted in MMKV.\n- **Authentication** — sign-in, sign-up, forgot-password, and update-password flows backed by Devise Token Auth.\n- _(Update with the features specific to ${projectName})_`,
+        },
+      ],
+    },
+    {
+      fileName: 'agent_docs/commands.md',
+      replacements: [
+        {
+          searchValue: 'APP_ID=com.obytes.development',
+          replaceValue: `APP_ID=com.${projectName.toLowerCase()}.development`,
+        },
+      ],
+    },
+  ]);
+};
+
 const updateProjectReadme = (projectName) => {
   projectFilesManager.renameFiles([
     {
@@ -182,6 +217,7 @@ const setupProject = async (projectName) => {
     updateProjectConfig(projectName);
     updateGitHubWorkflows(projectName);
     updateProjectReadme(projectName);
+    updateAgentDocs(projectName);
     consola.success(`Clean up and setup your project 🧹`);
   } catch (error) {
     consola.error(`Failed to clean up project folder`, error);
