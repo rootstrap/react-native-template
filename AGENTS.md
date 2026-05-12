@@ -48,3 +48,5 @@ When reviewing code, read and apply the rules in ./REVIEW.md
 | `agent_docs/architecture.md` | Layer diagram, folder structure, routing conventions, dual auth system explained |
 | `agent_docs/conventions.md`  | API hook patterns, styling, forms, i18n, anti-patterns                           |
 | `agent_docs/commands.md`     | All pnpm commands for dev, test, lint, build, and setup                          |
+
+## Imported Claude Cowork project instructions
