@@ -80,7 +80,7 @@ client.interceptors.response.use(
 
     const expiration = response.headers[HEADER_KEYS.EXPIRY]
       ? dayjs
-          .unix(parseInt(response.headers[HEADER_KEYS.EXPIRY], 10))
+          .unix(Number.parseInt(response.headers[HEADER_KEYS.EXPIRY], 10))
           .toISOString()
       : dayjs().add(1, 'hour').toISOString();
 

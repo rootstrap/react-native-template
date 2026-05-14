@@ -226,7 +226,7 @@ export const Select = (props: SelectProps) => {
 
 // only used with react-hook-form
 export function ControlledSelect<T extends FieldValues>(
-  props: ControlledSelectProps<T>,
+  props: Readonly<ControlledSelectProps<T>>,
 ) {
   const { name, control, rules, onSelect: onNSelect, ...selectProps } = props;
 

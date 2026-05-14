@@ -59,7 +59,7 @@ export const toCamelCase = (obj: GenericObject): GenericObject => {
   const newObj: GenericObject = {};
   for (const key in obj) {
     if (Object.hasOwn(obj, key)) {
-      const newKey = key.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+      const newKey = key.replaceAll(/_([a-z])/g, (g) => g[1].toUpperCase());
       const value = obj[key];
       if (isGenericObject(value)) {
         newObj[newKey] = toCamelCase(value);
@@ -72,7 +72,7 @@ export const toCamelCase = (obj: GenericObject): GenericObject => {
 };
 
 const camelToSnake = (key: string): string =>
-  key.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase();
+  key.replaceAll(/([a-z])([A-Z])/g, '$1_$2').toLowerCase();
 
 export const toSnakeCase = (obj: GenericObject): GenericObject => {
   const newObj: GenericObject = {};

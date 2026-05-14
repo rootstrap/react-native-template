@@ -5,7 +5,7 @@ import { type ReactNode } from 'react';
 // web page during static rendering.
 // The contents of this function only run in Node.js environments and
 // do not have access to the DOM or browser APIs.
-export default function Root({ children }: { children: ReactNode }) {
+export default function Root({ children }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="en">
       <head>
