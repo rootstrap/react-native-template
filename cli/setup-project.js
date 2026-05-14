@@ -34,7 +34,6 @@ const removeUnrelatedFiles = () => {
     'cli',
     '.github/workflows/deploy-cli.yml',
     'LICENSE',
-    'PROMPT_agent_docs.md',
   ]);
 };
 
