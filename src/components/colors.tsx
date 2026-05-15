@@ -21,9 +21,11 @@ const Color = ({ name }: { name: ColorName }) => {
     <View className="pt-2" testID={`color-list-${name}`}>
       <Text className="font-medium">{name.toUpperCase()}</Text>
       <View className="flex-row flex-wrap content-between justify-around ">
-        {Object.entries(colors[name]).map(([key, value]) => (
-          <ColorCard key={`${colors[name]}-${key}`} value={key} color={value} />
-        ))}
+        {Object.entries(colors[name] as Record<string, string>).map(
+          ([key, value]) => (
+            <ColorCard key={`${name}-${key}`} value={key} color={value} />
+          ),
+        )}
       </View>
     </View>
   );

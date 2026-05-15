@@ -178,7 +178,7 @@ export const Select = (props: SelectProps) => {
   const textValue = useMemo(
     () =>
       value !== undefined
-        ? (options?.filter((t) => t.value === value)?.[0]?.label ?? placeholder)
+        ? (options?.find((t) => t.value === value)?.label ?? placeholder)
         : placeholder,
     [value, options, placeholder],
   );
@@ -226,7 +226,7 @@ export const Select = (props: SelectProps) => {
 
 // only used with react-hook-form
 export function ControlledSelect<T extends FieldValues>(
-  props: ControlledSelectProps<T>,
+  props: Readonly<ControlledSelectProps<T>>,
 ) {
   const { name, control, rules, onSelect: onNSelect, ...selectProps } = props;
 
