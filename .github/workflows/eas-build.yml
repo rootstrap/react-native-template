@@ -151,7 +151,7 @@ jobs:
           java-version: '17'
 
       - name: ⚙️ Run Prebuild
-        run: pnpm prebuild:${{ env.ENV }}
+        run: pnpm prebuild:${{ env.ENV }} -p ${{ inputs.platform }}
 
       - name: 📱 Run Build for ${{ inputs.platform }}
         run: |
