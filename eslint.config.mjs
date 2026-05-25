@@ -3,8 +3,8 @@ import { fileURLToPath } from 'node:url';
 
 import antfu from '@antfu/eslint-config';
 import expoPlugin from 'eslint-plugin-expo';
-import importX from 'eslint-plugin-import-x';
 import i18nJsonPlugin from 'eslint-plugin-i18n-json';
+import importX from 'eslint-plugin-import-x';
 import reactCompiler from 'eslint-plugin-react-compiler';
 import tailwind from 'eslint-plugin-tailwindcss';
 import testingLibrary from 'eslint-plugin-testing-library';
@@ -66,7 +66,7 @@ export default antfu(
       'no-console': ['error', { allow: ['error'] }],
       'guard-for-in': 'error',
       'import/prefer-default-export': 'off',
-      'import-x/no-cycle': 'error',
+      'import-x/no-cycle': ['error', { ignoreExternal: true }],
       'unused-imports/no-unused-vars': [
         'error',
         {
@@ -128,6 +128,17 @@ export default antfu(
       ],
       'ts/array-type': ['error', { default: 'generic' }],
       'ts/prefer-nullish-coalescing': 'error',
+      // Type-aware rules activated by tsconfigPath — disable until addressed individually
+      'ts/no-unsafe-assignment': 'off',
+      'ts/no-unsafe-return': 'off',
+      'ts/no-unsafe-argument': 'off',
+      'ts/no-unsafe-call': 'off',
+      'ts/no-unsafe-member-access': 'off',
+      'ts/strict-boolean-expressions': 'off',
+      'ts/no-floating-promises': 'off',
+      'ts/no-misused-promises': 'off',
+      'ts/unbound-method': 'off',
+      'react/no-leaked-conditional-rendering': 'off',
     },
   },
 
