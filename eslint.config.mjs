@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 
 import antfu from '@antfu/eslint-config';
 import expoPlugin from 'eslint-plugin-expo';
+import importX from 'eslint-plugin-import-x';
 import i18nJsonPlugin from 'eslint-plugin-i18n-json';
 import reactCompiler from 'eslint-plugin-react-compiler';
 import tailwind from 'eslint-plugin-tailwindcss';
@@ -13,7 +14,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export default antfu(
   {
     react: true,
-    typescript: true,
+    typescript: {
+      tsconfigPath: './tsconfig.json',
+    },
     jsonc: false,
     markdown: false,
 
@@ -49,13 +52,11 @@ export default antfu(
     rules: {
       'max-params': ['error', 3],
       'max-lines-per-function': ['error', 75],
-      'react/display-name': 'off',
-      'react/no-inline-styles': 'off',
-      'react/destructuring-assignment': 'off',
-      'react/require-default-props': 'off',
-      'react/jsx-fragments': ['error', 'syntax'],
-      'react/jsx-no-useless-fragment': 'error',
-      'react/no-children-prop': ['error', { allowFunctions: true }],
+      'react/no-missing-component-display-name': 'off',
+      'react/prefer-destructuring-assignment': 'off',
+      'react/jsx-shorthand-fragment': 'error',
+      'react/no-useless-fragment': 'error',
+      'react/no-children-prop': 'error',
       'no-nested-ternary': 'error',
       'no-unneeded-ternary': 'error',
       'prefer-template': 'error',
@@ -65,7 +66,7 @@ export default antfu(
       'no-console': ['error', { allow: ['error'] }],
       'guard-for-in': 'error',
       'import/prefer-default-export': 'off',
-      'import/no-cycle': ['error', { maxDepth: '∞' }],
+      'import-x/no-cycle': 'error',
       'unused-imports/no-unused-vars': [
         'error',
         {
@@ -125,8 +126,8 @@ export default antfu(
         'error',
         { ignoreArrayIndexes: true, ignoreEnums: true, ignore: [-1, 0, 1] },
       ],
-      'ts/prefer-nullish-coalescing': 'error',
       'ts/array-type': ['error', { default: 'generic' }],
+      'ts/prefer-nullish-coalescing': 'error',
     },
   },
 
@@ -147,7 +148,7 @@ export default antfu(
     },
   },
 
-  ...tailwind.configs['flat/recommended'].map((config) => ({
+  ...tailwind.configs['flat/recommended'].map(config => ({
     ...config,
     rules: {
       ...config.rules,
@@ -155,6 +156,10 @@ export default antfu(
       'tailwindcss/no-custom-classname': 'off',
     },
   })),
+
+  {
+    plugins: { 'import-x': importX },
+  },
 
   {
     plugins: { expo: expoPlugin },
