@@ -18,9 +18,9 @@ export default function interceptors() {
   client.interceptors.request.use((config: InternalAxiosRequestConfig) => {
     const token = useAuth.getState().token;
 
-    const { headers, data } = config;
+    const { headers } = config;
 
-    if (headers && headers[CONTENT_TYPE] !== MULTIPART_FORM_DATA && data) {
+    if (headers && headers[CONTENT_TYPE] !== MULTIPART_FORM_DATA && config.data) {
       config.data = toSnakeCase(config.data);
     }
 
@@ -39,20 +39,20 @@ export default function interceptors() {
 
   client.interceptors.response.use(
     (response) => {
-      const { data, headers } = response;
-      response.data = toCamelCase(response.data);
+      const { headers } = response;
+      const originalData = response.data as Record<string, unknown>;
 
-      const token = headers[ACCESS_TOKEN];
-      const _client = headers[CLIENT_HEADER];
-      const uid = headers[UID_HEADER];
-      const expiry = headers[EXPIRY_HEADER];
-      const bearer = headers[AUTHORIZATION_HEADER];
+      const token = headers[ACCESS_TOKEN] as string | undefined;
+      const _client = (headers[CLIENT_HEADER] as string | undefined) ?? '';
+      const uid = (headers[UID_HEADER] as string | undefined) ?? '';
+      const expiry = (headers[EXPIRY_HEADER] as string | undefined) ?? '';
+      const bearer = (headers[AUTHORIZATION_HEADER] as string | undefined) ?? '';
 
       if (token) {
         signIn({ access: token, client: _client, uid, expiry, bearer });
       }
 
-      response.data = toCamelCase(data);
+      response.data = toCamelCase(originalData);
 
       return response;
     },

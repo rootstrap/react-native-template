@@ -14,7 +14,7 @@ type Response = {
 const redirectUrl = 'https://example.com';
 
 async function sendForgotPasswordInstructions(variables: Variables) {
-  const { data } = await client({
+  const { data } = await client<Response>({
     url: '/v1/users/password', // Dummy endpoint for forgot password
     method: 'POST',
     data: {

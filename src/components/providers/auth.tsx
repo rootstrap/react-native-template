@@ -77,13 +77,14 @@ client.interceptors.request.use(
 // Response interceptor to handle tokens
 client.interceptors.response.use(
   (response) => {
-    const accessToken = response.headers[HEADER_KEYS.ACCESS_TOKEN] ?? '';
-    const refreshToken = response.headers[HEADER_KEYS.REFRESH_TOKEN] ?? '';
-    const userId = response.headers[HEADER_KEYS.USER_ID] ?? '';
+    const accessToken = (response.headers[HEADER_KEYS.ACCESS_TOKEN] as string | undefined) ?? '';
+    const refreshToken = (response.headers[HEADER_KEYS.REFRESH_TOKEN] as string | undefined) ?? '';
+    const userId = (response.headers[HEADER_KEYS.USER_ID] as string | undefined) ?? '';
 
-    const expiration = response.headers[HEADER_KEYS.EXPIRY]
+    const expiryHeader = response.headers[HEADER_KEYS.EXPIRY] as string | undefined;
+    const expiration = expiryHeader
       ? dayjs
-          .unix(Number.parseInt(response.headers[HEADER_KEYS.EXPIRY], 10))
+          .unix(Number.parseInt(expiryHeader, 10))
           .toISOString()
       : dayjs().add(1, 'hour').toISOString();
 

@@ -17,7 +17,7 @@ type Response = {
 };
 
 async function login(variables: Variables) {
-  const { data } = await client({
+  const { data } = await client<Response>({
     url: '/v1/users/sign_in',
     method: 'POST',
     data: {

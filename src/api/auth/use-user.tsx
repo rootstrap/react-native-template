@@ -15,7 +15,7 @@ export type DeleteUserVariables = {
 };
 
 async function getUser() {
-  const { data } = await client({
+  const { data } = await client<User>({
     url: '/v1/users',
     method: 'GET',
   });
@@ -23,7 +23,7 @@ async function getUser() {
 }
 
 async function deleteUser(variables: DeleteUserVariables) {
-  const { data } = await client.delete('/v1/users', {
+  const { data } = await client.delete<void>('/v1/users', {
     data: variables,
   });
   return data;

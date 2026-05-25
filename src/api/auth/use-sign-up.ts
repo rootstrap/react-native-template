@@ -27,7 +27,7 @@ type Response = {
 };
 
 async function signUp(variables: Variables) {
-  const { data } = await client({
+  const { data } = await client<Response>({
     url: '/v1/users',
     method: 'POST',
     data: {

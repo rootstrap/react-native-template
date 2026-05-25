@@ -129,7 +129,6 @@ export default antfu(
       'ts/array-type': ['error', { default: 'generic' }],
       'ts/prefer-nullish-coalescing': 'error',
       // Type-aware rules activated by tsconfigPath — disable until addressed individually
-      'ts/no-unsafe-assignment': 'off',
       'ts/no-unsafe-return': 'off',
       'ts/no-unsafe-argument': 'off',
       'ts/no-unsafe-call': 'off',
@@ -156,6 +155,7 @@ export default antfu(
     files: ['**/__mocks__/**'],
     rules: {
       'ts/no-require-imports': 'off',
+      'ts/no-unsafe-assignment': 'off',
     },
   },
 

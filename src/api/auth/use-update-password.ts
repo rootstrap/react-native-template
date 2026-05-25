@@ -28,7 +28,7 @@ type Response = {
 };
 
 async function updatePasswordRequest(variables: Variables) {
-  const { data } = await client({
+  const { data } = await client<Response>({
     url: '/v1/users/password',
     method: 'PUT',
     data: { ...variables },
