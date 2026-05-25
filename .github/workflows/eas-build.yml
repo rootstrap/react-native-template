@@ -38,10 +38,10 @@ on:
           - ios
       new-version:
         type: string
-        description: 'New version (e.g. 1.0.0) (optional)'
+        description: New version (e.g. 1.0.0) (optional)
       auto-submit:
         type: boolean
-        description: 'Auto-submit the build to the store'
+        description: Auto-submit the build to the store
         required: false
         default: true
 
@@ -66,12 +66,12 @@ jobs:
         run: |
           CURRENT_VERSION=$(node -p "require('./package.json').version")
           NEW_VERSION="${{ inputs.new-version }}"
-      
+
           echo "Current version: $CURRENT_VERSION"
           echo "New version: $NEW_VERSION"
-      
-          npx semver -r ">=$CURRENT_VERSION" "$NEW_VERSION" > /dev/null || (echo "❌ New version must be greater than or equal to current version ($CURRENT_VERSION)" && exit 1) 
-      
+
+          npx semver -r ">=$CURRENT_VERSION" "$NEW_VERSION" > /dev/null || (echo "❌ New version must be greater than or equal to current version ($CURRENT_VERSION)" && exit 1)
+
           echo "✅ New version is valid"
 
   build:
@@ -136,7 +136,7 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           pnpm version ${{ inputs.new-version }} -m "chore: set app version to ${{ inputs.new-version }}"
-      
+
       - name: Setup latest version of Xcode
         uses: maxim-lobanov/setup-xcode@v1
         if: inputs.platform == 'ios'
@@ -147,7 +147,7 @@ jobs:
         uses: actions/setup-java@v3
         if: inputs.platform == 'android'
         with:
-          distribution: 'zulu' # See 'Supported distributions' for available options
+          distribution: zulu # See 'Supported distributions' for available options
           java-version: '17'
 
       - name: ⚙️ Run Prebuild
@@ -178,4 +178,4 @@ jobs:
       - name: 📦 Push changes to repository
         if: inputs.new-version
         run: |
-          git push || echo "Skipping push: version was already updated." 
+          git push || echo "Skipping push: version was already updated."

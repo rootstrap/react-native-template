@@ -1,9 +1,10 @@
+import type { SubmitHandler } from 'react-hook-form';
+import type { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'expo-router';
-import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
-import { object, string, type z } from 'zod';
+import { object, string } from 'zod';
 
 import { Button, ControlledInput, Text, View } from '@/components/ui';
 import { translate } from '@/lib';
@@ -25,10 +26,10 @@ export type LoginFormProps = {
   onSubmit?: SubmitHandler<FormType>;
 };
 
-export const LoginForm = ({
+export function LoginForm({
   onSubmit = () => {},
   isLoading = false,
-}: LoginFormProps) => {
+}: LoginFormProps) {
   const { handleSubmit, control } = useForm<FormType>({
     resolver: zodResolver(schema),
   });
@@ -67,7 +68,8 @@ export const LoginForm = ({
             loading={isLoading}
           />
           <Text>
-            {translate('auth.signIn.newAccount')}{' '}
+            {translate('auth.signIn.newAccount')}
+            {' '}
             <Link href="/sign-up" disabled={isLoading}>
               <Text className="font-bold text-black">
                 {translate('auth.signIn.buttons.signUp')}
@@ -85,4 +87,4 @@ export const LoginForm = ({
       </View>
     </KeyboardAvoidingView>
   );
-};
+}

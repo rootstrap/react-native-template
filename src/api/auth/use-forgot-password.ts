@@ -13,7 +13,7 @@ type Response = {
 // Should be replaced with the app's web url.
 const redirectUrl = 'https://example.com';
 
-const sendForgotPasswordInstructions = async (variables: Variables) => {
+async function sendForgotPasswordInstructions(variables: Variables) {
   const { data } = await client({
     url: '/v1/users/password', // Dummy endpoint for forgot password
     method: 'POST',
@@ -26,8 +26,8 @@ const sendForgotPasswordInstructions = async (variables: Variables) => {
     },
   });
   return data;
-};
+}
 
 export const useForgotPassword = createMutation<Response, Variables>({
-  mutationFn: (variables) => sendForgotPasswordInstructions(variables),
+  mutationFn: async variables => sendForgotPasswordInstructions(variables),
 });

@@ -1,6 +1,6 @@
 const sharedMockStorage = new Map<string, string>();
 
-const createMockStorage = () => {
+function createMockStorage() {
   const mockGetString = jest.fn((key: string): string | undefined =>
     sharedMockStorage.get(key),
   );
@@ -42,7 +42,7 @@ const createMockStorage = () => {
       sharedMockStorage.set(key, String(value));
     }),
   };
-};
+}
 
 export function createMMKV(_options?: { id?: string }) {
   return createMockStorage();

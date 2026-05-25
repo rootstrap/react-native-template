@@ -9,7 +9,7 @@ export const WIDTH = width;
 export const HEIGHT = height;
 
 // for onError react queries and mutations
-export const showError = (error: AxiosError) => {
+export function showError(error: AxiosError) {
   const description = extractError(error?.response?.data).trimEnd();
 
   showMessage({
@@ -19,22 +19,22 @@ export const showError = (error: AxiosError) => {
     duration: 4000,
     icon: 'danger',
   });
-};
+}
 
-export const showErrorMessage = (message: string = 'Something went wrong ') => {
+export function showErrorMessage(message: string = 'Something went wrong ') {
   showMessage({
     message,
     type: 'danger',
     duration: 4000,
   });
-};
+}
 
-export const extractError = (data: unknown): string => {
+export function extractError(data: unknown): string {
   if (typeof data === 'string') {
     return data;
   }
   if (Array.isArray(data)) {
-    const messages = data.map((item) => `  ${extractError(item)}`);
+    const messages = data.map(item => `  ${extractError(item)}`);
 
     return `${messages.join('')}`;
   }
@@ -49,4 +49,4 @@ export const extractError = (data: unknown): string => {
     return `${messages.join('')} `;
   }
   return 'Something went wrong ';
-};
+}

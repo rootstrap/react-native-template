@@ -1,8 +1,9 @@
-import React, { forwardRef } from 'react';
+import type { TxKeyPath } from '@/lib';
+import * as React from 'react';
 
+import { forwardRef } from 'react';
 import { Pressable, Text, View } from '@/components/ui';
 import { ArrowRight } from '@/components/ui/icons';
-import type { TxKeyPath } from '@/lib';
 
 type ItemProps = {
   text: TxKeyPath;

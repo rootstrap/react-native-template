@@ -2,18 +2,21 @@ import { Text, View } from '@/components/ui';
 import colors from '@/components/ui/colors';
 
 import { Title } from './title';
+
 type ColorName = keyof typeof colors;
 
-export const Colors = () => (
-  <>
-    <Title text="Colors" />
-    {(Object.keys(colors) as Array<ColorName>).map((name) => (
-      <Color name={name} key={name} />
-    ))}
-  </>
-);
+export function Colors() {
+  return (
+    <>
+      <Title text="Colors" />
+      {(Object.keys(colors) as Array<ColorName>).map(name => (
+        <Color name={name} key={name} />
+      ))}
+    </>
+  );
+}
 
-const Color = ({ name }: { name: ColorName }) => {
+function Color({ name }: { name: ColorName }) {
   if (typeof colors[name] === 'string') {
     return null;
   }
@@ -29,14 +32,16 @@ const Color = ({ name }: { name: ColorName }) => {
       </View>
     </View>
   );
-};
+}
 
-const ColorCard = ({ color, value }: { value: string; color: string }) => (
-  <View className="flex-1">
-    <View
-      className="h-14 w-full rounded-sm"
-      style={{ backgroundColor: color }}
-    />
-    <Text className="text-sm">{value}</Text>
-  </View>
-);
+function ColorCard({ color, value }: { value: string; color: string }) {
+  return (
+    <View className="flex-1">
+      <View
+        className="h-14 w-full rounded-sm"
+        style={{ backgroundColor: color }}
+      />
+      <Text className="text-sm">{value}</Text>
+    </View>
+  );
+}

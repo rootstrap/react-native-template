@@ -28,29 +28,29 @@ name: 🔄 Sync with upstream
 
 on:
   schedule:
-    - cron: "0 12 * * 1-5" # At 12:00 UTC on every day-of-week from Monday through Friday
+    - cron: '0 12 * * 1-5' # At 12:00 UTC on every day-of-week from Monday through Friday
   workflow_dispatch:
     inputs:
       upstream-version:
         type: string
-        description: "Upstream release version to sync with (e.g. v1.0.0). Leave empty to sync with the latest release."
+        description: Upstream release version to sync with (e.g. v1.0.0). Leave empty to sync with the latest release.
         required: false
-        default: ""
+        default: ''
 
 env:
   UPSTREAM_REPOSITORY: obytes/react-native-template-obytes
   DIFF_EXCLUDED_ROUTES:
     | # Files/directories we don't want from the upstream repository
-    ios
-    android
-    .cursorrules
-    .github/workflows/eas-build-prod.yml
-    .github/workflows/eas-build-qa.yml
-    .github/workflows/new-app-version.yml
-    .github/workflows/new-github-release.yml
-    docs/public/reviews
-    src/app/login.tsx
-    src/components/card.tsx
+      ios
+      android
+      .cursorrules
+      .github/workflows/eas-build-prod.yml
+      .github/workflows/eas-build-qa.yml
+      .github/workflows/new-app-version.yml
+      .github/workflows/new-github-release.yml
+      docs/public/reviews
+      src/app/login.tsx
+      src/components/card.tsx
 
 jobs:
   sync:

@@ -16,7 +16,7 @@ type Response = {
   refreshToken: string;
 };
 
-const login = async (variables: Variables) => {
+async function login(variables: Variables) {
   const { data } = await client({
     url: '/v1/users/sign_in',
     method: 'POST',
@@ -25,8 +25,8 @@ const login = async (variables: Variables) => {
     },
   });
   return data;
-};
+}
 
 export const useLogin = createMutation<Response, Variables>({
-  mutationFn: (variables) => login(variables),
+  mutationFn: async variables => login(variables),
 });

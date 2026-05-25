@@ -42,12 +42,12 @@ export function getUrlParameters(
 export const getPreviousPageParam: GetNextPageParamFunction<
   unknown,
   PaginateQuery<unknown>
-> = (page) => getUrlParameters(page.previous)?.offset ?? null;
+> = page => getUrlParameters(page.previous)?.offset ?? null;
 
 export const getNextPageParam: GetPreviousPageParamFunction<
   unknown,
   PaginateQuery<unknown>
-> = (page) => getUrlParameters(page.next)?.offset ?? null;
+> = page => getUrlParameters(page.next)?.offset ?? null;
 
 type GenericObject = { [key: string]: unknown };
 
@@ -55,32 +55,34 @@ function isGenericObject(value: unknown): value is GenericObject {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-export const toCamelCase = (obj: GenericObject): GenericObject => {
+export function toCamelCase(obj: GenericObject): GenericObject {
   const newObj: GenericObject = {};
   for (const key in obj) {
     if (Object.hasOwn(obj, key)) {
-      const newKey = key.replaceAll(/_([a-z])/g, (g) => g[1].toUpperCase());
+      const newKey = key.replaceAll(/_([a-z])/g, g => g[1].toUpperCase());
       const value = obj[key];
       if (isGenericObject(value)) {
         newObj[newKey] = toCamelCase(value);
-      } else {
+      }
+      else {
         newObj[newKey] = value;
       }
     }
   }
   return newObj;
-};
+}
 
-const camelToSnake = (key: string): string =>
-  key.replaceAll(/([a-z])([A-Z])/g, '$1_$2').toLowerCase();
+function camelToSnake(key: string): string {
+  return key.replaceAll(/([a-z])([A-Z])/g, '$1_$2').toLowerCase();
+}
 
-export const toSnakeCase = (obj: GenericObject): GenericObject => {
+export function toSnakeCase(obj: GenericObject): GenericObject {
   const newObj: GenericObject = {};
 
   for (const [key, value] of Object.entries(obj)) {
     const newKey = camelToSnake(key);
-    newObj[newKey] =
-      isGenericObject(value) && value !== null ? toSnakeCase(value) : value;
+    newObj[newKey]
+      = isGenericObject(value) && value !== null ? toSnakeCase(value) : value;
   }
   return newObj;
-};
+}

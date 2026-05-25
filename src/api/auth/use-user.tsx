@@ -14,20 +14,20 @@ export type DeleteUserVariables = {
   email: string;
 };
 
-const getUser = async () => {
+async function getUser() {
   const { data } = await client({
     url: '/v1/users',
     method: 'GET',
   });
   return data;
-};
+}
 
-const deleteUser = async (variables: DeleteUserVariables) => {
+async function deleteUser(variables: DeleteUserVariables) {
   const { data } = await client.delete('/v1/users', {
     data: variables,
   });
   return data;
-};
+}
 
 export const useUser = createQuery<User>({
   queryKey: ['getUser'],

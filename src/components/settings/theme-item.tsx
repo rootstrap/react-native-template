@@ -1,13 +1,13 @@
-import { useCallback, useMemo } from 'react';
-
 import type { OptionType } from '@/components/ui';
-import { Options, useModal } from '@/components/ui';
+
 import type { ColorSchemeType } from '@/lib';
+import { useCallback, useMemo } from 'react';
+import { Options, useModal } from '@/components/ui';
 import { translate, useSelectedTheme } from '@/lib';
 
 import { Item } from './item';
 
-export const ThemeItem = () => {
+export function ThemeItem() {
   const { selectedTheme, setSelectedTheme } = useSelectedTheme();
   const modal = useModal();
 
@@ -29,7 +29,7 @@ export const ThemeItem = () => {
   );
 
   const theme = useMemo(
-    () => themes.find((t) => t.value === selectedTheme),
+    () => themes.find(t => t.value === selectedTheme),
     [selectedTheme, themes],
   );
 
@@ -48,4 +48,4 @@ export const ThemeItem = () => {
       />
     </>
   );
-};
+}

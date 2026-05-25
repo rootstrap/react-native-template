@@ -1,7 +1,7 @@
-import { forwardRef, useMemo } from 'react';
 import type { PressableProps, View } from 'react-native';
-import { ActivityIndicator, Pressable, Text } from 'react-native';
 import type { VariantProps } from 'tailwind-variants';
+import { forwardRef, useMemo } from 'react';
+import { ActivityIndicator, Pressable, Text } from 'react-native';
 import { tv } from 'tailwind-variants';
 
 const TEXT_WHITE = 'text-white';
@@ -86,12 +86,12 @@ const button = tv({
 });
 
 type ButtonVariants = VariantProps<typeof button>;
-interface Props extends ButtonVariants, Omit<PressableProps, 'disabled'> {
+type Props = {
   label?: string;
   loading?: boolean;
   className?: string;
   textClassName?: string;
-}
+} & ButtonVariants & Omit<PressableProps, 'disabled'>;
 
 export const Button = forwardRef<View, Props>(
   (
@@ -113,7 +113,7 @@ export const Button = forwardRef<View, Props>(
       [variant, disabled, size],
     );
 
-    const renderContent = () => {
+    const renderContent = (): PressableProps['children'] => {
       if (props?.children) {
         return props.children;
       }

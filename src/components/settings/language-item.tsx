@@ -1,13 +1,14 @@
-import React, { useCallback, useMemo } from 'react';
-
 import type { OptionType } from '@/components/ui';
+import type { Language } from '@/lib/i18n/resources';
+
+import * as React from 'react';
+import { useCallback, useMemo } from 'react';
 import { Options, useModal } from '@/components/ui';
 import { translate, useSelectedLanguage } from '@/lib';
-import type { Language } from '@/lib/i18n/resources';
 
 import { Item } from './item';
 
-export const LanguageItem = () => {
+export function LanguageItem() {
   const { language, setLanguage } = useSelectedLanguage();
   const modal = useModal();
   const onSelect = useCallback(
@@ -24,7 +25,7 @@ export const LanguageItem = () => {
   );
 
   const selectedLanguage = useMemo(
-    () => langs.find((lang) => lang.value === language),
+    () => langs.find(lang => lang.value === language),
     [language, langs],
   );
 
@@ -43,4 +44,4 @@ export const LanguageItem = () => {
       />
     </>
   );
-};
+}

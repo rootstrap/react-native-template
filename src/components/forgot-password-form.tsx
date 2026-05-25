@@ -22,7 +22,7 @@ export type ForgotPasswordFormProps = {
   onSubmit: (data: FormType) => void;
 };
 
-export const ForgotPasswordForm = (props: ForgotPasswordFormProps) => {
+export function ForgotPasswordForm(props: ForgotPasswordFormProps) {
   const { t } = useTranslation();
   const { handleSubmit, control } = useForm<{
     email: string;
@@ -70,4 +70,4 @@ export const ForgotPasswordForm = (props: ForgotPasswordFormProps) => {
       </View>
     </KeyboardAvoidingView>
   );
-};
+}

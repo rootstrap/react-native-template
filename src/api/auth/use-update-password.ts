@@ -27,7 +27,7 @@ type Response = {
   data?: ResponseData;
 };
 
-const updatePasswordRequest = async (variables: Variables) => {
+async function updatePasswordRequest(variables: Variables) {
   const { data } = await client({
     url: '/v1/users/password',
     method: 'PUT',
@@ -37,8 +37,8 @@ const updatePasswordRequest = async (variables: Variables) => {
     },
   });
   return data;
-};
+}
 
 export const useUpdatePassword = createMutation<Response, Variables>({
-  mutationFn: (variables) => updatePasswordRequest(variables),
+  mutationFn: async variables => updatePasswordRequest(variables),
 });

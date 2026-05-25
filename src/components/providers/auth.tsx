@@ -1,8 +1,9 @@
 import dayjs from 'dayjs';
-import React, {
+import * as React from 'react';
+import {
   createContext,
+  use,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useState,
@@ -27,28 +28,30 @@ export const HEADER_KEYS = {
   AUTHORIZATION: 'Authorization',
 };
 
-export const storeTokens = (args: {
+export function storeTokens(args: {
   accessToken: string;
   refreshToken: string;
   userId: string;
   expiration: string;
-}) => {
+}) {
   authStorage.set(HEADER_KEYS.ACCESS_TOKEN, args.accessToken);
   authStorage.set(HEADER_KEYS.REFRESH_TOKEN, args.refreshToken);
   authStorage.set(HEADER_KEYS.USER_ID, args.userId);
   authStorage.set(HEADER_KEYS.EXPIRY, args.expiration);
-};
+}
 
-export const getTokenDetails = () => ({
-  accessToken: authStorage.getString(HEADER_KEYS.ACCESS_TOKEN) ?? '',
-  refreshToken: authStorage.getString(HEADER_KEYS.REFRESH_TOKEN) ?? '',
-  userId: authStorage.getString(HEADER_KEYS.USER_ID) ?? '',
-  expiration: authStorage.getString(HEADER_KEYS.EXPIRY) ?? '',
-});
+export function getTokenDetails() {
+  return {
+    accessToken: authStorage.getString(HEADER_KEYS.ACCESS_TOKEN) ?? '',
+    refreshToken: authStorage.getString(HEADER_KEYS.REFRESH_TOKEN) ?? '',
+    userId: authStorage.getString(HEADER_KEYS.USER_ID) ?? '',
+    expiration: authStorage.getString(HEADER_KEYS.EXPIRY) ?? '',
+  };
+}
 
-export const clearTokens = () => {
+export function clearTokens() {
   authStorage.clearAll();
-};
+}
 
 // Request interceptor to add Authorization header
 client.interceptors.request.use(
@@ -68,7 +71,7 @@ client.interceptors.request.use(
 
     return config;
   },
-  (error) => Promise.reject(error),
+  async error => Promise.reject(error),
 );
 
 // Response interceptor to handle tokens
@@ -90,16 +93,16 @@ client.interceptors.response.use(
 
     return response;
   },
-  (error) => Promise.reject(error),
+  async error => Promise.reject(error),
 );
 
-interface AuthContextProps {
+type AuthContextProps = {
   token: string | null;
   isAuthenticated: boolean;
   loading: boolean;
   ready: boolean;
   logout: () => void;
-}
+};
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
@@ -125,7 +128,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     if (isExpired) {
       setToken(null); // Token expired, clear it
-    } else {
+    }
+    else {
       setToken(storedToken); // Token is valid, set it
     }
 
@@ -141,7 +145,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     try {
       checkToken();
-    } catch {
+    }
+    catch {
       setReady(true);
     }
     const requestInterceptor = client.interceptors.response.use(
@@ -152,7 +157,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         checkToken();
         return config;
       },
-      (error) => Promise.reject(error),
+      async error => Promise.reject(error),
     );
 
     return () => {
@@ -170,13 +175,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     }),
     [loading, ready, token],
   );
-  return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>;
+  return <AuthContext value={values}>{children}</AuthContext>;
 };
 
-export const useAuth = (): AuthContextProps => {
-  const context = useContext(AuthContext);
+export function useAuth(): AuthContextProps {
+  const context = use(AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-};
+}

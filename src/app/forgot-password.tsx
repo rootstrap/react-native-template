@@ -1,11 +1,12 @@
-import React from 'react';
+import type { FormType as ForgotPasswordFormType } from '@/components/forgot-password-form';
+import * as React from 'react';
 import { useTranslation } from 'react-i18next';
-import { showMessage } from 'react-native-flash-message';
 
+import { showMessage } from 'react-native-flash-message';
 import { useForgotPassword } from '@/api/auth/use-forgot-password';
 import {
   ForgotPasswordForm,
-  type FormType as ForgotPasswordFormType,
+
 } from '@/components/forgot-password-form';
 import { FocusAwareStatusBar } from '@/components/ui';
 

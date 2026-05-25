@@ -1,16 +1,17 @@
-import React, { forwardRef, useCallback, useMemo, useState } from 'react';
 import type {
   Control,
   FieldValues,
   Path,
   RegisterOptions,
 } from 'react-hook-form';
-import { useController } from 'react-hook-form';
 import type { TextInputProps } from 'react-native';
+import * as React from 'react';
+import { forwardRef, useCallback, useMemo, useState } from 'react';
+import { useController } from 'react-hook-form';
 import {
   I18nManager,
-  StyleSheet,
   TextInput as NTextInput,
+  StyleSheet,
   View,
 } from 'react-native';
 import { tv } from 'tailwind-variants';
@@ -51,17 +52,17 @@ const inputTv = tv({
   },
 });
 
-export interface NInputProps extends TextInputProps {
+export type NInputProps = {
   label?: string;
   disabled?: boolean;
   error?: string;
-}
+} & TextInputProps;
 
-type TRule<T extends FieldValues> =
-  | Omit<
-      RegisterOptions<T>,
+type TRule<T extends FieldValues>
+  = | Omit<
+    RegisterOptions<T>,
       'disabled' | 'valueAsNumber' | 'valueAsDate' | 'setValueAs'
-    >
+  >
   | undefined;
 
 export type RuleType<T extends FieldValues> = { [name in keyof T]: TRule<T> };
@@ -71,9 +72,7 @@ export type InputControllerType<T extends FieldValues> = {
   rules?: RuleType<T>;
 };
 
-interface ControlledInputProps<T extends FieldValues>
-  extends NInputProps,
-    InputControllerType<T> {}
+type ControlledInputProps<T extends FieldValues> = {} & NInputProps & InputControllerType<T>;
 
 export const Input = forwardRef<NTextInput, NInputProps>((props, ref) => {
   const { label, error, testID, ...inputProps } = props;
@@ -139,7 +138,7 @@ export function ControlledInput<T extends FieldValues>(
       ref={field.ref}
       autoCapitalize="none"
       onChangeText={field.onChange}
-      value={(field.value as string) || ''}
+      value={(field.value) || ''}
       {...inputProps}
       error={fieldState.error?.message}
     />

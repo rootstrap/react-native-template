@@ -1,7 +1,9 @@
+import type { SubmitHandler } from 'react-hook-form';
+import type { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { type SubmitHandler, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { KeyboardAvoidingView } from 'react-native';
-import { object, string, type z } from 'zod';
+import { object, string } from 'zod';
 
 import { Button, ControlledInput, Text, View } from '@/components/ui';
 import { translate } from '@/lib';
@@ -23,7 +25,7 @@ const schema = object({
   passwordConfirmation: string({
     required_error: translate('auth.signUp.error.passwordConfirmationRequired'),
   }),
-}).refine((data) => data.password === data.passwordConfirmation, {
+}).refine(data => data.password === data.passwordConfirmation, {
   message: translate('auth.signUp.error.passwordsDoNotMatch'),
   path: ['passwordConfirmation'],
 });
@@ -35,10 +37,10 @@ export type SignUpFormProps = {
   isPending?: boolean;
 };
 
-export const SignUpForm = ({
+export function SignUpForm({
   onSubmit = () => {},
   isPending = false,
-}: SignUpFormProps) => {
+}: SignUpFormProps) {
   const { handleSubmit, control } = useForm<FormType>({
     resolver: zodResolver(schema),
   });
@@ -96,4 +98,4 @@ export const SignUpForm = ({
       </View>
     </KeyboardAvoidingView>
   );
-};
+}

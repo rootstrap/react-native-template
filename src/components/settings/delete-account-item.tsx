@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Alert } from 'react-native';
 
 import { translate } from '@/lib';
@@ -9,7 +9,7 @@ export type DeleteAccountItemProps = {
   onDelete: () => void;
 };
 
-export const DeleteAccountItem = (props: DeleteAccountItemProps) => {
+export function DeleteAccountItem(props: DeleteAccountItemProps) {
   const handleDeleteAccount = () => {
     props.onDelete();
   };
@@ -29,5 +29,5 @@ export const DeleteAccountItem = (props: DeleteAccountItemProps) => {
     );
   };
 
-  return <Item text={'settings.deleteAccount.title'} onPress={confirmDelete} />;
-};
+  return <Item text="settings.deleteAccount.title" onPress={confirmDelete} />;
+}
