@@ -72,7 +72,7 @@ export type InputControllerType<T extends FieldValues> = {
   rules?: RuleType<T>;
 };
 
-type ControlledInputProps<T extends FieldValues> = {} & NInputProps & InputControllerType<T>;
+type ControlledInputProps<T extends FieldValues> = NInputProps & InputControllerType<T>;
 
 export const Input = forwardRef<NTextInput, NInputProps>((props, ref) => {
   const { label, error, testID, ...inputProps } = props;

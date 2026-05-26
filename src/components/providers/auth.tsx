@@ -71,7 +71,7 @@ client.interceptors.request.use(
 
     return config;
   },
-  async error => Promise.reject(error),
+  (error: unknown) => { throw error; },
 );
 
 // Response interceptor to handle tokens
@@ -94,7 +94,7 @@ client.interceptors.response.use(
 
     return response;
   },
-  async error => Promise.reject(error),
+  (error: unknown) => { throw error; },
 );
 
 type AuthContextProps = {
@@ -158,7 +158,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         checkToken();
         return config;
       },
-      async error => Promise.reject(error),
+      (error: unknown) => { throw error; },
     );
 
     return () => {
