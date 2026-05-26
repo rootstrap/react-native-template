@@ -23,7 +23,7 @@ runs:
     - uses: actions/setup-node@v4
       name: Install Node.js
       with:
-        node-version: 20
+        node-version: 22
         cache: pnpm
 
     - name: 📦 Install Project Dependencies
