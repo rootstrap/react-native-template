@@ -1,4 +1,4 @@
-import type TranslateOptions from 'i18next';
+import type { TOptions } from 'i18next';
 import type { Language, resources } from './resources';
 import type { RecursiveKeyOf } from './types';
 import { changeLanguage as i18nChangeLanguage, t } from 'i18next';
@@ -18,16 +18,17 @@ export const LOCAL = 'local';
 export const getLanguage = () => storage.getString(LOCAL); // 'Marc' getItem<Language | undefined>(LOCAL);
 
 export const translate = memoize(
-  (key: TxKeyPath, options = undefined) => t(key, options) as unknown as string,
-  (key: TxKeyPath, options: typeof TranslateOptions) =>
-    options ? key + JSON.stringify(options) : key,
-);
+
+  (key: TxKeyPath, options?: Record<string, unknown>) => t(key, options as TOptions),
+  (key: TxKeyPath, options?: unknown) =>
+    options ? `${key}${JSON.stringify(options)}` : key,
+) as (key: TxKeyPath, options?: Record<string, unknown>) => string;
 
 export function changeLanguage(lang: Language) {
   i18nChangeLanguage(lang);
   if (Platform.OS === 'ios' || Platform.OS === 'android') {
     if (__DEV__) {
-      NativeModules.DevSettings.reload();
+      (NativeModules.DevSettings as { reload: () => void }).reload();
     }
     else {
       RNRestart.restart();

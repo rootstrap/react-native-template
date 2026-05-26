@@ -21,7 +21,8 @@ export default function interceptors() {
     const { headers } = config;
 
     if (headers && headers[CONTENT_TYPE] !== MULTIPART_FORM_DATA && config.data) {
-      config.data = toSnakeCase(config.data);
+      const requestData: Record<string, unknown> = config.data as Record<string, unknown>;
+      config.data = toSnakeCase(requestData);
     }
 
     if (token) {

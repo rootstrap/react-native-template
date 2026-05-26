@@ -129,8 +129,6 @@ export default antfu(
       'ts/array-type': ['error', { default: 'generic' }],
       'ts/prefer-nullish-coalescing': 'error',
       // Type-aware rules activated by tsconfigPath — disable until addressed individually
-      'ts/no-unsafe-argument': 'off',
-      'ts/no-unsafe-call': 'off',
       'ts/no-unsafe-member-access': 'off',
       'ts/strict-boolean-expressions': 'off',
       'ts/no-floating-promises': 'off',
