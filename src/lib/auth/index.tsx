@@ -16,11 +16,11 @@ const _useAuth = create<AuthState>((set, get) => ({
   status: 'idle',
   token: null,
   signIn: (token) => {
-    setToken(token);
+    void setToken(token);
     set({ status: 'signIn', token });
   },
   signOut: () => {
-    removeToken();
+    void removeToken();
     set({ status: 'signOut', token: null });
   },
   hydrate: () => {

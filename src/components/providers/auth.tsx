@@ -82,13 +82,13 @@ client.interceptors.response.use(
     const userId = (response.headers[HEADER_KEYS.USER_ID] as string | undefined) ?? '';
 
     const expiryHeader = response.headers[HEADER_KEYS.EXPIRY] as string | undefined;
-    const expiration = expiryHeader
+    const expiration = expiryHeader !== undefined
       ? dayjs
           .unix(Number.parseInt(expiryHeader, 10))
           .toISOString()
       : dayjs().add(1, 'hour').toISOString();
 
-    if (accessToken && refreshToken && userId && expiration) {
+    if (accessToken !== '' && refreshToken !== '' && userId !== '' && expiration !== '') {
       storeTokens({ accessToken, refreshToken, userId, expiration });
     }
 
@@ -118,7 +118,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     const storedToken = authStorage.getString(HEADER_KEYS.ACCESS_TOKEN);
     const expiration = authStorage.getString(HEADER_KEYS.EXPIRY);
 
-    if (!storedToken || !expiration) {
+    if (storedToken === undefined || expiration === undefined) {
       setToken(null);
       setLoading(false);
       setReady(true);
@@ -169,7 +169,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const values = useMemo(
     () => ({
       token,
-      isAuthenticated: !!token,
+      isAuthenticated: token !== null,
       loading,
       ready,
       logout,

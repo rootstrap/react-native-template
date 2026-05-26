@@ -19,7 +19,7 @@ export default function TabLayout() {
 
   useEffect(() => {
     if (!ready) {
-      hideSplash();
+      void hideSplash();
     }
   }, [hideSplash, ready]);
 

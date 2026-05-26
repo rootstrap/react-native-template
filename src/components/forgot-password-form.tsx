@@ -64,7 +64,7 @@ export function ForgotPasswordForm(props: ForgotPasswordFormProps) {
           <Button
             testID="send-email-button"
             label={t('forgotPassword.buttonLabel')}
-            onPress={handleSubmit(onSubmit)}
+            onPress={() => { void handleSubmit(onSubmit)(); }}
           />
         </View>
       </View>

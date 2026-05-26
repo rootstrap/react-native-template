@@ -26,7 +26,7 @@ function createMockStorage() {
     contains: jest.fn((key: string): boolean => sharedMockStorage.has(key)),
     getNumber: jest.fn((key: string): number | undefined => {
       const value = sharedMockStorage.get(key);
-      return value ? Number(value) : undefined;
+      return value !== undefined ? Number(value) : undefined;
     }),
     getBoolean: jest.fn((key: string): boolean | undefined => {
       const value = sharedMockStorage.get(key);

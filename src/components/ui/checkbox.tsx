@@ -126,11 +126,11 @@ function CheckboxBase({
   return (
     <CheckboxRoot checked={checked} testID={testID} {...props}>
       <CheckboxIcon checked={checked} />
-      {label
+      {label !== undefined
         ? (
             <Label
               text={label}
-              testID={testID ? `${testID}-label` : undefined}
+              testID={testID !== undefined ? `${testID}-label` : undefined}
               className="pr-2"
             />
           )
@@ -162,7 +162,7 @@ export function RadioIcon({ checked }: IconProps) {
       transition={{ borderColor: { duration: 100, type: 'timing' } }}
     >
       <MotiView
-        className={`size-[10px] rounded-[10px] ${checked && 'bg-primary-300'} `}
+        className={`size-[10px] rounded-[10px] ${checked ? 'bg-primary-300' : ''} `}
         from={{ opacity: 0 }}
         animate={{ opacity: checked ? 1 : 0 }}
         transition={{ opacity: { duration: 50, type: 'timing' } }}
@@ -188,9 +188,9 @@ function RadioBase({
   return (
     <RadioRoot checked={checked} testID={testID} {...props}>
       <RadioIcon checked={checked} />
-      {label
+      {label !== undefined
         ? (
-            <Label text={label} testID={testID ? `${testID}-label` : undefined} />
+            <Label text={label} testID={testID !== undefined ? `${testID}-label` : undefined} />
           )
         : null}
     </RadioRoot>
@@ -255,9 +255,9 @@ function SwitchBase({
   return (
     <SwitchRoot checked={checked} testID={testID} {...props}>
       <SwitchIcon checked={checked} />
-      {label
+      {label !== undefined
         ? (
-            <Label text={label} testID={testID ? `${testID}-label` : undefined} />
+            <Label text={label} testID={testID !== undefined ? `${testID}-label` : undefined} />
           )
         : null}
     </SwitchRoot>

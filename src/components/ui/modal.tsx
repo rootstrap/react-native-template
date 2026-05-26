@@ -86,7 +86,7 @@ export const Modal = forwardRef(
 
     useImperativeHandle(
       ref,
-      () => (modal.ref.current as BottomSheetModal) || null,
+      () => modal.ref.current as BottomSheetModal,
     );
 
     const renderHandleComponent = useCallback(
@@ -164,7 +164,7 @@ function getDetachedProps(detached: boolean) {
 
 const ModalHeader = memo(({ title, dismiss }: ModalHeaderProps) => (
   <>
-    {title && (
+    {title !== undefined && (
       <View className="flex-row px-2 py-4">
         <View className="size-[24px]" />
         <View className="flex-1">

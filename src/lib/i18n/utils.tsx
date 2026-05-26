@@ -21,11 +21,11 @@ export const translate = memoize(
 
   (key: TxKeyPath, options?: Record<string, unknown>) => t(key, options as TOptions),
   (key: TxKeyPath, options?: unknown) =>
-    options ? `${key}${JSON.stringify(options)}` : key,
+    options !== undefined ? `${key}${JSON.stringify(options)}` : key,
 ) as (key: TxKeyPath, options?: Record<string, unknown>) => string;
 
 export function changeLanguage(lang: Language) {
-  i18nChangeLanguage(lang);
+  void i18nChangeLanguage(lang);
   if (Platform.OS === 'ios' || Platform.OS === 'android') {
     if (__DEV__) {
       (NativeModules.DevSettings as { reload: () => void }).reload();

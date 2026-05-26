@@ -25,5 +25,5 @@ export function Image({
 }
 
 export function preloadImages(sources: Array<string>) {
-  NImage.prefetch(sources);
+  void NImage.prefetch(sources);
 }

@@ -14,6 +14,7 @@ export type ColorSchemeType = 'light' | 'dark' | 'system';
  *
  */
 export function useSelectedTheme() {
+  // eslint-disable-next-line ts/unbound-method
   const { setColorScheme } = useColorScheme();
   const [theme, _setTheme] = useMMKVString(SELECTED_THEME, storage);
 

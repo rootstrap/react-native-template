@@ -90,7 +90,7 @@ export function SignUpForm({
           <Button
             testID="sign-up-button"
             label={translate('auth.signUp.signUpButton')}
-            onPress={handleSubmit(onSubmit)}
+            onPress={() => { void handleSubmit(onSubmit)(); }}
             loading={isPending}
             disabled={isPending}
           />

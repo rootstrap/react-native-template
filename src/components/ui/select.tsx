@@ -87,7 +87,7 @@ export const Options = forwardRef<BottomSheetModal, OptionsProps>(
           label={item.label}
           selected={value === item.value}
           onPress={() => onSelect(item)}
-          testID={testID ? `${testID}-item-${item.value}` : undefined}
+          testID={testID !== undefined ? `${testID}-item-${item.value}` : undefined}
         />
       ),
       [onSelect, value, testID],
@@ -106,7 +106,7 @@ export const Options = forwardRef<BottomSheetModal, OptionsProps>(
           data={options}
           keyExtractor={keyExtractor}
           renderItem={renderSelectItem}
-          testID={testID ? `${testID}-modal` : undefined}
+          testID={testID !== undefined ? `${testID}-modal` : undefined}
           estimatedItemSize={52}
         />
       </Modal>
@@ -186,9 +186,9 @@ export function Select(props: SelectProps) {
   return (
     <>
       <View className={styles.container()}>
-        {label && (
+        {label !== undefined && (
           <Text
-            testID={testID ? `${testID}-label` : undefined}
+            testID={testID !== undefined ? `${testID}-label` : undefined}
             className={styles.label()}
           >
             {label}
@@ -198,16 +198,16 @@ export function Select(props: SelectProps) {
           className={styles.input()}
           disabled={disabled}
           onPress={() => modal.present()}
-          testID={testID ? `${testID}-trigger` : undefined}
+          testID={testID !== undefined ? `${testID}-trigger` : undefined}
         >
           <View className="flex-1">
             <Text className={styles.inputValue()}>{textValue}</Text>
           </View>
           <CaretDown />
         </Pressable>
-        {error && (
+        {error !== undefined && (
           <Text
-            testID={`${testID}-error`}
+            testID={`${testID ?? ''}-error`}
             className="text-sm text-danger-300 dark:text-danger-600"
           >
             {error}

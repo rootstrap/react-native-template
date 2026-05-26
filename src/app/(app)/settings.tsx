@@ -36,7 +36,7 @@ export default function Settings() {
     = colorScheme === 'dark' ? colors.neutral[400] : colors.neutral[500];
 
   const handleDeleteUser = async () => {
-    if (!userData?.email) {
+    if (userData?.email == null || userData.email === '') {
       return;
     }
     await deleteUserAsync({ email: userData?.email });
@@ -106,7 +106,7 @@ export default function Settings() {
 
           <View className="my-8">
             <ItemsContainer>
-              <DeleteAccountItem onDelete={handleDeleteUser} />
+              <DeleteAccountItem onDelete={() => { void handleDeleteUser(); }} />
               <Item text="settings.logout" onPress={logout} />
             </ItemsContainer>
           </View>

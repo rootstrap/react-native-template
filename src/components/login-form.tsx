@@ -64,7 +64,7 @@ export function LoginForm({
           <Button
             testID="login-button"
             label={translate('auth.signIn.buttons.login')}
-            onPress={handleSubmit(onSubmit)}
+            onPress={() => { void handleSubmit(onSubmit)(); }}
             loading={isLoading}
           />
           <Text>

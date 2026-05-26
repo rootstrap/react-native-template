@@ -92,9 +92,9 @@ export const Input = forwardRef<NTextInput, NInputProps>((props, ref) => {
 
   return (
     <View className={styles.container()}>
-      {label && (
+      {label !== undefined && (
         <Text
-          testID={testID ? `${testID}-label` : undefined}
+          testID={testID !== undefined ? `${testID}-label` : undefined}
           className={styles.label()}
         >
           {label}
@@ -114,9 +114,9 @@ export const Input = forwardRef<NTextInput, NInputProps>((props, ref) => {
           inputProps.style,
         ])}
       />
-      {error && (
+      {error !== undefined && (
         <Text
-          testID={testID ? `${testID}-error` : undefined}
+          testID={testID !== undefined ? `${testID}-error` : undefined}
           className="text-sm text-danger-400 dark:text-danger-600"
         >
           {error}
@@ -138,7 +138,7 @@ export function ControlledInput<T extends FieldValues>(
       ref={field.ref}
       autoCapitalize="none"
       onChangeText={field.onChange}
-      value={(field.value) || ''}
+      value={field.value ?? ''}
       {...inputProps}
       error={fieldState.error?.message}
     />

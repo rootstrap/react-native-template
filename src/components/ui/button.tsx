@@ -114,7 +114,7 @@ export const Button = forwardRef<View, Props>(
     );
 
     const renderContent = (): PressableProps['children'] => {
-      if (props?.children) {
+      if (props?.children != null) {
         return props.children;
       }
 
@@ -123,13 +123,13 @@ export const Button = forwardRef<View, Props>(
           <ActivityIndicator
             size="small"
             className={styles.indicator()}
-            testID={testID ? `${testID}-activity-indicator` : undefined}
+            testID={testID !== undefined ? `${testID}-activity-indicator` : undefined}
           />
         );
       }
       return (
         <Text
-          testID={testID ? `${testID}-label` : undefined}
+          testID={testID !== undefined ? `${testID}-label` : undefined}
           className={styles.label({ className: textClassName })}
         >
           {text}

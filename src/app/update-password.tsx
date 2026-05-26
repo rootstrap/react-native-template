@@ -97,7 +97,7 @@ export default function UpdatePassword() {
             <Button
               testID="update-password-button"
               label={t('updatePassword.buttonLabel')}
-              onPress={handleSubmit(onSubmit)}
+              onPress={() => { void handleSubmit(onSubmit)(); }}
             />
           </View>
         </View>

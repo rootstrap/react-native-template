@@ -20,7 +20,7 @@ export default function interceptors() {
 
     const { headers } = config;
 
-    if (headers && headers[CONTENT_TYPE] !== MULTIPART_FORM_DATA && config.data) {
+    if (headers[CONTENT_TYPE] !== MULTIPART_FORM_DATA && config.data !== undefined && config.data !== null) {
       const requestData: Record<string, unknown> = config.data as Record<string, unknown>;
       config.data = toSnakeCase(requestData);
     }
@@ -49,7 +49,7 @@ export default function interceptors() {
       const expiry = (headers[EXPIRY_HEADER] as string | undefined) ?? '';
       const bearer = (headers[AUTHORIZATION_HEADER] as string | undefined) ?? '';
 
-      if (token) {
+      if (token !== undefined) {
         signIn({ access: token, client: _client, uid, expiry, bearer });
       }
 
