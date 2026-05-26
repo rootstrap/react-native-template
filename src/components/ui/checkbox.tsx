@@ -126,7 +126,7 @@ function CheckboxBase({
   return (
     <CheckboxRoot checked={checked} testID={testID} {...props}>
       <CheckboxIcon checked={checked} />
-      {label !== undefined
+      {label !== undefined && label !== ''
         ? (
             <Label
               text={label}
@@ -188,7 +188,7 @@ function RadioBase({
   return (
     <RadioRoot checked={checked} testID={testID} {...props}>
       <RadioIcon checked={checked} />
-      {label !== undefined
+      {label !== undefined && label !== ''
         ? (
             <Label text={label} testID={testID !== undefined ? `${testID}-label` : undefined} />
           )
@@ -255,7 +255,7 @@ function SwitchBase({
   return (
     <SwitchRoot checked={checked} testID={testID} {...props}>
       <SwitchIcon checked={checked} />
-      {label !== undefined
+      {label !== undefined && label !== ''
         ? (
             <Label text={label} testID={testID !== undefined ? `${testID}-label` : undefined} />
           )
