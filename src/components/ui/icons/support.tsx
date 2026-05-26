@@ -6,7 +6,7 @@ import colors from '../colors';
 export function Support({
   color = colors.neutral[500],
   ...props
-}: SvgProps) {
+}: Readonly<SvgProps>) {
   return (
     <Svg width={24} height={24} fill="none" viewBox="0 0 24 24" {...props}>
       <G clipPath="url(#a)">

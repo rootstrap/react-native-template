@@ -145,7 +145,7 @@ export type SelectProps = {
 };
 type ControlledSelectProps<T extends FieldValues> = SelectProps & InputControllerType<T>;
 
-export function Select(props: SelectProps) {
+export function Select(props: Readonly<SelectProps>) {
   const {
     label,
     value,
@@ -248,7 +248,7 @@ export function ControlledSelect<T extends FieldValues>(
   );
 }
 
-function Check({ ...props }: SvgProps) {
+function Check({ ...props }: Readonly<SvgProps>) {
   return (
     <Svg
       width={25}

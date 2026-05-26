@@ -120,7 +120,7 @@ export const Modal = forwardRef(
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-function CustomBackdrop({ style }: BottomSheetBackdropProps) {
+function CustomBackdrop({ style }: Readonly<BottomSheetBackdropProps>) {
   const { close } = useBottomSheet();
   const FADE_IN_DURATION = 50;
   const FADE_OUT_DURATION = 20;
@@ -178,7 +178,7 @@ const ModalHeader = memo(({ title, dismiss }: ModalHeaderProps) => (
   </>
 ));
 
-function CloseButton({ close }: { close: () => void }) {
+function CloseButton({ close }: Readonly<{ close: () => void }>) {
   return (
     <Pressable
       onPress={close}

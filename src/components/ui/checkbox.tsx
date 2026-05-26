@@ -64,7 +64,7 @@ type LabelProps = {
   testID?: string;
 };
 
-function Label({ text, testID, className = '' }: LabelProps) {
+function Label({ text, testID, className = '' }: Readonly<LabelProps>) {
   return (
     <Text testID={testID} className={` ${className} pl-2`}>
       {text}
@@ -72,7 +72,7 @@ function Label({ text, testID, className = '' }: LabelProps) {
   );
 }
 
-export function CheckboxIcon({ checked }: IconProps) {
+export function CheckboxIcon({ checked }: Readonly<IconProps>) {
   const color = checked ? colors.primary[300] : colors.charcoal[400];
   return (
     <MotiView
@@ -145,7 +145,7 @@ export const Checkbox = Object.assign(CheckboxBase, {
   Label,
 });
 
-export function RadioIcon({ checked }: IconProps) {
+export function RadioIcon({ checked }: Readonly<IconProps>) {
   const color = checked ? colors.primary[300] : colors.charcoal[400];
   return (
     <MotiView
@@ -203,7 +203,7 @@ export const Radio = Object.assign(RadioBase, {
   Label,
 });
 
-export function SwitchIcon({ checked }: IconProps) {
+export function SwitchIcon({ checked }: Readonly<IconProps>) {
   const translateX = checked
     ? THUMB_OFFSET
     : WIDTH - THUMB_WIDTH - THUMB_OFFSET;
