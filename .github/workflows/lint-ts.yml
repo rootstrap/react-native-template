@@ -45,7 +45,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
-          eslint_flags: '.'
+          eslint_flags: .
 
       - name: 🏃‍♂️ Run ESLint PR
         if: github.event_name != 'pull_request'
