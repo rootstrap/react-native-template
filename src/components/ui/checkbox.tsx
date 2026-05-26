@@ -130,7 +130,7 @@ function CheckboxBase({
         ? (
             <Label
               text={label}
-              testID={testID !== undefined ? `${testID}-label` : undefined}
+              testID={testID === undefined ? undefined : `${testID}-label`}
               className="pr-2"
             />
           )
@@ -190,7 +190,7 @@ function RadioBase({
       <RadioIcon checked={checked} />
       {label !== undefined && label !== ''
         ? (
-            <Label text={label} testID={testID !== undefined ? `${testID}-label` : undefined} />
+            <Label text={label} testID={testID === undefined ? undefined : `${testID}-label`} />
           )
         : null}
     </RadioRoot>
@@ -257,7 +257,7 @@ function SwitchBase({
       <SwitchIcon checked={checked} />
       {label !== undefined && label !== ''
         ? (
-            <Label text={label} testID={testID !== undefined ? `${testID}-label` : undefined} />
+            <Label text={label} testID={testID === undefined ? undefined : `${testID}-label`} />
           )
         : null}
     </SwitchRoot>

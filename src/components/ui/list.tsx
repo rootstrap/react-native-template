@@ -13,15 +13,15 @@ export const List = NFlashList;
 
 export const EmptyList = memo(({ isLoading }: Props) => (
   <View className="min-h-[400px] flex-1 items-center justify-center">
-    {!isLoading
+    {isLoading
       ? (
+          <ActivityIndicator />
+        )
+      : (
           <View>
             <NoData />
             <Text className="pt-4 text-center">Sorry! No data found</Text>
           </View>
-        )
-      : (
-          <ActivityIndicator />
         )}
   </View>
 ));

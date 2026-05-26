@@ -123,13 +123,13 @@ export const Button = forwardRef<View, Props>(
           <ActivityIndicator
             size="small"
             className={styles.indicator()}
-            testID={testID !== undefined ? `${testID}-activity-indicator` : undefined}
+            testID={testID === undefined ? undefined : `${testID}-activity-indicator`}
           />
         );
       }
       return (
         <Text
-          testID={testID !== undefined ? `${testID}-label` : undefined}
+          testID={testID === undefined ? undefined : `${testID}-label`}
           className={styles.label({ className: textClassName })}
         >
           {text}

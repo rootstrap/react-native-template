@@ -94,7 +94,7 @@ export const Input = forwardRef<NTextInput, NInputProps>((props, ref) => {
     <View className={styles.container()}>
       {label !== undefined && (
         <Text
-          testID={testID !== undefined ? `${testID}-label` : undefined}
+          testID={testID === undefined ? undefined : `${testID}-label`}
           className={styles.label()}
         >
           {label}
@@ -116,7 +116,7 @@ export const Input = forwardRef<NTextInput, NInputProps>((props, ref) => {
       />
       {error !== undefined && (
         <Text
-          testID={testID !== undefined ? `${testID}-error` : undefined}
+          testID={testID === undefined ? undefined : `${testID}-error`}
           className="text-sm text-danger-400 dark:text-danger-600"
         >
           {error}

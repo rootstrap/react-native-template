@@ -21,7 +21,7 @@ export const translate = memoize(
 
   (key: TxKeyPath, options?: Record<string, unknown>) => t(key, options as TOptions),
   (key: TxKeyPath, options?: unknown) =>
-    options !== undefined ? `${key}${JSON.stringify(options)}` : key,
+    options === undefined ? key : `${key}${JSON.stringify(options)}`,
 ) as (key: TxKeyPath, options?: Record<string, unknown>) => string;
 
 export function changeLanguage(lang: Language) {
