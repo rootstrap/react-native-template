@@ -143,7 +143,7 @@ export type SelectProps = {
   placeholder?: string;
   testID?: string;
 };
-type ControlledSelectProps<T extends FieldValues> = {} & SelectProps & InputControllerType<T>;
+type ControlledSelectProps<T extends FieldValues> = SelectProps & InputControllerType<T>;
 
 export function Select(props: SelectProps) {
   const {
