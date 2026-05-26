@@ -29,7 +29,7 @@ export type LoginFormProps = {
 export function LoginForm({
   onSubmit = () => {},
   isLoading = false,
-}: LoginFormProps) {
+}: Readonly<LoginFormProps>) {
   const { handleSubmit, control } = useForm<FormType>({
     resolver: zodResolver(schema),
   });

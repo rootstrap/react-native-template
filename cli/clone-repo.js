@@ -10,7 +10,8 @@ const getLatestRelease = async () => {
     return releaseData.tag_name || 'master';
   } catch (error) {
     console.warn(
-      'Failed to retrieve the latest release; will use the master branch instead'
+      'Failed to retrieve the latest release; will use the master branch instead',
+      error
     );
     return 'master';
   }
@@ -18,11 +19,11 @@ const getLatestRelease = async () => {
 
 const cloneLatestTemplateRelease = async (projectName) => {
   consola.start('Extracting last release number 👀');
-  const latest_release = await getLatestRelease();
-  consola.info(`Using Rootstrap's Template ${latest_release}`);
+  const latestRelease = await getLatestRelease();
+  consola.info(`Using Rootstrap's Template ${latestRelease}`);
 
   // create a new project based on Rootstrap template
-  const cloneStarter = `git clone -b ${latest_release} --depth=1 https://github.com/${TEMPLATE_REPOSITORY}.git ${projectName}`;
+  const cloneStarter = `git clone -b ${latestRelease} --depth=1 https://github.com/${TEMPLATE_REPOSITORY}.git ${projectName}`;
   await runCommand(cloneStarter, {
     loading: 'Extracting the template...',
     success: 'Template extracted successfully',

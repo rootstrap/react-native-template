@@ -40,7 +40,7 @@ export type SignUpFormProps = {
 export function SignUpForm({
   onSubmit = () => {},
   isPending = false,
-}: SignUpFormProps) {
+}: Readonly<SignUpFormProps>) {
   const { handleSubmit, control } = useForm<FormType>({
     resolver: zodResolver(schema),
   });

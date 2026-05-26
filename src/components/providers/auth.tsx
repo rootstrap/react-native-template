@@ -82,11 +82,9 @@ client.interceptors.response.use(
     const userId = (response.headers[HEADER_KEYS.USER_ID] as string | undefined) ?? '';
 
     const expiryHeader = response.headers[HEADER_KEYS.EXPIRY] as string | undefined;
-    const expiration = expiryHeader !== undefined
-      ? dayjs
-          .unix(Number.parseInt(expiryHeader, 10))
-          .toISOString()
-      : dayjs().add(1, 'hour').toISOString();
+    const expiration = expiryHeader === undefined
+      ? dayjs().add(1, 'hour').toISOString()
+      : dayjs.unix(Number.parseInt(expiryHeader, 10)).toISOString();
 
     if (accessToken !== '' && refreshToken !== '' && userId !== '' && expiration !== '') {
       storeTokens({ accessToken, refreshToken, userId, expiration });

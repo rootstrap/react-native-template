@@ -9,7 +9,7 @@ export type DeleteAccountItemProps = {
   onDelete: () => void;
 };
 
-export function DeleteAccountItem(props: DeleteAccountItemProps) {
+export function DeleteAccountItem(props: Readonly<DeleteAccountItemProps>) {
   const handleDeleteAccount = () => {
     props.onDelete();
   };

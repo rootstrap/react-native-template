@@ -8,7 +8,7 @@ type Props = {
   title?: TxKeyPath;
 };
 
-export function ItemsContainer({ children, title }: Props) {
+export function ItemsContainer({ children, title }: Readonly<Props>) {
   return (
     <View className="gap-2">
       {title && <Text className="text-lg" tx={title} />}

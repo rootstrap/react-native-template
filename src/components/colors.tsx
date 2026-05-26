@@ -16,7 +16,7 @@ export function Colors() {
   );
 }
 
-function Color({ name }: { name: ColorName }) {
+function Color({ name }: Readonly<{ name: ColorName }>) {
   if (typeof colors[name] === 'string') {
     return null;
   }
@@ -34,7 +34,7 @@ function Color({ name }: { name: ColorName }) {
   );
 }
 
-function ColorCard({ color, value }: { value: string; color: string }) {
+function ColorCard({ color, value }: Readonly<{ value: string; color: string }>) {
   return (
     <View className="flex-1">
       <View

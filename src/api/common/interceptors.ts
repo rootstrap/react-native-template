@@ -57,6 +57,6 @@ export default function interceptors() {
 
       return response;
     },
-    (error: AxiosError) => { throw error; },
+    async (error: AxiosError) => Promise.reject(error),
   );
 }
