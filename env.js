@@ -16,7 +16,7 @@
 const z = require('zod');
 
 const packageJSON = require('./package.json');
-const path = require('path');
+const path = require('node:path');
 
 const APP_ENV =
   /** @type {z.infer<typeof clientEnvSchema>['APP_ENV']} */

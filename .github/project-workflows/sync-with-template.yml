@@ -33,7 +33,7 @@ on:
     inputs:
       template-version:
         type: string
-        description: 'Template release version to sync with (e.g. v1.0.0). Leave empty to sync with the latest release.'
+        description: Template release version to sync with (e.g. v1.0.0). Leave empty to sync with the latest release.
         required: false
         default: ''
 

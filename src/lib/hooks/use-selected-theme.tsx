@@ -13,7 +13,8 @@ export type ColorSchemeType = 'light' | 'dark' | 'system';
  * don't use this hooks if you want to use it to style your component based on the theme use useColorScheme from nativewind instead
  *
  */
-export const useSelectedTheme = () => {
+export function useSelectedTheme() {
+  // eslint-disable-next-line ts/unbound-method
   const { setColorScheme } = useColorScheme();
   const [theme, _setTheme] = useMMKVString(SELECTED_THEME, storage);
 
@@ -27,11 +28,11 @@ export const useSelectedTheme = () => {
 
   const selectedTheme = (theme ?? 'system') as ColorSchemeType;
   return { selectedTheme, setSelectedTheme } as const;
-};
+}
 // to be used in the root file to load the selected theme from MMKV
-export const loadSelectedTheme = () => {
+export function loadSelectedTheme() {
   const theme = storage.getString(SELECTED_THEME);
   if (theme !== undefined) {
     colorScheme.set(theme as ColorSchemeType);
   }
-};
+}

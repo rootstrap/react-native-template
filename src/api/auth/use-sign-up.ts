@@ -26,8 +26,8 @@ type Response = {
   };
 };
 
-const signUp = async (variables: Variables) => {
-  const { data } = await client({
+async function signUp(variables: Variables) {
+  const { data } = await client<Response>({
     url: '/v1/users',
     method: 'POST',
     data: {
@@ -36,8 +36,8 @@ const signUp = async (variables: Variables) => {
   });
 
   return data;
-};
+}
 
 export const useSignUp = createMutation<Response, Variables>({
-  mutationFn: (variables) => signUp(variables),
+  mutationFn: async variables => signUp(variables),
 });

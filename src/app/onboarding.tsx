@@ -10,6 +10,7 @@ import {
 } from '@/components/ui';
 import { translate } from '@/lib';
 import { useIsFirstTime } from '@/lib/hooks';
+
 export default function Onboarding() {
   const [, setIsFirstTime] = useIsFirstTime();
   const router = useRouter();

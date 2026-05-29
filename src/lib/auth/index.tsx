@@ -1,25 +1,26 @@
+import type { TokenType } from './utils';
+
 import { create } from 'zustand';
-
 import { createSelectors } from '../utils';
-import { getToken, removeToken, setToken, type TokenType } from './utils';
+import { getToken, removeToken, setToken } from './utils';
 
-interface AuthState {
+type AuthState = {
   token: TokenType | null;
   status: 'idle' | 'signOut' | 'signIn';
   signIn: (data: TokenType) => void;
   signOut: () => void;
   hydrate: () => void;
-}
+};
 
 const _useAuth = create<AuthState>((set, get) => ({
   status: 'idle',
   token: null,
   signIn: (token) => {
-    setToken(token);
+    void setToken(token);
     set({ status: 'signIn', token });
   },
   signOut: () => {
-    removeToken();
+    void removeToken();
     set({ status: 'signOut', token: null });
   },
   hydrate: () => {
@@ -27,10 +28,12 @@ const _useAuth = create<AuthState>((set, get) => ({
       const userToken = getToken();
       if (userToken !== null) {
         get().signIn(userToken);
-      } else {
+      }
+      else {
         get().signOut();
       }
-    } catch {
+    }
+    catch {
       // catch error here
       // Maybe sign_out user!
     }

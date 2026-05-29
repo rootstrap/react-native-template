@@ -1,7 +1,7 @@
 /* eslint-disable max-lines-per-function */
 import { Link } from 'expo-router';
 import { useColorScheme } from 'nativewind';
-import React from 'react';
+import * as React from 'react';
 import { showMessage } from 'react-native-flash-message';
 
 import { useDeleteUser, useUser } from '@/api/auth/use-user';
@@ -29,14 +29,14 @@ export default function Settings() {
     onSuccess: () => {
       logout();
     },
-    onError: (error) => showMessage({ message: error.message, type: 'danger' }),
+    onError: error => showMessage({ message: error.message, type: 'danger' }),
   });
   const { colorScheme } = useColorScheme();
-  const iconColor =
-    colorScheme === 'dark' ? colors.neutral[400] : colors.neutral[500];
+  const iconColor
+    = colorScheme === 'dark' ? colors.neutral[400] : colors.neutral[500];
 
   const handleDeleteUser = async () => {
-    if (!userData?.email) {
+    if (userData?.email == null || userData.email === '') {
       return;
     }
     await deleteUserAsync({ email: userData?.email });
@@ -51,9 +51,9 @@ export default function Settings() {
             {translate('settings.title')}
           </Text>
           <ItemsContainer title="settings.account.title">
-            <Item text={'settings.account.name'} value={userData?.name ?? ''} />
+            <Item text="settings.account.name" value={userData?.name ?? ''} />
             <Item
-              text={'settings.account.email'}
+              text="settings.account.email"
               value={userData?.email ?? ''}
             />
             <Link
@@ -106,7 +106,7 @@ export default function Settings() {
 
           <View className="my-8">
             <ItemsContainer>
-              <DeleteAccountItem onDelete={handleDeleteUser} />
+              <DeleteAccountItem onDelete={() => { void handleDeleteUser(); }} />
               <Item text="settings.logout" onPress={logout} />
             </ItemsContainer>
           </View>

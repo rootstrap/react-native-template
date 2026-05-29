@@ -22,7 +22,7 @@ export type ForgotPasswordFormProps = {
   onSubmit: (data: FormType) => void;
 };
 
-export const ForgotPasswordForm = (props: ForgotPasswordFormProps) => {
+export function ForgotPasswordForm(props: Readonly<ForgotPasswordFormProps>) {
   const { t } = useTranslation();
   const { handleSubmit, control } = useForm<{
     email: string;
@@ -64,10 +64,10 @@ export const ForgotPasswordForm = (props: ForgotPasswordFormProps) => {
           <Button
             testID="send-email-button"
             label={t('forgotPassword.buttonLabel')}
-            onPress={handleSubmit(onSubmit)}
+            onPress={() => { void handleSubmit(onSubmit)(); }}
           />
         </View>
       </View>
     </KeyboardAvoidingView>
   );
-};
+}

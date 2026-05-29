@@ -40,10 +40,10 @@ export const ProgressBar = forwardRef<ProgressBarRef, Props>(
     }));
     return (
       <View
-        testID={'progress-bar-container'}
+        testID="progress-bar-container"
         className={twMerge(` bg-[#EAEAEA]`, className)}
       >
-        <Animated.View testID={'progress-bar'} style={style} />
+        <Animated.View testID="progress-bar" style={style} />
       </View>
     );
   },

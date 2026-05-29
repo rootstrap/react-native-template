@@ -1,7 +1,7 @@
-import { forwardRef, useMemo } from 'react';
 import type { PressableProps, View } from 'react-native';
-import { ActivityIndicator, Pressable, Text } from 'react-native';
 import type { VariantProps } from 'tailwind-variants';
+import { forwardRef, useMemo } from 'react';
+import { ActivityIndicator, Pressable, Text } from 'react-native';
 import { tv } from 'tailwind-variants';
 
 const TEXT_WHITE = 'text-white';
@@ -86,12 +86,12 @@ const button = tv({
 });
 
 type ButtonVariants = VariantProps<typeof button>;
-interface Props extends ButtonVariants, Omit<PressableProps, 'disabled'> {
+type Props = {
   label?: string;
   loading?: boolean;
   className?: string;
   textClassName?: string;
-}
+} & ButtonVariants & Omit<PressableProps, 'disabled'>;
 
 export const Button = forwardRef<View, Props>(
   (
@@ -113,8 +113,8 @@ export const Button = forwardRef<View, Props>(
       [variant, disabled, size],
     );
 
-    const renderContent = () => {
-      if (props?.children) {
+    const renderContent = (): PressableProps['children'] => {
+      if (props?.children != null) {
         return props.children;
       }
 
@@ -123,13 +123,13 @@ export const Button = forwardRef<View, Props>(
           <ActivityIndicator
             size="small"
             className={styles.indicator()}
-            testID={testID ? `${testID}-activity-indicator` : undefined}
+            testID={testID === undefined ? undefined : `${testID}-activity-indicator`}
           />
         );
       }
       return (
         <Text
-          testID={testID ? `${testID}-label` : undefined}
+          testID={testID === undefined ? undefined : `${testID}-label`}
           className={styles.label({ className: textClassName })}
         >
           {text}

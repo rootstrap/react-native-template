@@ -1,8 +1,9 @@
-import React, { forwardRef } from 'react';
+import type { TxKeyPath } from '@/lib';
+import * as React from 'react';
 
+import { forwardRef } from 'react';
 import { Pressable, Text, View } from '@/components/ui';
 import { ArrowRight } from '@/components/ui/icons';
-import type { TxKeyPath } from '@/lib';
 
 type ItemProps = {
   text: TxKeyPath;
@@ -22,7 +23,7 @@ export const Item = forwardRef<View, ItemProps>(
         className="flex-1 flex-row items-center justify-between px-4 py-2"
       >
         <View className="flex-row items-center">
-          {icon && <View className="pr-2">{icon}</View>}
+          {icon !== undefined && <View className="pr-2">{icon}</View>}
           <Text tx={text} />
         </View>
         <View className="flex-row items-center">

@@ -1,23 +1,23 @@
-import { useMemo } from 'react';
 import type { TextProps, TextStyle } from 'react-native';
-import { I18nManager, StyleSheet, Text as NNText } from 'react-native';
-import { twMerge } from 'tailwind-merge';
-
 import type { TxKeyPath } from '@/lib/i18n';
+import { useMemo } from 'react';
+import { I18nManager, Text as NNText, StyleSheet } from 'react-native';
+
+import { twMerge } from 'tailwind-merge';
 import { translate } from '@/lib/i18n';
 
-interface Props extends TextProps {
+type Props = {
   className?: string;
   tx?: TxKeyPath;
-}
+} & TextProps;
 
-export const Text = ({
+export function Text({
   className = '',
   style,
   tx,
   children,
   ...props
-}: Props) => {
+}: Props) {
   const textStyle = useMemo(
     () =>
       twMerge(
@@ -42,4 +42,4 @@ export const Text = ({
       {tx ? translate(tx) : children}
     </NNText>
   );
-};
+}

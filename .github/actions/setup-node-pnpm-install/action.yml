@@ -14,7 +14,7 @@
 name: 'Setup  Node + PNPM + Install Dependencies'
 description: 'Setup  Node + PNPM + Install Dependencies'
 runs:
-  using: 'composite'
+  using: composite
   steps:
     - uses: pnpm/action-setup@v4
       name: Install pnpm
@@ -23,8 +23,8 @@ runs:
     - uses: actions/setup-node@v4
       name: Install Node.js
       with:
-        node-version: 20
-        cache: 'pnpm'
+        node-version: 22
+        cache: pnpm
 
     - name: 📦 Install Project Dependencies
       run: pnpm install --frozen-lockfile

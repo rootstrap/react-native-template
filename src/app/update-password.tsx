@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigation } from 'expo-router';
-import React from 'react';
+import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { showMessage } from 'react-native-flash-message';
@@ -30,7 +30,7 @@ const schema = z
     ),
     passwordConfirmation: z.string(),
   })
-  .refine((data) => data.password === data.passwordConfirmation, {
+  .refine(data => data.password === data.passwordConfirmation, {
     message: translate('updatePassword.error.passwordsMustMatch'),
     path: ['passwordConfirmation'],
   });
@@ -97,7 +97,7 @@ export default function UpdatePassword() {
             <Button
               testID="update-password-button"
               label={t('updatePassword.buttonLabel')}
-              onPress={handleSubmit(onSubmit)}
+              onPress={() => { void handleSubmit(onSubmit)(); }}
             />
           </View>
         </View>

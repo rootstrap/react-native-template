@@ -5,8 +5,8 @@ export type PaginateQuery<T> = {
   previous: string | null;
 };
 
-export type ApiResponse<T> =
-  | {
-      errors: Array<string>;
-    }
+export type ApiResponse<T>
+  = | {
+    errors: Array<string>;
+  }
   | T;

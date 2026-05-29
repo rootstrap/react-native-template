@@ -10,7 +10,7 @@
 
 # 🚨 GITHUB SECRETS REQUIRED: NONE
 
-name: Lint TS (eslint, prettier)
+name: Lint TS (eslint)
 
 on:
   push:
@@ -21,10 +21,10 @@ on:
 permissions:
   contents: read
   pull-requests: write
-  
+
 jobs:
   lint:
-    name: Lint TS (eslint, prettier)
+    name: Lint TS (eslint)
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -45,7 +45,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
-          eslint_flags: '. --ext .js,.jsx,.ts,.tsx'
+          eslint_flags: .
 
       - name: 🏃‍♂️ Run ESLint PR
         if: github.event_name != 'pull_request'

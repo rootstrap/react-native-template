@@ -122,7 +122,7 @@ const testResponseInterceptors = () => {
           return;
         }
 
-        await expect(rejected(axiosError)).rejects.toEqual(axiosError);
+        await expect(async () => rejected(axiosError)).rejects.toEqual(axiosError);
       });
     });
   });

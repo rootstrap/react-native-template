@@ -1,5 +1,6 @@
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
-import React, { useEffect } from 'react';
+import * as React from 'react';
+import { useEffect } from 'react';
 import { View } from 'react-native';
 import { WebView } from 'react-native-webview';
 
@@ -12,14 +13,14 @@ export default function WWW() {
   const navigation = useNavigation();
 
   useEffect(() => {
-    if (title) {
+    if (title !== undefined) {
       navigation.setOptions({
         title,
       });
     }
   }, [navigation, title]);
 
-  if (!url || typeof url !== 'string') {
+  if (url === undefined || typeof url !== 'string') {
     return (
       <View className="flex-1 items-center justify-center bg-white">
         <Text className="text-lg text-red-500">

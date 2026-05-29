@@ -9,7 +9,7 @@ type Filters = {
 };
 export const postKeys = createQueryKeys('posts', {
   list: (filters: Filters) => [filters],
-  detail: (id) => ({
+  detail: id => ({
     queryKey: [id],
     contextQueries: {
       comments: {
@@ -20,8 +20,8 @@ export const postKeys = createQueryKeys('posts', {
 });
 
 const productsKeys = createQueryKeys('products', {
-  list: (filters) => [filters],
-  detail: (id) => [id],
+  list: filters => [filters],
+  detail: id => [id],
 });
 
 export const queryFactory = mergeQueryKeys(postKeys, productsKeys);

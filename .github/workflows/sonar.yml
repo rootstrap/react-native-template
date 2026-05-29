@@ -33,7 +33,7 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_URL }}
         with:
           args: >
-            -Dsonar.sonar.sources=./src 
+            -Dsonar.sonar.sources=./src
             -Dsonar.qualitygate.wait=true
             -Dsonar.projectBaseDir=.
             -Dsonar.verbose=false
