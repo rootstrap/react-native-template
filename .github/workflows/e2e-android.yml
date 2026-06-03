@@ -40,7 +40,7 @@ jobs:
           APP_ENV: staging
 
       - name: Upload Test APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: test-apk
           path: ./android/app/build/outputs/apk/release/app-release.apk
@@ -60,7 +60,7 @@ jobs:
         run: npm run install-maestro # # We use npm because we don't need to install deps again
 
       - name: Download Test APK
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: test-apk
           path: ${{ github.workspace }}
@@ -69,7 +69,7 @@ jobs:
         uses: gradle/gradle-build-action@v2
 
       - name: AVD cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: avd-cache
         with:
           path: |
@@ -106,13 +106,13 @@ jobs:
 
       - name: Upload artifacts
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: e2e-test-logs
           path: ~/.maestro/tests/**/*
 
       - name: Store tests result
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: e2e_android_report
           path: |
