@@ -79,7 +79,7 @@ jobs:
     runs-on: ${{ inputs.platform == 'ios' && 'macos-latest' || 'ubuntu-latest' }}
     permissions:
       contents: write
-    environment: ${{ github.ref_name == 'main' && 'production' || github.ref_name == 'staging' && 'staging' || github.ref_name == 'qa' && 'qa' || github.ref_name == 'development' && 'development' || github.ref_name == 'fix/actions' && 'qa' }}
+    environment: ${{ github.ref_name == 'main' && 'production' || github.ref_name == 'staging' && 'staging' || github.ref_name == 'qa' && 'qa' || github.ref_name == 'development' && 'development' }}
     steps:
       - name: Set environment variable
         run: |
@@ -91,8 +91,6 @@ jobs:
             echo "ENV=qa" >> $GITHUB_ENV
           elif [[ "${{ github.ref_name }}" == "development" ]]; then
             echo "ENV=development" >> $GITHUB_ENV
-          elif [[ "${{ github.ref_name }}" == "fix/actions" ]]; then
-            echo "ENV=qa" >> $GITHUB_ENV
           else
             echo "Invalid branch: ${{ github.ref_name }}. You can only build for main, staging, qa or development branches."
             exit 1
