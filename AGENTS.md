@@ -22,6 +22,8 @@ When reviewing code, read and apply the rules in ./REVIEW.md
 | `queryFactory`     | Merged query key registry built with `@lukemorales/query-key-factory` — defined in `src/api/query-factory.ts`                                                |
 | `createMutation`   | Factory from `react-query-kit` for creating typed mutation hooks — required pattern for all mutations                                                        |
 | `createQuery`      | Factory from `react-query-kit` for creating typed query hooks — required pattern for all queries                                                             |
+| `APIProvider`      | Wraps the Axios client instance via React context — defined in `src/api/common/api-provider.tsx`; must be present in the provider tree above any API hook    |
+| `authStorage`      | Dedicated MMKV instance for auth tokens, created inside `src/components/providers/auth.tsx` — never access it directly; use `storeTokens`, `getTokenDetails`, `clearTokens` |
 
 ---
 
@@ -37,7 +39,27 @@ When reviewing code, read and apply the rules in ./REVIEW.md
 - **Query keys**: Every new query domain must be registered in `src/api/query-factory.ts` using `createQueryKeys` from `@lukemorales/query-key-factory`.
 - **Lists**: Use `@shopify/flash-list` for any list that can grow. Never use `FlatList` for feed-style content.
 - **Crypto/IDs**: Use `expo-crypto` for random IDs. Never use `Math.random()` or `Date.now()` as identifiers.
+- **Forms**: Always use `react-hook-form` + `zod` + `@hookform/resolvers`. Never use `useState` for form state or uncontrolled inputs.
+- **Animations**: Never use `Animated` from React Native directly. Use `moti` for declarative animations or `react-native-reanimated` for gesture-driven ones.
+- **Token refresh**: Token refresh is **not implemented** — there is a `TODO` in `src/components/providers/auth.tsx`. Do not add refresh logic without a deliberate design decision; adding partial refresh code will conflict with the existing 401 handling.
 - **New dependencies**: Before installing any library, verify the latest version compatible with this stack — React Native 0.81, Expo SDK 54, and React 19. Check compatibility via `npx expo install <package>` (which resolves the Expo-blessed version) or the package's peer dependencies. Do not install the latest npm version blindly — it may not support this SDK version.
+
+---
+
+## Provider hierarchy
+
+Providers must wrap the app in this order (outermost → innermost):
+
+```
+GestureHandlerRootView
+  └── KeyboardProvider
+        └── ThemeProvider
+              └── APIProvider
+                    └── AuthProvider
+                          └── BottomSheetModalProvider
+```
+
+Never add a new provider outside `APIProvider` if it requires API access, or outside `AuthProvider` if it requires auth state.
 
 ---
 
@@ -45,6 +67,7 @@ When reviewing code, read and apply the rules in ./REVIEW.md
 
 | File                         | Description                                                                      |
 | ---------------------------- | -------------------------------------------------------------------------------- |
+| `REVIEW.md`                  | Code review checklist — apply to every change you make                           |
 | `agent_docs/architecture.md` | Layer diagram, folder structure, routing conventions, dual auth system explained |
 | `agent_docs/conventions.md`  | API hook patterns, styling, forms, i18n, anti-patterns                           |
 | `agent_docs/commands.md`     | All pnpm commands for dev, test, lint, build, and setup                          |
