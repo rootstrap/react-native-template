@@ -12,9 +12,8 @@ You should follow the following steps:
 Here is an example of how to create a react native component for an svg icon:
 
 ```tsx
-import type { SvgProps } from 'react-native-svg';
 import * as React from 'react';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { Path, type SvgProps } from 'react-native-svg';
 
 export function ArrowLeft({
   color = 'white',

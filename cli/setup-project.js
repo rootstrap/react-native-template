@@ -1,82 +1,222 @@
-const { execShellCommand, runCommand } = require('./utils.js');
+const {
+  execShellCommand,
+  runCommand,
+  UPSTREAM_REPOSITORY,
+  TEMPLATE_REPOSITORY,
+} = require('./utils.js');
 const { consola } = require('consola');
 const fs = require('fs-extra');
-const path = require('path');
+const ProjectFilesManager = require('./project-files-manager.js');
 
-const initGit = async (projectName) => {
+/**
+ * @type {ProjectFilesManager}
+ */
+let projectFilesManager;
+
+const initializeProjectRepository = async (projectName) => {
   await execShellCommand(`cd ${projectName} && git init && cd ..`);
 };
 
-const installDeps = async (projectName) => {
+const installDependencies = async (projectName) => {
   await runCommand(`cd ${projectName} && pnpm install`, {
-    loading: 'Installing  project dependencies',
+    loading: 'Installing project dependencies',
     success: 'Dependencies installed',
     error: 'Failed to install dependencies, Make sure you have pnpm installed',
   });
 };
 
-// remove unnecessary files, such us .git, ios, android, docs, cli, LICENSE
-const removeFiles = async (projectName) => {
-  const FILES_TO_REMOVE = [
+const removeUnrelatedFiles = () => {
+  projectFilesManager.removeFiles([
     '.git',
     'README.md',
-    'ios',
-    'android',
     'docs',
+    '.github/workflows/deploy-docs.yml',
     'cli',
+    '.github/workflows/deploy-cli.yml',
     'LICENSE',
-  ];
-
-  FILES_TO_REMOVE.forEach((file) => {
-    fs.removeSync(path.join(process.cwd(), `${projectName}/${file}`));
-  });
+  ]);
 };
 
-// Update package.json infos, name and  set version to 0.0.1 + add initial version to osMetadata
-const updatePackageInfos = async (projectName) => {
-  const packageJsonPath = path.join(
-    process.cwd(),
-    `${projectName}/package.json`
-  );
+// Update package.json infos, name and set version to 0.0.1 + add initial version to rsMetadata
+const updatePackageJson = async (projectName) => {
+  const packageJsonPath =
+    projectFilesManager.getAbsoluteFilePath('package.json');
+
   const packageJson = fs.readJsonSync(packageJsonPath);
-  packageJson.osMetadata = { initVersion: packageJson.version };
+  packageJson.rsMetadata = { templateVersion: packageJson.version };
   packageJson.version = '0.0.1';
   packageJson.name = projectName?.toLowerCase();
   packageJson.repository = {
     type: 'git',
     url: 'git+https://github.com/user/repo-name.git',
   };
+
+  const appReleaseScript = packageJson.scripts['app-release'];
+  packageJson.scripts['app-release'] = appReleaseScript.replace(
+    'template',
+    projectName,
+  );
   fs.writeJsonSync(packageJsonPath, packageJson, { spaces: 2 });
 };
 
 const updateProjectConfig = async (projectName) => {
-  const configPath = path.join(process.cwd(), `${projectName}/env.js`);
-  const contents = fs.readFileSync(configPath, {
-    encoding: 'utf-8',
-  });
-  const replaced = contents
-    .replace(/ObytesApp/gi, projectName)
-    .replace(/com.obytes/gi, `com.${projectName.toLowerCase()}`)
-    .replace(/obytes/gi, 'expo-owner');
+  projectFilesManager.replaceFilesContent([
+    {
+      fileName: 'env.js',
+      replacements: [
+        {
+          searchValue: /RootstrapApp/gi,
+          replaceValue: projectName,
+        },
+        {
+          searchValue: /com.rootstrap/gi,
+          replaceValue: `com.${projectName.toLowerCase()}`,
+        },
+        {
+          searchValue: /rsdevs/gi,
+          replaceValue: 'expo-owner',
+        },
+      ],
+    },
+    {
+      fileName: 'app.config.ts',
+      replacements: [
+        {
+          searchValue: "slug: 'reactnativetemplate'",
+          replaceValue: `slug: '${projectName.toLowerCase()}'`,
+        },
+      ],
+    },
+  ]);
+};
 
-  fs.writeFileSync(configPath, replaced, { spaces: 2 });
-  const readmeFilePath = path.join(
-    process.cwd(),
-    `${projectName}/README-project.md`
-  );
-  fs.renameSync(
-    readmeFilePath,
-    path.join(process.cwd(), `${projectName}/README.md`)
-  );
+const updateGitHubWorkflows = (projectName) => {
+  // Update useful workflows
+  projectFilesManager.replaceFilesContent([
+    {
+      fileName: '.github/workflows/new-template-version.yml',
+      replacements: [
+        {
+          searchValue: 'new version of the template',
+          replaceValue: 'new version of the app',
+        },
+        {
+          searchValue: 'New Template Version',
+          replaceValue: `New ${projectName} Version`,
+        },
+        {
+          searchValue: 'Run Template release',
+          replaceValue: 'Run App release',
+        },
+        {
+          searchValue:
+            /^\s*environment:\s*\n\s*name:\s*template\s*\n\s*url:\s*.+\s*\n/m,
+          replaceValue: '',
+        },
+      ],
+    },
+  ]);
+
+  projectFilesManager.renameFiles([
+    {
+      oldFileName: '.github/workflows/new-template-version.yml',
+      newFileName: '.github/workflows/new-app-version.yml',
+    },
+  ]);
+
+  // Update Pull Request Template
+  projectFilesManager.replaceFilesContent([
+    {
+      fileName: '.github/PULL_REQUEST_TEMPLATE.md',
+      replacements: [
+        {
+          searchValue: /^[\s\S]*?(?=#### Jira board reference:)/,
+          replaceValue: '',
+        },
+      ],
+    },
+  ]);
+
+  // Remove upstream sync workflow, intended to be used only in the template repository
+  projectFilesManager.removeFiles(['.github/workflows/sync-with-upstream.yml']);
+
+  // Enable sync with template workflow
+  projectFilesManager.renameFiles([
+    {
+      oldFileName: '.github/project-workflows/sync-with-template.yml',
+      newFileName: '.github/workflows/sync-with-template.yml',
+    },
+  ]);
+};
+
+const updateAgentDocs = (projectName) => {
+  projectFilesManager.replaceFilesContent([
+    {
+      fileName: 'AGENTS.md',
+      replacements: [
+        {
+          searchValue:
+            'This is a React Native + Expo template maintained by Rootstrap. It provides a production-ready starting point for mobile apps targeting iOS, Android, and Web. It is used as the base for client projects and internal tooling at Rootstrap.',
+          replaceValue: `${projectName} is a React Native + Expo mobile application. Update this description with what the project does and who it's for.`,
+        },
+      ],
+    },
+    {
+      fileName: 'agent_docs/architecture.md',
+      replacements: [
+        {
+          searchValue:
+            'This template ships four top-level concerns out of the box:\n\n- **Onboarding** — a one-time screen shown on first launch, gated by the `isFirstTime` flag persisted in MMKV.\n- **Authentication** — sign-in, sign-up, forgot-password, and update-password flows backed by Devise Token Auth.\n- **Feed** — a paginated post list with detail view and a create-post screen.\n- **Settings** — theme toggle, language selection, and account deletion.',
+          replaceValue: `- **Onboarding** — a one-time screen shown on first launch, gated by the \`isFirstTime\` flag persisted in MMKV.\n- **Authentication** — sign-in, sign-up, forgot-password, and update-password flows backed by Devise Token Auth.\n- _(Update with the features specific to ${projectName})_`,
+        },
+      ],
+    },
+    {
+      fileName: 'agent_docs/commands.md',
+      replacements: [
+        {
+          searchValue: 'APP_ID=com.obytes.development',
+          replaceValue: `APP_ID=com.${projectName.toLowerCase()}.development`,
+        },
+      ],
+    },
+  ]);
+};
+
+const updateProjectReadme = (projectName) => {
+  projectFilesManager.renameFiles([
+    {
+      oldFileName: 'README-project.md',
+      newFileName: 'README.md',
+    },
+  ]);
+
+  projectFilesManager.replaceFilesContent([
+    {
+      fileName: 'README.md',
+      replacements: [
+        {
+          searchValue: 'Mobile App',
+          replaceValue: projectName,
+        },
+      ],
+    },
+  ]);
 };
 
 const setupProject = async (projectName) => {
   consola.start(`Clean up and setup your project 🧹`);
+
+  projectFilesManager = ProjectFilesManager.withProjectName(projectName);
+
   try {
-    removeFiles(projectName);
-    await initGit(projectName);
-    updatePackageInfos(projectName);
+    removeUnrelatedFiles();
+    await initializeProjectRepository(projectName);
+    updatePackageJson(projectName);
     updateProjectConfig(projectName);
+    updateGitHubWorkflows(projectName);
+    updateProjectReadme(projectName);
+    updateAgentDocs(projectName);
     consola.success(`Clean up and setup your project 🧹`);
   } catch (error) {
     consola.error(`Failed to clean up project folder`, error);
@@ -86,5 +226,5 @@ const setupProject = async (projectName) => {
 
 module.exports = {
   setupProject,
-  installDeps,
+  installDependencies,
 };

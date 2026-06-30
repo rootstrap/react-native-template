@@ -2,7 +2,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import antfu from '@antfu/eslint-config';
+import expoPlugin from 'eslint-plugin-expo';
 import i18nJsonPlugin from 'eslint-plugin-i18n-json';
+import importX from 'eslint-plugin-import-x';
 import reactCompiler from 'eslint-plugin-react-compiler';
 import tailwind from 'eslint-plugin-tailwindcss';
 import testingLibrary from 'eslint-plugin-testing-library';
@@ -11,21 +13,19 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default antfu(
   {
-    // Enable React and TypeScript support
     react: true,
-    typescript: true,
-
-    // Disable JSON processing for translation files (handled by i18n-json plugin)
+    typescript: {
+      tsconfigPath: './tsconfig.json',
+    },
     jsonc: false,
+    markdown: false,
 
-    // Use ESLint Stylistic for formatting
     stylistic: {
       indent: 2,
       quotes: 'single',
       semi: true,
     },
 
-    // Global ignores
     ignores: [
       'dist/*',
       'node_modules',
@@ -39,20 +39,44 @@ export default antfu(
       'docs/',
       'cli/',
       'expo-env.d.ts',
-      'migration/*',
+      '*.config.js',
+      'lint-staged.config.js',
+      'i18next-syntax-validation.js',
+      'env.js',
     ],
   },
 
-  // Custom rules
+  // Scoped to JS/TS only — max-lines-per-function crashes on markdown/json parsers if global
   {
+    files: ['**/*.{js,jsx,ts,tsx,mjs,cjs}'],
     rules: {
       'max-params': ['error', 3],
-      'max-lines-per-function': ['error', 70],
-      'react/display-name': 'off',
-      'react/no-inline-styles': 'off',
-      'react/destructuring-assignment': 'off',
-      'react/require-default-props': 'off',
-      'react-refresh/only-export-components': 'warn', // Too strict for React Native
+      'max-lines-per-function': ['error', 75],
+      'react/no-missing-component-display-name': 'off',
+      'react/prefer-destructuring-assignment': 'off',
+      'react/jsx-shorthand-fragment': 'error',
+      'react/no-useless-fragment': 'error',
+      'react/no-children-prop': 'error',
+      'no-nested-ternary': 'error',
+      'no-unneeded-ternary': 'error',
+      'prefer-template': 'error',
+      'curly': [2, 'all'],
+      'object-shorthand': 'error',
+      'arrow-body-style': ['error', 'as-needed'],
+      'no-console': ['error', { allow: ['error'] }],
+      'guard-for-in': 'error',
+      'import/prefer-default-export': 'off',
+      'import-x/no-cycle': ['error', { ignoreExternal: true }],
+      'unused-imports/no-unused-vars': [
+        'error',
+        {
+          args: 'after-used',
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+        },
+      ],
       'unicorn/filename-case': [
         'error',
         {
@@ -67,13 +91,19 @@ export default antfu(
           ],
         },
       ],
-      'node/prefer-global/process': 'off', // process is commonly used in React Native configs
-      'ts/no-require-imports': 'off', // Sometimes needed for mocks
-      'ts/no-use-before-define': 'off', // Allow forward references in React components
-      'no-console': 'off', // Console is useful for debugging
-      'no-cond-assign': 'off', // Allow assignment in conditions when intentional
-      'regexp/no-super-linear-backtracking': 'off', // Relax regex performance rules
-      'regexp/no-unused-capturing-group': 'off', // Allow unused capturing groups
+      // antfu enables these by default; disable to avoid code rewrites beyond formatting
+      'node/prefer-global/process': 'off',
+      'ts/no-use-before-define': 'off',
+      'no-cond-assign': 'off',
+      'regexp/no-super-linear-backtracking': 'off',
+      'regexp/no-unused-capturing-group': 'off',
+      'react-refresh/only-export-components': 'off',
+      'react/no-forward-ref': 'off',
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks-extra/no-direct-set-state-in-use-effect': 'off',
+      'react-hooks/preserve-manual-memoization': 'off',
+      'react-dom/no-dangerously-set-innerhtml': 'off',
+      'e18e/prefer-static-regex': 'off',
     },
   },
 
@@ -81,7 +111,7 @@ export default antfu(
   {
     files: ['**/*.ts', '**/*.tsx'],
     rules: {
-      'ts/consistent-type-definitions': ['error', 'type'], // Prefer type over interface
+      'ts/consistent-type-definitions': ['error', 'type'],
       'ts/consistent-type-imports': [
         'warn',
         {
@@ -90,10 +120,35 @@ export default antfu(
           disallowTypeAnnotations: true,
         },
       ],
+      'react-hooks/refs': 'off',
+      'ts/no-explicit-any': 'error',
+      'ts/no-magic-numbers': [
+        'error',
+        { ignoreArrayIndexes: true, ignoreEnums: true, ignore: [-1, 0, 1] },
+      ],
+      'ts/array-type': ['error', { default: 'generic' }],
+      'ts/prefer-nullish-coalescing': 'error',
     },
   },
 
-  // TailwindCSS plugin
+  // Must come AFTER the TS block — flat config is last-wins.
+  // axios.d.ts uses interface for module augmentation which cannot be rewritten as type.
+  {
+    files: ['**/*.d.ts'],
+    rules: {
+      'ts/consistent-type-definitions': 'off',
+    },
+  },
+
+  // Mocks commonly use require() for dynamic imports
+  {
+    files: ['**/__mocks__/**'],
+    rules: {
+      'ts/no-require-imports': 'off',
+      'ts/no-unsafe-assignment': 'off',
+    },
+  },
+
   ...tailwind.configs['flat/recommended'].map(config => ({
     ...config,
     rules: {
@@ -103,7 +158,19 @@ export default antfu(
     },
   })),
 
-  // React Compiler plugin
+  {
+    plugins: { 'import-x': importX },
+  },
+
+  {
+    plugins: { expo: expoPlugin },
+    rules: {
+      'expo/use-dom-exports': 'error',
+      'expo/no-env-var-destructuring': 'error',
+      'expo/no-dynamic-env-var': 'error',
+    },
+  },
+
   {
     plugins: {
       'react-compiler': reactCompiler,
@@ -113,7 +180,6 @@ export default antfu(
     },
   },
 
-  // i18n JSON validation
   {
     files: ['src/translations/*.json'],
     plugins: { 'i18n-json': i18nJsonPlugin },
@@ -138,7 +204,6 @@ export default antfu(
         2,
         { filePath: path.resolve(__dirname, './src/translations/en.json') },
       ],
-      // Disable conflicting rules for i18n JSON files
       'style/semi': 'off',
       'style/comma-dangle': 'off',
       'style/quotes': 'off',
@@ -146,7 +211,6 @@ export default antfu(
     },
   },
 
-  // Testing Library rules
   {
     files: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
     plugins: { 'testing-library': testingLibrary },

@@ -1,9 +1,8 @@
 /* eslint-disable max-lines-per-function */
 import type { SvgProps } from 'react-native-svg';
-import * as React from 'react';
 import Svg, { Circle, Path, Polygon } from 'react-native-svg';
 // TODO: should be updated to simple images
-export function Cover(props: SvgProps) {
+export function Cover(props: Readonly<SvgProps>) {
   return (
     <Svg data-name="Layer 1" viewBox="0 0 831 729.98934" {...props}>
       <Path

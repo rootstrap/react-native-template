@@ -1,5 +1,5 @@
 import { colorScheme, useColorScheme } from 'nativewind';
-import * as React from 'react';
+import { useCallback } from 'react';
 import { useMMKVString } from 'react-native-mmkv';
 
 import { storage } from '../storage';
@@ -14,10 +14,11 @@ export type ColorSchemeType = 'light' | 'dark' | 'system';
  *
  */
 export function useSelectedTheme() {
-  const { colorScheme: _color, setColorScheme } = useColorScheme();
+  // eslint-disable-next-line ts/unbound-method
+  const { setColorScheme } = useColorScheme();
   const [theme, _setTheme] = useMMKVString(SELECTED_THEME, storage);
 
-  const setSelectedTheme = React.useCallback(
+  const setSelectedTheme = useCallback(
     (t: ColorSchemeType) => {
       setColorScheme(t);
       _setTheme(t);
@@ -32,7 +33,6 @@ export function useSelectedTheme() {
 export function loadSelectedTheme() {
   const theme = storage.getString(SELECTED_THEME);
   if (theme !== undefined) {
-    console.log('theme', theme);
     colorScheme.set(theme as ColorSchemeType);
   }
 }

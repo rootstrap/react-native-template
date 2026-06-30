@@ -4,13 +4,16 @@ import { ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet } from 'react-native';
 import FlashMessage from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { APIProvider } from '@/api';
 
-import { hydrateAuth, loadSelectedTheme } from '@/lib';
+import interceptors from '@/api/common/interceptors';
+import { AuthProvider, useAuth } from '@/components/providers/auth';
+import { hydrateAuth, loadSelectedTheme, useIsFirstTime } from '@/lib';
 import { useThemeConfig } from '@/lib/use-theme-config';
 // Import  global CSS file
 import '../../global.css';
@@ -23,28 +26,74 @@ export const unstable_settings = {
 
 hydrateAuth();
 loadSelectedTheme();
+interceptors();
 // Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+void SplashScreen.preventAutoHideAsync();
 // Set the animation options. This is optional.
 SplashScreen.setOptions({
   duration: 500,
   fade: true,
 });
 
+function GuardedStack() {
+  const { isAuthenticated } = useAuth();
+  const { t } = useTranslation();
+  const [isFirstTime] = useIsFirstTime();
+
+  return (
+    <Stack>
+      <Stack.Protected guard={isFirstTime}>
+        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+      </Stack.Protected>
+
+      <Stack.Protected guard={isAuthenticated}>
+        <Stack.Screen name="(app)" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="update-password"
+          options={{
+            title: t('updatePassword.title'),
+          }}
+        />
+      </Stack.Protected>
+
+      <Stack.Protected guard={!isAuthenticated}>
+        <Stack.Screen name="sign-in" options={{ headerShown: false }} />
+        <Stack.Screen name="sign-up" />
+        <Stack.Screen name="forgot-password" />
+      </Stack.Protected>
+
+      <Stack.Screen
+        name="www"
+        options={{
+          presentation: 'modal',
+          title: '',
+        }}
+      />
+    </Stack>
+  );
+}
+
 export default function RootLayout() {
   return (
     <Providers>
-      <Stack>
-        <Stack.Screen name="(app)" options={{ headerShown: false }} />
-        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-      </Stack>
+      <RouterContent />
     </Providers>
   );
 }
 
-function Providers({ children }: { children: React.ReactNode }) {
+function RouterContent() {
+  const { ready } = useAuth();
+
+  if (!ready) {
+    return <Stack />;
+  }
+
+  return <GuardedStack />;
+}
+
+function Providers({ children }: Readonly<{ children: React.ReactNode }>) {
   const theme = useThemeConfig();
+
   return (
     <GestureHandlerRootView
       style={styles.container}
@@ -53,10 +102,12 @@ function Providers({ children }: { children: React.ReactNode }) {
       <KeyboardProvider>
         <ThemeProvider value={theme}>
           <APIProvider>
-            <BottomSheetModalProvider>
-              {children}
-              <FlashMessage position="top" />
-            </BottomSheetModalProvider>
+            <AuthProvider>
+              <BottomSheetModalProvider>
+                {children}
+                <FlashMessage position="top" />
+              </BottomSheetModalProvider>
+            </AuthProvider>
           </APIProvider>
         </ThemeProvider>
       </KeyboardProvider>

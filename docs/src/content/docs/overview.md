@@ -6,7 +6,7 @@ head:
     content: Overview | React Native / Expo Starter
 ---
 
-Welcome to the Obytes Mobile Tribe's Expo / React Native Starter Kit!
+Welcome to the Rootstrap's Expo / React Native Template!
 
 ## 🚀 Motivation
 
@@ -116,4 +116,4 @@ In addition to maintaining this starter kit, we are also available to work on cu
 
 ## ❓ FAQ
 
-If you have any questions about the starter and want answers, please check out the [Discussions](https://github.com/obytes/react-native-template-obytes/discussions) page.
+If you have any questions about the starter and want answers, please check out the [Github repo](https://github.com/rootstrap/react-native-template/discussions).

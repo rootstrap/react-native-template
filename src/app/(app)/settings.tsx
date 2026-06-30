@@ -1,6 +1,12 @@
-import { Env } from '@env';
+/* eslint-disable max-lines-per-function */
+import { Link } from 'expo-router';
 import { useColorScheme } from 'nativewind';
+import * as React from 'react';
+import { showMessage } from 'react-native-flash-message';
 
+import { useDeleteUser, useUser } from '@/api/auth/use-user';
+import { useAuth } from '@/components/providers/auth';
+import { DeleteAccountItem } from '@/components/settings/delete-account-item';
 import { Item } from '@/components/settings/item';
 import { ItemsContainer } from '@/components/settings/items-container';
 import { LanguageItem } from '@/components/settings/language-item';
@@ -12,69 +18,96 @@ import {
   Text,
   View,
 } from '@/components/ui';
-import { Github, Rate, Share, Support, Website } from '@/components/ui/icons';
-import { translate, useAuth } from '@/lib';
+import { Website } from '@/components/ui/icons';
+import { translate } from '@/lib';
+import { Env } from '@/lib/env';
 
 export default function Settings() {
-  const signOut = useAuth.use.signOut();
+  const { logout } = useAuth();
+  const { data: userData } = useUser();
+  const { mutateAsync: deleteUserAsync } = useDeleteUser({
+    onSuccess: () => {
+      logout();
+    },
+    onError: error => showMessage({ message: error.message, type: 'danger' }),
+  });
   const { colorScheme } = useColorScheme();
   const iconColor
     = colorScheme === 'dark' ? colors.neutral[400] : colors.neutral[500];
+
+  const handleDeleteUser = async () => {
+    if (userData?.email == null || userData.email === '') {
+      return;
+    }
+    await deleteUserAsync({ email: userData?.email });
+  };
+
   return (
     <>
       <FocusAwareStatusBar />
-
       <ScrollView>
-        <View className="flex-1 px-4 pt-16 ">
+        <View className="flex-1 gap-2 p-4">
           <Text className="text-xl font-bold">
             {translate('settings.title')}
           </Text>
-          <ItemsContainer title="settings.generale">
+          <ItemsContainer title="settings.account.title">
+            <Item text="settings.account.name" value={userData?.name ?? ''} />
+            <Item
+              text="settings.account.email"
+              value={userData?.email ?? ''}
+            />
+            <Link
+              asChild
+              href={{
+                pathname: '/update-password',
+              }}
+            >
+              <Item text="settings.account.password" />
+            </Link>
+          </ItemsContainer>
+          <ItemsContainer title="settings.general">
             <LanguageItem />
             <ThemeItem />
           </ItemsContainer>
 
-          <ItemsContainer title="settings.about">
-            <Item text="settings.app_name" value={Env.NAME} />
-            <Item text="settings.version" value={Env.VERSION} />
-          </ItemsContainer>
-
-          <ItemsContainer title="settings.support_us">
-            <Item
-              text="settings.share"
-              icon={<Share color={iconColor} />}
-              onPress={() => {}}
-            />
-            <Item
-              text="settings.rate"
-              icon={<Rate color={iconColor} />}
-              onPress={() => {}}
-            />
-            <Item
-              text="settings.support"
-              icon={<Support color={iconColor} />}
-              onPress={() => {}}
-            />
-          </ItemsContainer>
-
           <ItemsContainer title="settings.links">
-            <Item text="settings.privacy" onPress={() => {}} />
-            <Item text="settings.terms" onPress={() => {}} />
-            <Item
-              text="settings.github"
-              icon={<Github color={iconColor} />}
-              onPress={() => {}}
-            />
-            <Item
-              text="settings.website"
-              icon={<Website color={iconColor} />}
-              onPress={() => {}}
-            />
+            <Link
+              asChild
+              href={{
+                pathname: '/www',
+                params: {
+                  url: Env.TERMS_OF_SERVICE_URL,
+                  title: translate('settings.terms'),
+                },
+              }}
+            >
+              <Item text="settings.terms" />
+            </Link>
+            <Link
+              asChild
+              href={{
+                pathname: '/www',
+                params: {
+                  url: Env.WEBSITE_URL,
+                  title: translate('settings.website'),
+                },
+              }}
+            >
+              <Item
+                text="settings.website"
+                icon={<Website color={iconColor} />}
+              />
+            </Link>
+          </ItemsContainer>
+
+          <ItemsContainer title="settings.about">
+            <Item text="settings.version" value={Env.VERSION} />
           </ItemsContainer>
 
           <View className="my-8">
             <ItemsContainer>
-              <Item text="settings.logout" onPress={signOut} />
+              <DeleteAccountItem onDelete={() => { void handleDeleteUser(); }} />
+              <Item text="settings.logout" onPress={logout} />
             </ItemsContainer>
           </View>
         </View>

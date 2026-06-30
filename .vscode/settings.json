@@ -4,18 +4,13 @@
   "search.exclude": {
     "yarn.lock": true
   },
-
-  // Disable Prettier completely
   "prettier.enable": false,
   "editor.formatOnSave": false,
-
-  // Enable ESLint auto-fix on save
+  "typescript.tsdk": "node_modules/typescript/lib",
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
     "source.organizeImports": "never"
   },
-
-  // Silence stylistic rules in IDE while still auto-fixing them
   "eslint.rules.customizations": [
     { "rule": "style/*", "severity": "off", "fixable": true },
     { "rule": "format/*", "severity": "off", "fixable": true },
@@ -28,8 +23,6 @@
     { "rule": "*quotes", "severity": "off", "fixable": true },
     { "rule": "*semi", "severity": "off", "fixable": true }
   ],
-
-  // Enable ESLint for various file types
   "eslint.validate": [
     "javascript",
     "javascriptreact",
@@ -43,22 +36,19 @@
     "yaml",
     "toml",
     "xml",
-    "gql",
     "graphql",
     "astro",
     "css",
     "less",
     "scss",
-    "pcss",
     "postcss"
   ],
-
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "cSpell.words": ["Flashlist", "Lato"],
+  "cSpell.words": ["Flashlist", "Lato", "rootstrap"],
   "i18n-ally.localesPaths": ["src/translations/"],
   "i18n-ally.keystyle": "nested",
   "i18n-ally.disabled": false, // make sure to disable i18n-ally in your global setting and only enable it for such projects
   "tailwindCSS.experimental.classRegex": [
     ["tv\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
-  ]
+  ],
+  "tailwindCSS.rootFontSize": 16
 }

@@ -1,6 +1,5 @@
 import type { PressableProps } from 'react-native';
 import { MotiView } from 'moti';
-import * as React from 'react';
 import { useCallback } from 'react';
 import {
   I18nManager,
@@ -33,7 +32,7 @@ export type IconProps = {
 };
 
 export function Root({
-  checked = false,
+  checked,
   children,
   onChange,
   disabled,
@@ -65,7 +64,7 @@ type LabelProps = {
   testID?: string;
 };
 
-function Label({ text, testID, className = '' }: LabelProps) {
+function Label({ text, testID, className = '' }: Readonly<LabelProps>) {
   return (
     <Text testID={testID} className={` ${className} pl-2`}>
       {text}
@@ -73,7 +72,7 @@ function Label({ text, testID, className = '' }: LabelProps) {
   );
 }
 
-export function CheckboxIcon({ checked = false }: IconProps) {
+export function CheckboxIcon({ checked }: Readonly<IconProps>) {
   const color = checked ? colors.primary[300] : colors.charcoal[400];
   return (
     <MotiView
@@ -109,7 +108,7 @@ export function CheckboxIcon({ checked = false }: IconProps) {
   );
 }
 
-function CheckboxRoot({ checked = false, children, ...props }: RootProps) {
+function CheckboxRoot({ checked, children, ...props }: RootProps) {
   return (
     <Root checked={checked} accessibilityRole="checkbox" {...props}>
       {children}
@@ -127,11 +126,11 @@ function CheckboxBase({
   return (
     <CheckboxRoot checked={checked} testID={testID} {...props}>
       <CheckboxIcon checked={checked} />
-      {label
+      {label !== undefined && label !== ''
         ? (
             <Label
               text={label}
-              testID={testID ? `${testID}-label` : undefined}
+              testID={testID === undefined ? undefined : `${testID}-label`}
               className="pr-2"
             />
           )
@@ -146,7 +145,7 @@ export const Checkbox = Object.assign(CheckboxBase, {
   Label,
 });
 
-export function RadioIcon({ checked = false }: IconProps) {
+export function RadioIcon({ checked }: Readonly<IconProps>) {
   const color = checked ? colors.primary[300] : colors.charcoal[400];
   return (
     <MotiView
@@ -163,7 +162,7 @@ export function RadioIcon({ checked = false }: IconProps) {
       transition={{ borderColor: { duration: 100, type: 'timing' } }}
     >
       <MotiView
-        className={`size-[10px] rounded-[10px] ${checked && 'bg-primary-300'} `}
+        className={`size-[10px] rounded-[10px] ${checked ? 'bg-primary-300' : ''} `}
         from={{ opacity: 0 }}
         animate={{ opacity: checked ? 1 : 0 }}
         transition={{ opacity: { duration: 50, type: 'timing' } }}
@@ -172,7 +171,7 @@ export function RadioIcon({ checked = false }: IconProps) {
   );
 }
 
-function RadioRoot({ checked = false, children, ...props }: RootProps) {
+function RadioRoot({ checked, children, ...props }: RootProps) {
   return (
     <Root checked={checked} accessibilityRole="radio" {...props}>
       {children}
@@ -189,9 +188,9 @@ function RadioBase({
   return (
     <RadioRoot checked={checked} testID={testID} {...props}>
       <RadioIcon checked={checked} />
-      {label
+      {label !== undefined && label !== ''
         ? (
-            <Label text={label} testID={testID ? `${testID}-label` : undefined} />
+            <Label text={label} testID={testID === undefined ? undefined : `${testID}-label`} />
           )
         : null}
     </RadioRoot>
@@ -204,7 +203,7 @@ export const Radio = Object.assign(RadioBase, {
   Label,
 });
 
-export function SwitchIcon({ checked = false }: IconProps) {
+export function SwitchIcon({ checked }: Readonly<IconProps>) {
   const translateX = checked
     ? THUMB_OFFSET
     : WIDTH - THUMB_WIDTH - THUMB_OFFSET;
@@ -239,7 +238,7 @@ export function SwitchIcon({ checked = false }: IconProps) {
     </View>
   );
 }
-function SwitchRoot({ checked = false, children, ...props }: RootProps) {
+function SwitchRoot({ checked, children, ...props }: RootProps) {
   return (
     <Root checked={checked} accessibilityRole="switch" {...props}>
       {children}
@@ -256,9 +255,9 @@ function SwitchBase({
   return (
     <SwitchRoot checked={checked} testID={testID} {...props}>
       <SwitchIcon checked={checked} />
-      {label
+      {label !== undefined && label !== ''
         ? (
-            <Label text={label} testID={testID ? `${testID}-label` : undefined} />
+            <Label text={label} testID={testID === undefined ? undefined : `${testID}-label`} />
           )
         : null}
     </SwitchRoot>

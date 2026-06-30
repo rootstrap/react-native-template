@@ -29,7 +29,7 @@ Here is a example of how to write the component:
 ```tsx
 import * as React from 'react';
 
-import { Image, SavaAreaView, Text, View } from '@/components/ui';
+import { Text, View, Image, SavaAreaView } from '@/components/ui';
 
 // Props should be defined in the top of the component
 type TitleProps = {
@@ -56,9 +56,9 @@ export function Title({ text }: TitleProps) {
 Here is an example of how to write the form component:
 
 ```tsx
-import type { SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as React from 'react';
+import React from 'react';
+import type { SubmitHandler } from 'react-hook-form';
 import { useForm } from 'react-hook-form';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import * as z from 'zod';
@@ -85,7 +85,7 @@ export type LoginFormProps = {
   onSubmit?: SubmitHandler<FormType>;
 };
 
-export function LoginForm({ onSubmit = () => {} }: LoginFormProps) {
+export const LoginForm = ({ onSubmit = () => {} }: LoginFormProps) => {
   const { handleSubmit, control } = useForm<FormType>({
     resolver: zodResolver(schema),
   });
@@ -139,5 +139,5 @@ export function LoginForm({ onSubmit = () => {} }: LoginFormProps) {
       </View>
     </KeyboardAvoidingView>
   );
-}
+};
 ```

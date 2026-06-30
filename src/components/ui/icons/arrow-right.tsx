@@ -1,11 +1,10 @@
 import type { SvgProps } from 'react-native-svg';
-import * as React from 'react';
 import { StyleSheet } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 import { isRTL } from '@/lib';
 
-export function ArrowRight({ color = '#CCC', style, ...props }: SvgProps) {
+export function ArrowRight({ color = '#CCC', style, ...props }: Readonly<SvgProps>) {
   return (
     <Svg
       width={7}

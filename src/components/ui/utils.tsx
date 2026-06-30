@@ -10,12 +10,11 @@ export const HEIGHT = height;
 
 // for onError react queries and mutations
 export function showError(error: AxiosError) {
-  console.log(JSON.stringify(error?.response?.data));
   const description = extractError(error?.response?.data).trimEnd();
 
   showMessage({
-    message: 'Error',
     description,
+    message: 'Error',
     type: 'danger',
     duration: 4000,
     icon: 'danger',
@@ -35,16 +34,14 @@ export function extractError(data: unknown): string {
     return data;
   }
   if (Array.isArray(data)) {
-    const messages = data.map((item) => {
-      return `  ${extractError(item)}`;
-    });
+    const messages = data.map(item => `  ${extractError(item)}`);
 
     return `${messages.join('')}`;
   }
 
   if (typeof data === 'object' && data !== null) {
     const messages = Object.entries(data).map((item) => {
-      const [key, value] = item;
+      const [key, value] = item as [string, unknown];
       const separator = Array.isArray(value) ? ':\n ' : ': ';
 
       return `- ${key}${separator}${extractError(value)} \n `;

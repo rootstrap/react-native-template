@@ -1,13 +1,87 @@
 {
+  "auth": {
+    "signIn": {
+      "buttons": {
+        "login": "Login",
+        "signUp": "Sign Up"
+      },
+      "fields": {
+        "email": "Email",
+        "password": "Password"
+      },
+      "forgotPasswordButton": "Forgot Password",
+      "newAccount": "Doesn't have an account?",
+      "signUp": "Already have an account?",
+      "title": "Sign In",
+      "validation": {
+        "emailRequired": "Email is required",
+        "invalidEmail": "Invalid email format",
+        "passwordMinChars": "Password must be at least 6 characters",
+        "passwordRequired": "Password is required"
+      }
+    },
+    "signUp": {
+      "error": {
+        "emailInvalid": "Invalid email format",
+        "emailRequired": "Email is required",
+        "nameRequired": "Name is required",
+        "passwordConfirmationRequired": "Password is required",
+        "passwordRequired": "Password is required",
+        "passwordsDoNotMatch": "Passwords do not match",
+        "shortPassword": "Password must be at least 6 characters"
+      },
+      "fields": {
+        "email": "Email",
+        "name": "Name",
+        "password": "Password",
+        "passwordConfirmation": "Password confirmation"
+      },
+      "signInButton": "Sign in",
+      "signUpButton": "Sign Up",
+      "title": "Create an account"
+    }
+  },
+  "forgotPassword": {
+    "buttonLabel": "Send Reset Instructions",
+    "description": "Enter your email address below and we'll send you instructions to reset your password.",
+    "emailInvalidFormatFormError": "Invalid email format",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "Enter your email",
+    "errorMessage": "There was an error sending the instructions. Please try again.",
+    "instructions": "You'll receive an email with a link to reset your password. Please check your inbox.",
+    "successMessage": "Instructions to reset your password have been sent to your email.",
+    "title": "Forgot your password?"
+  },
   "onboarding": {
-    "message": "Welcome to obytes app site"
+    "button_label": "Let's Get Started",
+    "features": {
+      "developer_experience": "🥷 Developer experience + Productivity",
+      "minimal_code": "🧩 Minimal code and dependencies",
+      "production_ready": "🚀 Production-ready",
+      "well_maintained_libraries": "💪 Well maintained third-party libraries"
+    },
+    "subtitle": "The right way to build your mobile app",
+    "title": "React Native Template"
   },
   "settings": {
     "about": "About",
+    "account": {
+      "email": "Email",
+      "name": "Name",
+      "password": "Password",
+      "title": "Account"
+    },
     "app_name": "App Name",
     "arabic": "Arabic",
+    "deleteAccount": {
+      "cancel": "Cancel",
+      "confirmMessage": "Are you sure you want to delete your account? This action cannot be undone.",
+      "confirmTitle": "Confirm Delete",
+      "delete": "Delete",
+      "title": "Delete account"
+    },
     "english": "English",
-    "generale": "General",
+    "general": "General",
     "github": "Github",
     "language": "Language",
     "links": "Links",
@@ -17,7 +91,7 @@
     "rate": "Rate",
     "share": "Share",
     "support": "Support",
-    "support_us": "Support Us",
+    "supportUs": "Support Us",
     "terms": "Terms of Service",
     "theme": {
       "dark": "Dark",
@@ -29,5 +103,23 @@
     "version": "Version",
     "website": "Website"
   },
-  "welcome": "Welcome to obytes app site"
+  "updatePassword": {
+    "buttonLabel": "Update Password",
+    "confirmPasswordLabel": "Confirm Password",
+    "confirmPasswordPlaceholder": "Re-enter new password",
+    "description": "Enter a new password for your account.",
+    "error": {
+      "passwordsMustMatch": "Passwords must match",
+      "shortPassword": "Password must be at least {{minChars}} characters"
+    },
+    "errorMessage": "An error occurred while updating your password. Please try again.",
+    "passwordLabel": "New Password",
+    "passwordPlaceholder": "Enter new password",
+    "successMessage": "Your password has been successfully updated.",
+    "title": "Update Password"
+  },
+  "welcome": "Welcome to rootstrap app site",
+  "www": {
+    "invalidUrl": "Invalid Url"
+  }
 }

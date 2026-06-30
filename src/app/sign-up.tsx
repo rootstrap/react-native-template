@@ -1,0 +1,24 @@
+import type { SignUpFormProps } from '@/components/sign-up-form';
+import * as React from 'react';
+
+import { showMessage } from 'react-native-flash-message';
+import { useSignUp } from '@/api/auth/use-sign-up';
+import { SignUpForm } from '@/components/sign-up-form';
+import { FocusAwareStatusBar } from '@/components/ui';
+
+export default function SignIn() {
+  const { mutate: signUp, isPending } = useSignUp({
+    onError: error => showMessage({ message: error.message, type: 'danger' }),
+  });
+
+  const onSubmit: SignUpFormProps['onSubmit'] = (data) => {
+    signUp(data);
+  };
+
+  return (
+    <>
+      <FocusAwareStatusBar />
+      <SignUpForm onSubmit={onSubmit} isPending={isPending} />
+    </>
+  );
+}

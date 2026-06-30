@@ -1,22 +1,25 @@
 {
-  "name": "create-obytes-app",
-  "version": "1.7.1",
-  "description": "Obytes expo starter cli",
-  "homepage": "https://github.com/obytes/react-native-template-obytes",
+  "name": "create-rootstrap-rn-app",
+  "version": "1.3.2",
+  "description": "Rootstrap expo starter cli",
+  "homepage": "https://github.com/rootstrap/react-native-template",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/obytes/react-native-template-obytes.git"
+    "url": "git+https://github.com/rootstrap/react-native-template.git"
   },
   "main": "index.js",
   "scripts": {
-    "start": "node ."
+    "start": "node .",
+    "prepack": "cross-env cp ../README.md README.md",
+    "postpack": "cross-env rm README.md"
   },
   "bin": {
-    "create-obytes-app": "index.js"
+    "create-rootstrap-rn-app": "index.js"
   },
   "files": [
     "index.js",
     "utils.js",
+    "project-files-manager.js",
     "clone-repo.js",
     "setup-project.js"
   ],
@@ -33,6 +36,10 @@
     "react-native-boilerplate",
     "expo-boilerplate",
     "cli",
-    "obytes"
-  ]
+    "obytes",
+    "rootstrap"
+  ],
+  "devDependencies": {
+    "cross-env": "^7.0.3"
+  }
 }

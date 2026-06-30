@@ -1,0 +1,39 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Global Base Rules
+
+## Code Style
+- Use concise, technical TypeScript code.
+- Prefer functional and declarative programming; avoid classes.
+- Use descriptive variable names (e.g., isLoading, hasError).
+- Modularize code, avoid duplication.
+
+## Naming
+- Use kebab-case for files and directories.
+- Favor named exports.
+
+## Syntax
+- Use "function" keyword for pure functions.
+- Avoid unnecessary curly braces in conditionals.
+
+## Git
+
+Commit Message Prefixes:
+
+- "fix:" for bug fixes
+- "feat:" for new features
+- "perf:" for performance improvements
+- "docs:" for documentation changes
+- "style:" for formatting changes
+- "refactor:" for code refactoring
+- "test:" for adding missing tests
+- "chore:" for maintenance tasks
+
+Rules:
+
+- Use lowercase for commit messages
+- Keep the summary line concise with a maximum of 100 characters
+- Reference issue numbers when applicable

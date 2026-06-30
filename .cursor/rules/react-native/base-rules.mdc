@@ -1,0 +1,66 @@
+---
+description: React Native, Expo, and Mobile UI specific technical and UI rules
+globs: *.tsx,*.ts,*.jsx,*.js
+alwaysApply: false
+---
+# React Native Base Rules
+
+## Tech Stack
+- Use Expo, React Native, TypeScript, Nativewind, Expo Router, React Query, Zustand, MMKV, SVG.
+
+## Components
+- Use functional components.
+- Keep components modular, reusable, and <120 lines.
+- Use declarative JSX.
+- Memoize components to avoid unnecessary re-renders.
+
+## UI & Styling
+- Use Nativewind for styling.
+- Avoid one sided margins and paddings when possible. Instead, prefer adding container views when needed with gap, vertical padding or horizontal padding.
+- Use built-in ui components such as Button, Input from `@components/ui`
+- Avoid unnecessary re-renders by memoizing components and using useMemo and useCallback hooks appropriately.
+- Ensure accessibility (a11y) with ARIA/native props.
+- Use defined colors/fonts from tailwind config.
+
+## State Management
+- Use Zustand for global state.
+- Clean up in useEffect hooks.
+
+## Animations
+- Use react-native-reanimated and react-native-gesture-handler for animations/gestures.
+
+## Testing
+- Use Jest and React Native Testing Library.
+- Write unit tests for utilities and complex components.
+- Test files: component-name.test.tsx.
+- No tests for simple display-only components.
+
+## Code Examples
+
+- Follow patterns similar to:
+
+```tsx
+import { Text, View, Image, SavaAreaView } from '@/components/ui';
+
+// Props should be defined in the top of the component
+type TitleProps = {
+  text: string;
+};
+
+const Title = ({ text }: TitleProps) => {
+  return (
+    <View className="flex-row items-center justify-center py-4">
+      <Text className="px-2 text-2xl">{text}</Text>
+      <View className="h-[2px] flex-1 bg-neutral-300" />
+
+      <Image
+        source={require('@assets/images/demo.png')}
+        style={{ width: 24, height: 24 }}
+        contentFit="contain"
+      />
+    </View>
+  );
+}
+
+export default Title
+```

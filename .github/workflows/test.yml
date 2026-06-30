@@ -1,9 +1,9 @@
 # 🔗 Links:
-# Source file: https://github.com/obytes/react-native-template-obytes/blob/master/.github/workflows/test.yml
+# Source file: https://github.com/rootstrap/react-native-template/blob/master/.github/workflows/test.yml
 
 # ✍️ Description:
 # This action is used to run unit tests
-# Runs on pull requests and pushes to  the main/master branches
+# Runs on any pull request, and also when pushing to main/master
 # Based on the event type:
 #   - If it's a pull request, it will run the tests and post a comment with coverage details.
 #   - If it's a push to main/master, it will run the tests and add the check to the commit.
@@ -16,12 +16,15 @@ on:
   push:
     branches: [main, master]
   pull_request:
-    branches: [main, master]
+    types: [opened, synchronize]
 
 jobs:
   test:
     name: Tests (jest)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
 
     steps:
       - name: 📦 Checkout project repo

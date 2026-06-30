@@ -1,7 +1,6 @@
 import type { ImageProps } from 'expo-image';
 import { Image as NImage } from 'expo-image';
 import { cssInterop } from 'nativewind';
-import * as React from 'react';
 
 export type ImgProps = ImageProps & {
   className?: string;
@@ -25,6 +24,6 @@ export function Image({
   );
 }
 
-export function preloadImages(sources: string[]) {
-  NImage.prefetch(sources);
+export function preloadImages(sources: Array<string>) {
+  void NImage.prefetch(sources);
 }

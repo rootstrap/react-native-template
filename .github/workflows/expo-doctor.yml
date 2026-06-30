@@ -1,5 +1,5 @@
 # 🔗 Links:
-# Source file: https://github.com/obytes/react-native-template-obytes/blob/master/.github/workflows/expo-doctor.yml
+# Source file: https://github.com/rootstrap/react-native-template/blob/master/.github/workflows/expo-doctor.yml
 
 # ✍️ Description:
 # This workflow runs the expo doctor command to check if your project dependencies are aligned with the expo sdk version you are using.
@@ -44,13 +44,9 @@ jobs:
       - name: 📦 Setup Node + PNPM + install deps
         uses: ./.github/actions/setup-node-pnpm-install
 
-      - name: Run prebuild
-        run: pnpm run prebuild
-
       - name: 🚑 Run Doctor Checks
         run: |
           chmod +x .github/scripts/expo-doctor.sh
-          rm -rf ios android
           .github/scripts/expo-doctor.sh
 
       - name: Add doctor report as comment on PR

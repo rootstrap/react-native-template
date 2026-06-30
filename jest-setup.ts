@@ -1,10 +1,9 @@
-/* eslint-disable ts/ban-ts-comment */
-/* eslint-disable no-restricted-globals */
 import '@testing-library/react-native/extend-expect';
 
 // react-hook form setup for testing
-// @ts-expect-error
-global.window = {};
+// @ts-expect-error - window is not defined in React Native test environment
+globalThis.window = {};
+// @ts-expect-error - window needs to reference globalThis for react-hook-form compatibility
+globalThis.window = globalThis;
 
-// @ts-expect-error
-global.window = global;
+jest.mock('react-native-mmkv');

@@ -1,6 +1,6 @@
 import type { TextProps, TextStyle } from 'react-native';
 import type { TxKeyPath } from '@/lib/i18n';
-import * as React from 'react';
+import { useMemo } from 'react';
 import { I18nManager, Text as NNText, StyleSheet } from 'react-native';
 
 import { twMerge } from 'tailwind-merge';
@@ -18,7 +18,7 @@ export function Text({
   children,
   ...props
 }: Props) {
-  const textStyle = React.useMemo(
+  const textStyle = useMemo(
     () =>
       twMerge(
         'text-base text-black  dark:text-white  font-inter font-normal',
@@ -27,14 +27,14 @@ export function Text({
     [className],
   );
 
-  const nStyle = React.useMemo(
+  const nStyle: TextStyle = useMemo(
     () =>
       StyleSheet.flatten([
         {
           writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
         },
         style,
-      ]) as TextStyle,
+      ]),
     [style],
   );
   return (

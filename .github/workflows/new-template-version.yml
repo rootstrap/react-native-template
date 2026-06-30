@@ -1,0 +1,90 @@
+# 🔗 Links:
+# Source file: https://github.com/rootstrap/react-native-template/blob/master/.github/workflows/lint-ts.yml
+# Starter releasing process: https://rootstrap.github.io/react-native-template/ci-cd/app-releasing-process/
+
+# ✍️ Description:
+# This workflow is used to create a new version of the template and push a new tag to the repo.
+# As this workflow will push code to the repo, we set up GitHub Bot as a Git user.
+# This Workflow need to be triggered manually from the Actions tab in the repo.
+#         1. Choose your release type (patch, minor, major)
+#         2. The workflow will run the np-release script which runs the following steps:
+#             - Bump the version in package.json based on the release type using np
+#             - Run the prebuild of the app to align the package.json version with the native code
+#             - Create a new tag with the new version
+#             - Push the new tag to the repo
+#
+
+# 🚨 GITHUB SECRETS REQUIRED:
+# - NEW_TEMPLATE_VERSION_PAT: A fine-grained Personal Access Token.
+#                             This token is used to commit, push and create a new release in the template repository.
+#                             You can generate one from here: https://github.com/settings/tokens?type=beta
+#                             Set the Repository access to "Only select repositories" and select the template repository.
+#                             Set the following Repo permissions:
+#                                 - Contents: Read & write (to commit, push and create a new release)
+#                                 - Metadata: Read-only (mandatory by GitHub)
+#                                 - Actions: Read and write (to allow triggering other workflows, like docs deployment)
+#                             Make sure to add it to the repo secrets with the name NEW_TEMPLATE_VERSION_PAT:
+#                                 - Go to Repository Settings > Secrets and variables > Actions > New repository secret
+#                                   - Name: NEW_TEMPLATE_VERSION_PAT
+#                                   - Value: The Personal Access Token you created
+
+name: New Template Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      release-type:
+        type: choice
+        description: 'Release type (one of): patch, minor, major'
+        required: true
+        default: patch
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  release:
+    name: Create New Version and push new tag
+    runs-on: ubuntu-latest
+    environment:
+      name: template
+      url: https://github.com/rootstrap/react-native-template/releases/tag/v${{ env.NEW_VERSION }}
+    permissions:
+      contents: write
+    steps:
+      - name: Check if Personal Access Token exists
+        env:
+          PAT: ${{ secrets.NEW_TEMPLATE_VERSION_PAT }}
+        if: env.PAT == ''
+        run: |
+          echo "NEW_TEMPLATE_VERSION_PAT secret not found. Please create a fine-grained Personal Access Token following the instructions in the workflow file."
+          exit 1
+      - name: 📦 Checkout project repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.NEW_TEMPLATE_VERSION_PAT }}
+      - name: 📝 Git User Setup
+        run: |
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      - name: 📦 Setup Node + PNPM + install deps
+        uses: ./.github/actions/setup-node-pnpm-install
+
+      - name: 🏃‍♂️ Run Template release
+        run: |
+          pnpm app-release ${{ github.event.inputs.release-type }}
+
+      - name: 📝 Get new package version
+        run: |
+          echo "NEW_VERSION=$(awk -F'"' '/"version": ".+"/{ print $4; exit; }' package.json)" >> $GITHUB_ENV
+
+      - name: 🏃‍♂️Create A Github Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: v${{ env.NEW_VERSION }}
+          generateReleaseNotes: true
+          draft: false
+          token: ${{ secrets.NEW_TEMPLATE_VERSION_PAT }}

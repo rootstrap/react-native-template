@@ -1,0 +1,17 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Typescript rules
+
+## TypeScript
+- Prefer types over interfaces.
+- Avoid enums; use const objects with 'as const'.
+- Use explicit return types for all functions.
+- Avoid type assertions with 'as' or '!' operators unless absolutely necessary
+- Use mapped and conditional types for advanced type transformations
+- If a type is being reused within different files extract it for reuse
+- Use strict mode in TypeScript for better type safety
+- Avoid using `any`; strive for precise types.
+
