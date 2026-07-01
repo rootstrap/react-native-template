@@ -92,6 +92,29 @@ The bot will be triggered on issues, pull requests and comments, you can modify 
 
 Check this [file](https://github.com/rootstrap/rs-gpt-review/blob/main/.github/workflows/main.yml) for more examples.
 
+## Pushgate
+
+This repository uses `ai-pushgate` from `.git/hooks/pre-push` to run local checks before `git push`.
+
+Pushgate setup for template users:
+- `.pushgate.yml` is versioned, so everyone gets the same rules.
+- `.git/hooks/pre-push` is local and is not committed to Git.
+- Each developer must install Pushgate once per clone.
+
+Install from repo root:
+```sh
+curl -fsSL https://raw.githubusercontent.com/rootstrap/ai-pushgate/main/install.sh | bash
+```
+
+Verify the hook was created:
+```sh
+ls .git/hooks/pre-push
+```
+
+How to skip checks:
+> Skip AI only: `git -c pushgate.skip-ai-check=true push`
+> Skip everything: `git push --no-verify`
+
 <!-- add a gif image here  -->
 
 ## 💎 Libraries used

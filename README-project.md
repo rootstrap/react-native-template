@@ -59,6 +59,29 @@ To build your app locally you can run any of the build scripts with --local.
 
 `pnpm build:development:ios --local`
 
+## Pushgate
+
+This repository uses `ai-pushgate` from `.git/hooks/pre-push` to run local checks before `git push`.
+
+Pushgate setup for template users:
+- `.pushgate.yml` is versioned, so everyone gets the same rules.
+- `.git/hooks/pre-push` is local and is not committed to Git.
+- Each developer must install Pushgate once per clone.
+
+Install from repo root:
+```sh
+curl -fsSL https://raw.githubusercontent.com/rootstrap/ai-pushgate/main/install.sh | bash
+```
+
+Verify the hook was created:
+```sh
+ls .git/hooks/pre-push
+```
+
+How to skip checks:
+> Skip AI only: `git -c pushgate.skip-ai-check=true push`
+> Skip everything: `git push --no-verify`
+
 ### SonarQube setup
 
 SonarQube is an open-source platform for continuous inspection of code quality. It performs automatic reviews to detect bugs, code smells, and security vulnerabilities. Rootstrap has a SonarQube instance to improve the quality of the software we develop. On each PR, a GitHub Action is triggered to perform the analysis. To set up SonarQube correctly, you need to add the `SONAR_TOKEN`, `SONAR_URL`, and `SONAR_PROJECT` secrets to the repository. Additionally, you must select the quality gate named `ReactNativeTemplate` for your project on SonarQube. In case you're using this project outside Rootstrap and you're not planning to use SonarQube the sonar scanner [workflow](.github/workflows/sonar.yml) should be deleted.
