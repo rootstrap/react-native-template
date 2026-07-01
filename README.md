@@ -92,6 +92,23 @@ The bot will be triggered on issues, pull requests and comments, you can modify 
 
 Check this [file](https://github.com/rootstrap/rs-gpt-review/blob/main/.github/workflows/main.yml) for more examples.
 
+## PR Risk Classification
+
+This repository uses a simple `risk:*` label system when opening pull requests.
+
+| Label | When to use |
+| --- | --- |
+| `risk:low` | Config, copy, minor UI tweaks with low blast radius. |
+| `risk:medium` | Feature work and refactors touching multiple files. |
+| `risk:high` | Auth, payments, migrations, and security-sensitive code. |
+
+Before requesting review, apply the label that best matches the change. When in doubt, escalate instead of guessing.
+
+Setup checklist:
+- Create `risk:low`, `risk:medium`, and `risk:high` labels in the repo.
+- Keep the risk criteria documented in the PR template or contributing guide.
+- Define who can override or escalate the label, such as the tech lead.
+
 ## Pushgate
 
 This repository uses `ai-pushgate` from `.git/hooks/pre-push` to run local checks before `git push`.
