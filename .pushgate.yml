@@ -89,38 +89,69 @@ review:
 #
 tools:
   - name: type-check
-    command: ["pnpm", "run", "type-check"]
+    command:
+      - pnpm
+      - run
+      - type-check
     run: always
     timeout_seconds: 120
     mode: blocking
-    fail_fast: true
+    fail_fast: false
 
   - name: eslint
-    command: ["pnpm", "exec", "eslint", "{changed_files}"]
-    extensions: [".js", ".jsx", ".ts", ".tsx", ".mjs"]
+    command:
+      - pnpm
+      - exec
+      - eslint
+      - '{changed_files}'
+    extensions:
+      - .js
+      - .jsx
+      - .ts
+      - .tsx
+      - .mjs
     run: changed_files
     timeout_seconds: 120
     mode: blocking
-    fail_fast: true
+    fail_fast: false
 
   - name: lint
-    command: ["pnpm", "run", "lint"]
+    command:
+      - pnpm
+      - run
+      - lint
     run: always
     timeout_seconds: 120
     mode: blocking
-    fail_fast: true
+    fail_fast: false
 
   - name: lint-translations
-    command: ["pnpm", "run", "lint:translations"]
+    command:
+      - pnpm
+      - run
+      - lint:translations
     run: always
     timeout_seconds: 120
     mode: blocking
-    fail_fast: true
+    fail_fast: false
 
   - name: test
-    command: ["pnpm", "run", "test"]
+    command:
+      - pnpm
+      - run
+      - test
     run: always
     timeout_seconds: 120
+    mode: blocking
+    fail_fast: false
+
+  - name: checks-complete
+    command:
+      - bash
+      - -lc
+      - echo Pushgate checks finished
+    run: always
+    timeout_seconds: 10
     mode: blocking
     fail_fast: true
 
@@ -157,12 +188,12 @@ policies:
 
   forbidden_paths:
     patterns:
-      - ".env"
-      - ".env.*"
-      - "secrets/**"
-      - "*.pem"
+      - .env
+      - .env.*
+      - secrets/**
+      - '*.pem'
     mode: blocking
-    fail_fast: true
+    fail_fast: false
 
 # =============================================================================
 # Plugins
@@ -192,14 +223,14 @@ plugins: {}
 # =============================================================================
 # Files and patterns excluded from tool checks and AI review.
 ignore_paths:
-  - "*.lock"
-  - "package-lock.json"
-  - "pnpm-lock.yaml"
-  - "yarn.lock"
-  - "Gemfile.lock"
-  - "dist/**"
-  - "build/**"
-  - ".next/**"
-  - "coverage/**"
-  - "tmp/**"
-  - "log/**"
+  - '*.lock'
+  - package-lock.json
+  - pnpm-lock.yaml
+  - yarn.lock
+  - Gemfile.lock
+  - dist/**
+  - build/**
+  - .next/**
+  - coverage/**
+  - tmp/**
+  - log/**
