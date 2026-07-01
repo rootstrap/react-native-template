@@ -95,6 +95,14 @@ tools:
     mode: blocking
     fail_fast: true
 
+  - name: eslint
+    command: ["pnpm", "exec", "eslint", "{changed_files}"]
+    extensions: [".js", ".jsx", ".ts", ".tsx", ".mjs"]
+    run: changed_files
+    timeout_seconds: 120
+    mode: blocking
+    fail_fast: true
+
   - name: lint
     command: ["pnpm", "run", "lint"]
     run: always
@@ -104,6 +112,13 @@ tools:
 
   - name: lint-translations
     command: ["pnpm", "run", "lint:translations"]
+    run: always
+    timeout_seconds: 120
+    mode: blocking
+    fail_fast: true
+
+  - name: test
+    command: ["pnpm", "run", "test"]
     run: always
     timeout_seconds: 120
     mode: blocking
