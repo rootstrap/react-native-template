@@ -66,7 +66,8 @@ This repository uses `ai-pushgate` from `.git/hooks/pre-push` to run local check
 Pushgate setup for template users:
 - `.pushgate.yml` is versioned, so everyone gets the same rules.
 - `.git/hooks/pre-push` is local and is not committed to Git.
-- Each developer must install Pushgate once per clone.
+- If you create the app with `create-rootstrap-rn-app`, Pushgate is installed automatically during setup.
+- For existing clones, or if the hook is missing, install it manually:
 
 Install from repo root:
 ```sh
