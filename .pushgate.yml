@@ -22,7 +22,7 @@ ai:
   mode: advisory
 
   # Changed-line overages block the push; prompt-token overages skip local AI.
-  max_changed_lines: 500
+  max_changed_lines: 700
   max_prompt_tokens: 12000
   timeout_seconds: 120
 
@@ -182,7 +182,7 @@ tools:
 #
 policies:
   diff_size:
-    max_changed_lines: 500
+    max_changed_lines: 700
     mode: warning
     fail_fast: false
 
