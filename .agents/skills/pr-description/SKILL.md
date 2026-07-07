@@ -62,16 +62,6 @@ Write 1-3 concise sentences explaining the reason for the change. Tie it to the 
 
 Name affected screens, flows, platforms, users, modules, or developer workflows. Use a short sentence or compact bullets. If impact is unclear, leave a placeholder comment instead of guessing.
 
-### Risk Classification
-
-Add the appropriate `risk:*` label when the PR is opened. If the label is unknown, escalate instead of guessing.
-
-- `risk:low` for config, copy, or minor UI tweaks with low blast radius.
-- `risk:medium` for feature work or refactors touching multiple files.
-- `risk:high` for auth, payments, migrations, or security-sensitive code.
-
-If the branch or user request does not make the risk obvious, leave the template placeholder and call out the uncertainty in Notes.
-
 ### How did you test this?
 
 List commands run and manual checks performed. Keep the existing checklist from the template and check only items that are supported by evidence or explicitly provided by the user.
