@@ -92,47 +92,6 @@ The bot will be triggered on issues, pull requests and comments, you can modify 
 
 Check this [file](https://github.com/rootstrap/rs-gpt-review/blob/main/.github/workflows/main.yml) for more examples.
 
-## PR Risk Classification
-
-This repository uses a simple `risk:*` label system when opening pull requests.
-
-| Label | When to use |
-| --- | --- |
-| `risk:low` | Config, copy, minor UI tweaks with low blast radius. |
-| `risk:medium` | Feature work and refactors touching multiple files. |
-| `risk:high` | Auth, payments, migrations, and security-sensitive code. |
-
-Before requesting review, apply the label that best matches the change. When in doubt, escalate instead of guessing.
-
-Setup checklist:
-- Create `risk:low`, `risk:medium`, and `risk:high` labels in the repo.
-- Keep the risk criteria documented in the PR template or contributing guide.
-- Define who can override or escalate the label, such as the tech lead.
-
-## Pushgate
-
-This repository uses `ai-pushgate` from `.git/hooks/pre-push` to run local checks before `git push`.
-
-Pushgate setup for template users:
-- `.pushgate.yml` is versioned, so everyone gets the same rules.
-- `.git/hooks/pre-push` is local and is not committed to Git.
-- If you create the app with `create-rootstrap-rn-app`, Pushgate is installed automatically during setup.
-- For existing clones, or if the hook is missing, install it manually:
-
-Install from repo root:
-```sh
-curl -fsSL https://raw.githubusercontent.com/rootstrap/ai-pushgate/main/install.sh | bash
-```
-
-Verify the hook was created:
-```sh
-ls .git/hooks/pre-push
-```
-
-How to skip checks:
-> Skip AI only: `git -c pushgate.skip-ai-check=true push`
-> Skip everything: `git push --no-verify`
-
 <!-- add a gif image here  -->
 
 ## 💎 Libraries used

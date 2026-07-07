@@ -1,5 +1,0 @@
-. "$(dirname "$0")/common.sh"
-
-echo '>> Running Pushgate pre-push checks...'
-
-"$(git rev-parse --git-common-dir)/hooks/pre-push" "$@"
