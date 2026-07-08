@@ -1,6 +1,7 @@
 const {
   execShellCommand,
   runCommand,
+  escapeShellArg,
 } = require('./utils.js');
 const { consola } = require('consola');
 const fs = require('fs-extra');
@@ -12,11 +13,13 @@ const ProjectFilesManager = require('./project-files-manager.js');
 let projectFilesManager;
 
 const initializeProjectRepository = async (projectName) => {
-  await execShellCommand(`cd ${projectName} && git init && cd ..`);
+  const escapedProjectName = escapeShellArg(projectName);
+  await execShellCommand(`cd ${escapedProjectName} && git init && cd ..`);
 };
 
 const installDependencies = async (projectName) => {
-  await runCommand(`cd ${projectName} && pnpm install`, {
+  const escapedProjectName = escapeShellArg(projectName);
+  await runCommand(`cd ${escapedProjectName} && pnpm install`, {
     loading: 'Installing project dependencies',
     success: 'Dependencies installed',
     error: 'Failed to install dependencies, Make sure you have pnpm installed',
@@ -26,8 +29,9 @@ const installDependencies = async (projectName) => {
 const installPushgate = async (projectName) => {
   consola.start('Installing Pushgate pre-push hook');
   try {
+    const escapedProjectName = escapeShellArg(projectName);
     await execShellCommand(
-      `cd ${projectName} && curl -fsSL https://raw.githubusercontent.com/rootstrap/ai-pushgate/main/install.sh | bash`
+      `cd ${escapedProjectName} && curl -fsSL https://raw.githubusercontent.com/rootstrap/ai-pushgate/main/install.sh | bash`
     );
     consola.success('Pushgate pre-push hook installed');
   } catch (error) {

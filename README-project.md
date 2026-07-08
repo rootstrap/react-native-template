@@ -61,7 +61,12 @@ To build your app locally you can run any of the build scripts with --local.
 
 ## Pushgate
 
-This repository uses `ai-pushgate` from `.git/hooks/pre-push` to run local checks before `git push`.
+This repository uses `ai-pushgate` to run local checks before `git push`.
+
+How this relates to PR approvals:
+- Pushgate is a local pre-push gate run from the Git pre-push hook.
+- PR approval calculation is handled separately by the Layer 4 gatekeeper workflow script at `.github/scripts/gatekeeper.js`.
+- Pushgate can help classify AI findings, while gatekeeper turns `risk:*` + `ai:*` labels into required approvals.
 
 Pushgate setup for template users:
 - `.pushgate.yml` is versioned, so everyone gets the same rules.
@@ -82,6 +87,24 @@ ls .git/hooks/pre-push
 How to skip checks:
 > Skip AI only: `git -c pushgate.skip-ai-check=true push`
 > Skip everything: `git push --no-verify`
+
+## Layer 4 Gatekeeper Approval Calculation
+
+The gatekeeper script computes required approvals from PR labels using this routing table:
+
+| Risk \ AI findings | `ai:clean` | `ai:minor` | `ai:serious` |
+| --- | ---: | ---: | ---: |
+| `risk:low` | 0 | 0 | 1 |
+| `risk:medium` | 0 | 1 | 2 |
+| `risk:high` | 1 | 2 | 2 |
+
+Decision rules implemented in `.github/scripts/gatekeeper.js`:
+- Missing `risk:*` or `ai:*` label -> status is `pending`.
+- `required approvals = 0` -> status is `success` (auto-merge allowed by this check).
+- Otherwise status is `success` only when current approvals >= required approvals; else `pending`.
+- Approval count uses the latest review state per reviewer, and counts only `APPROVED`.
+
+Workflow file: `.github/workflows/layer4-gatekeeper.disabled.yml` (rename/enable it in your repo if you want this check active).
 
 ## PR Risk Classification
 
