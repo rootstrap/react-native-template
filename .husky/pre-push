@@ -29,6 +29,6 @@ if command_exists pushgate; then
 	exit $?
 fi
 
-echo '>> Pushgate runner not found; skipping pre-push checks.'
+echo '>> Pushgate runner not found; failing push to avoid bypassing required checks.'
 echo '>> Install with: curl -fsSL https://raw.githubusercontent.com/rootstrap/ai-pushgate/main/install.sh | bash'
-exit 0
+exit 1
