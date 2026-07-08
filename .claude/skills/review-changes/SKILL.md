@@ -56,16 +56,49 @@ Perform a code review of the current branch diff against the project's architect
 
 ## Output Format
 
-Group findings by REVIEW.md category. For each finding:
+Start with an overall classification, then list findings grouped by REVIEW.md category.
+
+### Required Labels
+
+Every finding must start with exactly one label:
+- `ai:clean` — no significant issues found.
+- `ai:minor` — style/readability/maintainability/convention issues unlikely to cause bugs.
+- `ai:serious` — logic/security/correctness/reliability issues that should block merge.
+
+Overall review classification must use the highest severity found:
+- If any finding is `ai:serious`, overall is `ai:serious`.
+- Else if any finding is `ai:minor`, overall is `ai:minor`.
+- Else overall is `ai:clean`.
+
+### Report Structure
+
+1. Overall summary block:
 
 ```
-**[Category]** `path/to/file.ts` — short description of the issue and what the correct approach is.
+Overall Review: ai:<clean|minor|serious>
+
+Summary:
+- <high-level point>
+- <high-level point>
 ```
 
-If a category has no issues, skip it.
+2. Findings grouped by category. For each finding:
 
-End the report with one of:
-- **No issues found** — if the diff is clean across all categories.
-- **X issue(s) found** — a one-line summary count.
+```
+ai:<clean|minor|serious> **[Category]** `path/to/file.ts:line` — short description of the issue and what the correct approach is.
+```
+
+If a category has no findings, skip it.
+
+If no issues are found, output a single clean finding plus a clean overall summary:
+
+```
+Overall Review: ai:clean
+
+Summary:
+- No significant issues found.
+
+ai:clean Review passed with no actionable findings.
+```
 
 Do not suggest stylistic preferences not grounded in REVIEW.md, AGENTS.md, or agent_docs/. Do not flag things that are already handled automatically by the interceptors or tooling (e.g. case conversion, token injection).
