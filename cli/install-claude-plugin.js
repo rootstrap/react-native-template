@@ -6,9 +6,9 @@ const MARKETPLACE_NAME = 'rootstrap';
 const PLUGIN_NAME = 'rn-toolkit';
 
 // Quiet variant of execShellCommand: failures here are expected and handled
-const run = (cmd) =>
+const run = (cmd, options) =>
   new Promise((resolve, reject) => {
-    exec(cmd, (error, stdout, stderr) => {
+    exec(cmd, options, (error, stdout, stderr) => {
       if (error) {
         reject(error);
         return;
@@ -19,7 +19,7 @@ const run = (cmd) =>
 
 const isClaudeCodeAvailable = async () => {
   try {
-    await run('command -v claude');
+    await run('claude --version');
     return true;
   } catch {
     return false;
@@ -38,7 +38,8 @@ const installClaudeToolkit = async (projectName) => {
   consola.start(`Installing the ${PLUGIN_NAME} Claude Code plugin 🤖`);
   try {
     await run(
-      `cd ${projectName} && claude plugin marketplace add ${MARKETPLACE_REPOSITORY} --scope project && claude plugin install ${PLUGIN_NAME}@${MARKETPLACE_NAME} --scope project`
+      `claude plugin marketplace add ${MARKETPLACE_REPOSITORY} --scope project && claude plugin install ${PLUGIN_NAME}@${MARKETPLACE_NAME} --scope project`,
+      { cwd: projectName }
     );
     consola.success(`${PLUGIN_NAME} plugin installed`);
   } catch {
