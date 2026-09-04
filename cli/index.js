@@ -4,6 +4,7 @@ const { consola } = require('consola');
 const { showMoreDetails } = require('./utils.js');
 const { cloneLatestTemplateRelease } = require('./clone-repo.js');
 const { setupProject, installDependencies } = require('./setup-project.js');
+const { installClaudeToolkit } = require('./install-claude-plugin.js');
 const pkg = require('./package.json');
 
 const { name: packageName } = pkg;
@@ -26,6 +27,9 @@ const createRootstrapApp = async () => {
 
   // install project dependencies using pnpm
   await installDependencies(projectName);
+
+  // install the Rootstrap rn-toolkit Claude Code plugin
+  await installClaudeToolkit(projectName);
 
   // show instructions to run the project + link to the documentation
   showMoreDetails(projectName);
