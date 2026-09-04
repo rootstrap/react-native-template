@@ -4,7 +4,6 @@ import { ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
-import { useTranslation } from 'react-i18next';
 import { StyleSheet } from 'react-native';
 import FlashMessage from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -37,38 +36,24 @@ SplashScreen.setOptions({
 
 function GuardedStack() {
   const { isAuthenticated } = useAuth();
-  const { t } = useTranslation();
   const [isFirstTime] = useIsFirstTime();
 
   return (
     <Stack>
       <Stack.Protected guard={isFirstTime}>
-        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+        <Stack.Screen name="onboarding" />
       </Stack.Protected>
 
       <Stack.Protected guard={isAuthenticated}>
-        <Stack.Screen name="(app)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="update-password"
-          options={{
-            title: t('updatePassword.title'),
-          }}
-        />
+        <Stack.Screen name="(app)" />
+        <Stack.Screen name="update-password" />
       </Stack.Protected>
 
       <Stack.Protected guard={!isAuthenticated}>
-        <Stack.Screen name="sign-in" options={{ headerShown: false }} />
+        <Stack.Screen name="sign-in" />
         <Stack.Screen name="sign-up" />
         <Stack.Screen name="forgot-password" />
       </Stack.Protected>
-
-      <Stack.Screen
-        name="www"
-        options={{
-          presentation: 'modal',
-          title: '',
-        }}
-      />
     </Stack>
   );
 }
