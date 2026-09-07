@@ -13,8 +13,25 @@ const ProjectFilesManager = require('./project-files-manager.js');
  */
 let projectFilesManager;
 
+const DEFAULT_BRANCH = 'develop';
+const ADDITIONAL_BRANCHES = ['qa', 'main'];
+
+// Branches can only be created once a commit exists, so the initial commit
+// happens before renaming the current branch and branching off it.
 const initializeProjectRepository = async (projectName) => {
-  await execShellCommand(`cd ${projectName} && git init && cd ..`);
+  const options = { cwd: projectName };
+
+  await execShellCommand('git init', options);
+  await execShellCommand('git add -A', options);
+  await execShellCommand(
+    'git commit -m "chore: initial commit from Rootstrap React Native template"',
+    options,
+  );
+  await execShellCommand(`git branch -M ${DEFAULT_BRANCH}`, options);
+
+  for (const branch of ADDITIONAL_BRANCHES) {
+    await execShellCommand(`git branch ${branch}`, options);
+  }
 };
 
 const installDependencies = async (projectName) => {
@@ -211,12 +228,13 @@ const setupProject = async (projectName) => {
 
   try {
     removeUnrelatedFiles();
-    await initializeProjectRepository(projectName);
     updatePackageJson(projectName);
     updateProjectConfig(projectName);
     updateGitHubWorkflows(projectName);
     updateProjectReadme(projectName);
     updateAgentDocs(projectName);
+    // Runs last so the initial commit contains the fully set up project
+    await initializeProjectRepository(projectName);
     consola.success(`Clean up and setup your project 🧹`);
   } catch (error) {
     consola.error(`Failed to clean up project folder`, error);
