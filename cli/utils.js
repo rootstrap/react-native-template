@@ -10,7 +10,7 @@ const execShellCommand = (cmd, options) => {
     exec(cmd, options, (error, stdout, stderr) => {
       if (error) {
         console.warn(error);
-        reject(error);
+        return reject(error);
       }
       resolve(stdout || stderr);
     });

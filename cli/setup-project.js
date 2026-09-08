@@ -16,6 +16,12 @@ let projectFilesManager;
 const DEFAULT_BRANCH = 'develop';
 const ADDITIONAL_BRANCHES = ['qa', 'main'];
 
+const hasGitIdentity = async (options) => {
+  const name = await execShellCommand('git config user.name || true', options);
+  const email = await execShellCommand('git config user.email || true', options);
+  return Boolean(name.trim() && email.trim());
+};
+
 // Branches can only be created once a commit exists, so the initial commit
 // happens before renaming the current branch and branching off it.
 const initializeProjectRepository = async (projectName) => {
@@ -23,8 +29,12 @@ const initializeProjectRepository = async (projectName) => {
 
   await execShellCommand('git init', options);
   await execShellCommand('git add -A', options);
+
+  const identityFlags = (await hasGitIdentity(options))
+    ? ''
+    : '-c user.name="Rootstrap Template" -c user.email="template@rootstrap.com"';
   await execShellCommand(
-    'git commit -m "chore: initial commit from Rootstrap React Native template"',
+    `git ${identityFlags} commit -m "chore: initial commit from Rootstrap React Native template"`,
     options,
   );
   await execShellCommand(`git branch -M ${DEFAULT_BRANCH}`, options);
@@ -55,7 +65,7 @@ const removeUnrelatedFiles = () => {
 };
 
 // Update package.json infos, name and set version to 0.0.1 + add initial version to rsMetadata
-const updatePackageJson = async (projectName) => {
+const updatePackageJson = (projectName) => {
   const packageJsonPath =
     projectFilesManager.getAbsoluteFilePath('package.json');
 
@@ -76,7 +86,7 @@ const updatePackageJson = async (projectName) => {
   fs.writeJsonSync(packageJsonPath, packageJson, { spaces: 2 });
 };
 
-const updateProjectConfig = async (projectName) => {
+const updateProjectConfig = (projectName) => {
   projectFilesManager.replaceFilesContent([
     {
       fileName: 'env.js',
