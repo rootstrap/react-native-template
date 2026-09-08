@@ -13,8 +13,35 @@ const ProjectFilesManager = require('./project-files-manager.js');
  */
 let projectFilesManager;
 
+const DEFAULT_BRANCH = 'develop';
+const ADDITIONAL_BRANCHES = ['qa', 'main'];
+
+const hasGitIdentity = async (options) => {
+  const name = await execShellCommand('git config user.name || true', options);
+  const email = await execShellCommand('git config user.email || true', options);
+  return Boolean(name.trim() && email.trim());
+};
+
+// Branches can only be created once a commit exists, so the initial commit
+// happens before renaming the current branch and branching off it.
 const initializeProjectRepository = async (projectName) => {
-  await execShellCommand(`cd ${projectName} && git init && cd ..`);
+  const options = { cwd: projectName };
+
+  await execShellCommand('git init', options);
+  await execShellCommand('git add -A', options);
+
+  const identityFlags = (await hasGitIdentity(options))
+    ? ''
+    : '-c user.name="Rootstrap Template" -c user.email="template@rootstrap.com"';
+  await execShellCommand(
+    `git ${identityFlags} commit -m "chore: initial commit from Rootstrap React Native template"`,
+    options,
+  );
+  await execShellCommand(`git branch -M ${DEFAULT_BRANCH}`, options);
+
+  for (const branch of ADDITIONAL_BRANCHES) {
+    await execShellCommand(`git branch ${branch}`, options);
+  }
 };
 
 const installDependencies = async (projectName) => {
@@ -38,7 +65,7 @@ const removeUnrelatedFiles = () => {
 };
 
 // Update package.json infos, name and set version to 0.0.1 + add initial version to rsMetadata
-const updatePackageJson = async (projectName) => {
+const updatePackageJson = (projectName) => {
   const packageJsonPath =
     projectFilesManager.getAbsoluteFilePath('package.json');
 
@@ -59,7 +86,7 @@ const updatePackageJson = async (projectName) => {
   fs.writeJsonSync(packageJsonPath, packageJson, { spaces: 2 });
 };
 
-const updateProjectConfig = async (projectName) => {
+const updateProjectConfig = (projectName) => {
   projectFilesManager.replaceFilesContent([
     {
       fileName: 'env.js',
@@ -211,12 +238,13 @@ const setupProject = async (projectName) => {
 
   try {
     removeUnrelatedFiles();
-    await initializeProjectRepository(projectName);
     updatePackageJson(projectName);
     updateProjectConfig(projectName);
     updateGitHubWorkflows(projectName);
     updateProjectReadme(projectName);
     updateAgentDocs(projectName);
+    // Runs last so the initial commit contains the fully set up project
+    await initializeProjectRepository(projectName);
     consola.success(`Clean up and setup your project 🧹`);
   } catch (error) {
     consola.error(`Failed to clean up project folder`, error);

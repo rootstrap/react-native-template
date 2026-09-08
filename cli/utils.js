@@ -5,12 +5,12 @@ const { consola } = require('consola');
 const UPSTREAM_REPOSITORY = "obytes/react-native-template-obytes";
 const TEMPLATE_REPOSITORY = "rootstrap/react-native-template";
 
-const execShellCommand = (cmd) => {
+const execShellCommand = (cmd, options) => {
   return new Promise((resolve, reject) => {
-    exec(cmd, (error, stdout, stderr) => {
+    exec(cmd, options, (error, stdout, stderr) => {
       if (error) {
         console.warn(error);
-        reject(error);
+        return reject(error);
       }
       resolve(stdout || stderr);
     });
