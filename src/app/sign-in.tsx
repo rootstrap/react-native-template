@@ -1,4 +1,5 @@
 import type { LoginFormProps } from '@/components/login-form';
+import { Stack } from 'expo-router';
 import * as React from 'react';
 
 import { showMessage } from 'react-native-flash-message';
@@ -16,6 +17,7 @@ export default function Login() {
   };
   return (
     <>
+      <Stack.Screen options={{ headerShown: false }} />
       <FocusAwareStatusBar />
       <LoginForm onSubmit={onSubmit} isLoading={isPending} />
     </>
