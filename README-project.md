@@ -70,6 +70,7 @@ How this relates to PR approvals:
 
 Pushgate setup for template users:
 - `.pushgate.yml` is versioned, so everyone gets the same rules.
+- Pushgate diffs against `review.target_branch` in `.pushgate.yml`, which defaults to `master`. After setting up the project, change it to `develop` (or your team's integration branch).
 - `.git/hooks/pre-push` is local and is not committed to Git.
 - If you create the app with `create-rootstrap-rn-app`, Pushgate is installed automatically during setup.
 - For existing clones, or if the hook is missing, install it manually:
