@@ -1,0 +1,34 @@
+. "$(dirname "$0")/common.sh"
+
+echo '>> Running Pushgate pre-push checks...'
+
+# Avoid calling .git/hooks/pre-push from here because Husky can regenerate that
+# file as a shim that points back to this script, causing infinite recursion.
+if [[ -n "${HUSKY_SKIP_PUSHGATE:-}" ]]; then
+	echo '>> Skipping Pushgate (recursion guard).'
+	exit 0
+fi
+
+PUSHGATE_RUNNER="${PUSHGATE_RUNNER:-}"
+
+if [[ -z "$PUSHGATE_RUNNER" ]]; then
+	PUSHGATE_RUNNER="$(git config --local --get pushgate.runner 2>/dev/null || true)"
+fi
+
+if [[ -z "$PUSHGATE_RUNNER" && -n "${HOME:-}" ]]; then
+	PUSHGATE_RUNNER="${HOME}/.pushgate/bin/pushgate"
+fi
+
+if [[ -n "$PUSHGATE_RUNNER" && -x "$PUSHGATE_RUNNER" ]]; then
+	HUSKY_SKIP_PUSHGATE=1 "$PUSHGATE_RUNNER" pre-push "$@"
+	exit $?
+fi
+
+if command_exists pushgate; then
+	HUSKY_SKIP_PUSHGATE=1 pushgate pre-push "$@"
+	exit $?
+fi
+
+echo '>> Pushgate runner not found; failing push to avoid bypassing required checks.'
+echo '>> Install with: curl -fsSL https://raw.githubusercontent.com/rootstrap/ai-pushgate/main/install.sh | bash'
+exit 1

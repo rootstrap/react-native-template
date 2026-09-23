@@ -35,6 +35,25 @@ _**Why** did you make these changes? This is your opportunity to provide the rat
 _Does your code affect something downstream? Are there side effects people should know about? Tag any developers that should be kept abreast of this change._
 -->
 
+---
+
+### Layer 2: Risk Classification
+
+Author applies a risk label when opening the PR. When in doubt, escalate.
+
+| Label | When to use |
+| --- | --- |
+| `risk:low` | Config, copy, minor UI tweaks. Low blast radius. |
+| `risk:medium` | Feature work, refactors touching multiple files. |
+| `risk:high` | Auth, payments, migrations, security-sensitive code. |
+
+**Setup**
+
+- [ ] Create `risk:low`, `risk:medium`, `risk:high` labels in the repo
+- [ ] Add risk criteria to contributing guide or PR template
+- [ ] Add reminder in PR template to apply the label before requesting review
+- [ ] Define who can override/escalate (suggested: tech lead)
+
 ## How did you test this?
 
 <!---
