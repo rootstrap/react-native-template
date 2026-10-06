@@ -5,6 +5,10 @@ const { consola } = require('consola');
 const UPSTREAM_REPOSITORY = "obytes/react-native-template-obytes";
 const TEMPLATE_REPOSITORY = "rootstrap/react-native-template";
 
+const escapeShellArg = (value) => {
+  return `'${String(value).replaceAll("'", "'\\''")}'`;
+};
+
 const execShellCommand = (cmd, options) => {
   return new Promise((resolve, reject) => {
     exec(cmd, options, (error, stdout, stderr) => {
@@ -46,6 +50,7 @@ module.exports = {
   runCommand,
   showMoreDetails,
   execShellCommand,
+  escapeShellArg,
   UPSTREAM_REPOSITORY,
   TEMPLATE_REPOSITORY,
 };

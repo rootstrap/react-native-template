@@ -1,0 +1,30 @@
+name: layer4-gatekeeper
+
+on:
+  pull_request:
+    types: [opened, labeled, unlabeled, synchronize]
+  pull_request_review:
+    types: [submitted]
+  check_suite:
+    types: [completed]
+
+permissions:
+  checks: write
+  pull-requests: read
+  contents: read
+  statuses: write
+
+jobs:
+  gatekeeper:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run gatekeeper
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const script = require('.github/scripts/gatekeeper.js')
+            await script({ github, context, core })
