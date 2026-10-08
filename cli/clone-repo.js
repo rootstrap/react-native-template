@@ -1,4 +1,8 @@
-const { runCommand, TEMPLATE_REPOSITORY } = require('./utils.js');
+const {
+  runCommand,
+  TEMPLATE_REPOSITORY,
+  escapeShellArg,
+} = require('./utils.js');
 const { consola } = require('consola');
 
 const getLatestRelease = async () => {
@@ -23,7 +27,9 @@ const cloneLatestTemplateRelease = async (projectName) => {
   consola.info(`Using Rootstrap's Template ${latestRelease}`);
 
   // create a new project based on Rootstrap template
-  const cloneStarter = `git clone -b ${latestRelease} --depth=1 https://github.com/${TEMPLATE_REPOSITORY}.git ${projectName}`;
+  const escapedLatestRelease = escapeShellArg(latestRelease);
+  const escapedProjectName = escapeShellArg(projectName);
+  const cloneStarter = `git clone -b ${escapedLatestRelease} --depth=1 https://github.com/${TEMPLATE_REPOSITORY}.git ${escapedProjectName}`;
   await runCommand(cloneStarter, {
     loading: 'Extracting the template...',
     success: 'Template extracted successfully',
