@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigation } from 'expo-router';
+import { Stack, useNavigation } from 'expo-router';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -64,6 +64,7 @@ export default function UpdatePassword() {
 
   return (
     <>
+      <Stack.Screen options={{ title: t('updatePassword.title') }} />
       <FocusAwareStatusBar />
       <KeyboardAvoidingView>
         <View className="gap-8 p-4">

@@ -1,13 +1,7 @@
-import { Link, Redirect, SplashScreen, Tabs } from 'expo-router';
+import { Redirect, SplashScreen, Tabs } from 'expo-router';
 import { useCallback, useEffect } from 'react';
 
 import { useAuth } from '@/components/providers/auth';
-import { Pressable, Text } from '@/components/ui';
-import {
-  Feed as FeedIcon,
-  Settings as SettingsIcon,
-  Style as StyleIcon,
-} from '@/components/ui/icons';
 import { useIsFirstTime } from '@/lib';
 
 export default function TabLayout() {
@@ -29,43 +23,5 @@ export default function TabLayout() {
   if (!isAuthenticated && ready) {
     return <Redirect href="/sign-in" />;
   }
-  return (
-    <Tabs>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Feed',
-          tabBarIcon: ({ color }) => <FeedIcon color={color} />,
-          headerRight: () => <CreateNewPostLink />,
-          tabBarButtonTestID: 'feed-tab',
-        }}
-      />
-      <Tabs.Screen
-        name="style"
-        options={{
-          title: 'Style',
-          tabBarIcon: ({ color }) => <StyleIcon color={color} />,
-          tabBarButtonTestID: 'style-tab',
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: 'Settings',
-          tabBarIcon: ({ color }) => <SettingsIcon color={color} />,
-          tabBarButtonTestID: 'settings-tab',
-        }}
-      />
-    </Tabs>
-  );
-}
-
-function CreateNewPostLink() {
-  return (
-    <Link href="/feed/add-post" asChild>
-      <Pressable>
-        <Text className="px-3 text-primary-300">Create</Text>
-      </Pressable>
-    </Link>
-  );
+  return <Tabs screenOptions={{ headerShown: true }} />;
 }

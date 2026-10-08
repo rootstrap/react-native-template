@@ -1,5 +1,5 @@
 /* eslint-disable max-lines-per-function */
-import { Link } from 'expo-router';
+import { Link, Tabs } from 'expo-router';
 import { useColorScheme } from 'nativewind';
 import * as React from 'react';
 import { showMessage } from 'react-native-flash-message';
@@ -18,7 +18,7 @@ import {
   Text,
   View,
 } from '@/components/ui';
-import { Website } from '@/components/ui/icons';
+import { Settings as SettingsIcon, Website } from '@/components/ui/icons';
 import { translate } from '@/lib';
 import { Env } from '@/lib/env';
 
@@ -44,6 +44,13 @@ export default function Settings() {
 
   return (
     <>
+      <Tabs.Screen
+        options={{
+          title: 'Settings',
+          tabBarIcon: ({ color }) => <SettingsIcon color={color} />,
+          tabBarButtonTestID: 'settings-tab',
+        }}
+      />
       <FocusAwareStatusBar />
       <ScrollView>
         <View className="flex-1 gap-2 p-4">
