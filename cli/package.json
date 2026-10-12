@@ -21,7 +21,8 @@
     "utils.js",
     "project-files-manager.js",
     "clone-repo.js",
-    "setup-project.js"
+    "setup-project.js",
+    "install-claude-plugin.js"
   ],
   "dependencies": {
     "consola": "^3.2.3",
