@@ -1,4 +1,5 @@
 import { Link, Tabs } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 
 import {
   FocusAwareStatusBar,
@@ -9,11 +10,13 @@ import {
 import { Feed as FeedIcon } from '@/components/ui/icons';
 
 export default function Feed() {
+  const { t } = useTranslation();
+
   return (
     <View className="flex-1 ">
       <Tabs.Screen
         options={{
-          title: 'Feed',
+          title: t('tabs.feed'),
           tabBarIcon: ({ color }) => <FeedIcon color={color} />,
           headerRight: () => <CreateNewPostLink />,
           tabBarButtonTestID: 'feed-tab',
@@ -25,10 +28,12 @@ export default function Feed() {
 }
 
 function CreateNewPostLink() {
+  const { t } = useTranslation();
+
   return (
     <Link href="/feed/add-post" asChild>
       <Pressable>
-        <Text className="px-3 text-primary-300">Create</Text>
+        <Text className="px-3 text-primary-300">{t('tabs.create')}</Text>
       </Pressable>
     </Link>
   );

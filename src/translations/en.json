@@ -103,6 +103,11 @@
     "version": "Version",
     "website": "Website"
   },
+  "tabs": {
+    "create": "Create",
+    "feed": "Feed",
+    "style": "Style"
+  },
   "updatePassword": {
     "buttonLabel": "Update Password",
     "confirmPasswordLabel": "Confirm Password",

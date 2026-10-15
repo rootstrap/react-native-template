@@ -1,4 +1,4 @@
-import { Redirect, SplashScreen, Tabs } from 'expo-router';
+import { Redirect, SplashScreen, Stack, Tabs } from 'expo-router';
 import { useCallback, useEffect } from 'react';
 
 import { useAuth } from '@/components/providers/auth';
@@ -23,5 +23,10 @@ export default function TabLayout() {
   if (!isAuthenticated && ready) {
     return <Redirect href="/sign-in" />;
   }
-  return <Tabs screenOptions={{ headerShown: true }} />;
+  return (
+    <>
+      <Stack.Screen options={{ headerShown: false }} />
+      <Tabs screenOptions={{ headerShown: true }} />
+    </>
+  );
 }

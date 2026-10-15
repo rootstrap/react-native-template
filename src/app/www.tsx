@@ -15,25 +15,26 @@ export default function WWW() {
     title: typeof title === 'string' ? title : '',
   } as const;
 
-  if (url === undefined || typeof url !== 'string') {
-    return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <Stack.Screen options={screenOptions} />
-        <Text className="text-lg text-red-500">
-          {translate('www.invalidUrl')}
-        </Text>
-      </View>
-    );
-  }
-
   return (
-    <View className="flex-1 bg-white">
+    <>
       <Stack.Screen options={screenOptions} />
-      <WebView
-        source={{ uri: url }}
-        className="flex-1"
-        onError={() => router.back()}
-      />
-    </View>
+      {typeof url === 'string'
+        ? (
+            <View className="flex-1 bg-white">
+              <WebView
+                source={{ uri: url }}
+                className="flex-1"
+                onError={() => router.back()}
+              />
+            </View>
+          )
+        : (
+            <View className="flex-1 items-center justify-center bg-white">
+              <Text className="text-lg text-red-500">
+                {translate('www.invalidUrl')}
+              </Text>
+            </View>
+          )}
+    </>
   );
 }

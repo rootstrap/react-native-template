@@ -46,7 +46,7 @@ export default function Settings() {
     <>
       <Tabs.Screen
         options={{
-          title: 'Settings',
+          title: translate('settings.title'),
           tabBarIcon: ({ color }) => <SettingsIcon color={color} />,
           tabBarButtonTestID: 'settings-tab',
         }}
