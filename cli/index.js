@@ -8,6 +8,7 @@ const {
   installDependencies,
   installPushgate,
 } = require('./setup-project.js');
+const { installClaudeToolkit } = require('./install-claude-plugin.js');
 const pkg = require('./package.json');
 
 const { name: packageName } = pkg;
@@ -30,6 +31,9 @@ const createRootstrapApp = async () => {
 
   // install project dependencies using pnpm
   await installDependencies(projectName);
+
+  // install the Rootstrap rn-toolkit Claude Code plugin
+  await installClaudeToolkit(projectName);
 
   // install Pushgate hook (best-effort)
   await installPushgate(projectName);
