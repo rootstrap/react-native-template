@@ -6,17 +6,18 @@ const UPSTREAM_REPOSITORY = "obytes/react-native-template-obytes";
 const TEMPLATE_REPOSITORY = "rootstrap/react-native-template";
 
 const escapeShellArg = (value) => {
-  return `'${String(value).replaceAll(/'/g, "'\\''")}'`;
+  return `'${String(value).replaceAll("'", "'\\''")}'`;
 };
 
-const execShellCommand = (cmd) => {
+const execShellCommand = (cmd, options) => {
   return new Promise((resolve, reject) => {
-    exec(cmd, (error, stdout, stderr) => {
+    exec(cmd, options, (error, stdout, stderr) => {
       if (error) {
         console.warn(error);
         reject(error);
+      } else {
+        resolve(stdout || stderr);
       }
-      resolve(stdout || stderr);
     });
   });
 };
