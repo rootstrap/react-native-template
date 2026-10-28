@@ -56,7 +56,8 @@ GestureHandlerRootView
         └── ThemeProvider
               └── APIProvider
                     └── AuthProvider
-                          └── BottomSheetModalProvider
+                          └── AnalyticsProvider
+                                └── BottomSheetModalProvider
 ```
 
 Never add a new provider outside `APIProvider` if it requires API access, or outside `AuthProvider` if it requires auth state.
