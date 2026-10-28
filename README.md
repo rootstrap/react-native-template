@@ -59,6 +59,7 @@ This template brings several key advantages. It provides our team with a consist
 
 ## ✍️ Documentation 🚧 UNDER CONSTRUCTION 🚧
 
+- [Changes over Obytes Starter](https://rootstrap.github.io/react-native-template/changes-over-obytes/)
 - [Create new project ](https://rootstrap.github.io/react-native-template/getting-started/create-new-app/)
 - [Rules and Conventions](https://rootstrap.github.io/react-native-template/getting-started/rules-and-conventions/)
 - [Project structure](https://rootstrap.github.io/react-native-template/getting-started/project-structure/)
