@@ -1,6 +1,6 @@
 ---
 title: Changes over Obytes Starter
-description: A concrete list of what Rootstrap changed or added on top of the Obytes React Native / Expo starter.
+description: What Rootstrap changed and added on top of the Obytes React Native / Expo starter.
 head:
   - tag: title
     content: Changes over Obytes Starter | React Native / Expo Starter
@@ -12,6 +12,16 @@ This template is a fork of the [Obytes starter](https://github.com/obytes/react-
 The list below only covers changes we made on top of the upstream starter. For the features that come from Obytes, check the [Overview](/overview) page and the [upstream changelog](https://github.com/obytes/react-native-template-obytes/releases). Every item links to the pull request that introduced it in the [template repository](https://github.com/rootstrap/react-native-template).
 :::
 
+## Authentication and networking
+
+- **Complete auth screens.** Sign in, sign up, forgot password, update password and delete account flows, each built with `react-hook-form` + `zod` and backed by `react-query-kit` hooks ([#111](https://github.com/rootstrap/react-native-template/pull/111), [#114](https://github.com/rootstrap/react-native-template/pull/114), [#109](https://github.com/rootstrap/react-native-template/pull/109), [#117](https://github.com/rootstrap/react-native-template/pull/117), [#120](https://github.com/rootstrap/react-native-template/pull/120), [#118](https://github.com/rootstrap/react-native-template/pull/118)).
+- **In-app WebView screen** (`www`) used to open the terms and conditions or any external URL as a modal ([#112](https://github.com/rootstrap/react-native-template/pull/112)).
+- **Protected routes.** `Stack.Protected` guards in the root layout split onboarding, authenticated and unauthenticated stacks, so screens never need their own redirect logic ([#136](https://github.com/rootstrap/react-native-template/pull/136)).
+- **`AuthProvider` context.** A React context keeps tokens in a dedicated MMKV instance, exposes `isAuthenticated` / `ready` / `logout` to the UI and handles `401` responses, complementing the Zustand store inherited from upstream ([#116](https://github.com/rootstrap/react-native-template/pull/116)).
+- **Devise Token Auth support.** The interceptors inject the `access-token`, `client`, `uid`, `expiry` and `Authorization` headers on every request and capture them from responses, so the template works out of the box with a Rails API using Devise Token Auth ([#85](https://github.com/rootstrap/react-native-template/pull/85), [#116](https://github.com/rootstrap/react-native-template/pull/116)).
+- **Axios interceptors with automatic case conversion.** Request bodies are converted to `snake_case` and responses to `camelCase`, including nested objects, so the TypeScript code always uses `camelCase` ([#6](https://github.com/rootstrap/react-native-template/pull/6), [#28](https://github.com/rootstrap/react-native-template/pull/28), [#119](https://github.com/rootstrap/react-native-template/pull/119)).
+- **Query key factory.** Query keys are centralized in `src/api/query-factory.ts` with [`@lukemorales/query-key-factory`](https://github.com/lukemorales/query-key-factory), avoiding hand-written key strings and typos ([#85](https://github.com/rootstrap/react-native-template/pull/85)).
+
 ## Project setup and CLI
 
 - **`create-rootstrap-rn-app` CLI.** The CLI was renamed and republished under our own npm package, and it clones the latest release of this repository instead of the upstream one ([#17](https://github.com/rootstrap/react-native-template/pull/17), [#18](https://github.com/rootstrap/react-native-template/pull/18)). A manual GitHub Action publishes new CLI versions to npm ([#23](https://github.com/rootstrap/react-native-template/pull/23)).
@@ -20,22 +30,12 @@ The list below only covers changes we made on top of the upstream starter. For t
 - **`.nvmrc` file** pinning the Node.js version so `fnm` / `nvm` pick the right one in the template and in generated projects ([#139](https://github.com/rootstrap/react-native-template/pull/139)).
 - **Rootstrap branding** for the app name, logo, README and this documentation site ([#9](https://github.com/rootstrap/react-native-template/pull/9), [#41](https://github.com/rootstrap/react-native-template/pull/41), [#42](https://github.com/rootstrap/react-native-template/pull/42), [#58](https://github.com/rootstrap/react-native-template/pull/58)).
 
-## Authentication and networking
-
-- **Axios interceptors with automatic case conversion.** Request bodies are converted to `snake_case` and responses to `camelCase`, including nested objects, so the TypeScript code always uses `camelCase` ([#6](https://github.com/rootstrap/react-native-template/pull/6), [#28](https://github.com/rootstrap/react-native-template/pull/28), [#119](https://github.com/rootstrap/react-native-template/pull/119)).
-- **Devise Token Auth support.** The interceptors inject the `access-token`, `client`, `uid`, `expiry` and `Authorization` headers on every request and capture them from responses, so the template works out of the box with a Rails API using Devise Token Auth ([#85](https://github.com/rootstrap/react-native-template/pull/85), [#116](https://github.com/rootstrap/react-native-template/pull/116)).
-- **`AuthProvider` context.** A React context keeps tokens in a dedicated MMKV instance, exposes `isAuthenticated` / `ready` / `logout` to the UI and handles `401` responses, complementing the Zustand store inherited from upstream ([#116](https://github.com/rootstrap/react-native-template/pull/116)).
-- **Protected routes.** `Stack.Protected` guards in the root layout split onboarding, authenticated and unauthenticated stacks, so screens never need their own redirect logic ([#136](https://github.com/rootstrap/react-native-template/pull/136)).
-- **Complete auth screens.** Sign in, sign up, forgot password, update password and delete account flows, each built with `react-hook-form` + `zod` and backed by `react-query-kit` hooks ([#111](https://github.com/rootstrap/react-native-template/pull/111), [#114](https://github.com/rootstrap/react-native-template/pull/114), [#109](https://github.com/rootstrap/react-native-template/pull/109), [#117](https://github.com/rootstrap/react-native-template/pull/117), [#120](https://github.com/rootstrap/react-native-template/pull/120), [#118](https://github.com/rootstrap/react-native-template/pull/118)).
-- **In-app WebView screen** (`www`) used to open the terms and conditions or any external URL as a modal ([#112](https://github.com/rootstrap/react-native-template/pull/112)).
-- **Query key factory.** Query keys are centralized in `src/api/query-factory.ts` with [`@lukemorales/query-key-factory`](https://github.com/lukemorales/query-key-factory), avoiding hand-written key strings and typos ([#85](https://github.com/rootstrap/react-native-template/pull/85)).
-
 ## Environments, EAS and CI
 
 - **QA environment.** A fourth environment next to development, staging and production, with its own `.env.qa`, `pnpm` scripts, EAS build and submit profiles, bundle identifier suffix and GitHub environment ([#25](https://github.com/rootstrap/react-native-template/pull/25)).
-- **Environment files are not tracked by Git.** Only `.env.sample` is committed; real `.env.*` files stay local ([#10](https://github.com/rootstrap/react-native-template/pull/10)).
 - **Environment files from EAS secrets.** When building on EAS, `env.js` reads the environment file from a file-type secret (`ENVIRONMENT_FILE_<ENV>`), and the validation error messages explain what is missing and where ([#39](https://github.com/rootstrap/react-native-template/pull/39)). `EAS.md` documents how to upload them ([#60](https://github.com/rootstrap/react-native-template/pull/60), [#87](https://github.com/rootstrap/react-native-template/pull/87)).
 - **Expo web scripts.** `web:<env>` and `build:<env>:web` scripts run and export the app for the web with the right environment variables ([#56](https://github.com/rootstrap/react-native-template/pull/56)).
+- **Environment files are not tracked by Git.** Only `.env.sample` is committed; real `.env.*` files stay local ([#10](https://github.com/rootstrap/react-native-template/pull/10)).
 - **Build & Deploy workflow.** A manually triggered workflow that maps the current branch to an environment, optionally bumps the app version, runs the EAS build locally on GitHub-hosted runners (so the EAS build quota is not consumed), prebuilds only the selected platform and can auto-submit to the stores ([#49](https://github.com/rootstrap/react-native-template/pull/49), [#124](https://github.com/rootstrap/react-native-template/pull/124), [#141](https://github.com/rootstrap/react-native-template/pull/141), [#145](https://github.com/rootstrap/react-native-template/pull/145), [#150](https://github.com/rootstrap/react-native-template/pull/150)).
 - **SonarQube analysis** on pull requests and on pushes to the main branches, with Jest coverage reports and a quality gate ([#12](https://github.com/rootstrap/react-native-template/pull/12), [#46](https://github.com/rootstrap/react-native-template/pull/46)).
 - **Merge conflict check** workflow that fails a pull request when unresolved conflict markers are committed ([#80](https://github.com/rootstrap/react-native-template/pull/80)).
