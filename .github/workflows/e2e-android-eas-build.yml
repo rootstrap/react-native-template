@@ -4,11 +4,10 @@
 
 # ✍️ Description:
 # This workflow is used to run end-to-end tests for EAS build on Android.
-# It uses Maestro Cloud to run tests on Android emulator.
-# It downloads the APK from EAS build and triggers the tests on Maestro Cloud with the downloaded APK.
+# It runs the tests with Maestro on an Android emulator in GitHub Actions.
+# It downloads the APK from the provided EAS build URL and runs the tests against the downloaded APK.
 
-# 🚨 GITHUB SECRETS REQUIRED:
-# MAESTRO_CLOUD_API_KEY: API key for Maestro Cloud. You can get it from https://cloud.mobile.dev/ci-integration/github-actions#add-your-api-key-secret
+# 🚨 GITHUB SECRETS REQUIRED: None
 
 name: E2E Tests EAS Build Android (Maestro + Github Action)
 
