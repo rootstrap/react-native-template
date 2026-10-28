@@ -1,6 +1,6 @@
 ---
 title: Changes over Obytes Starter
-description: What Rootstrap changed and added on top of the Obytes React Native / Expo starter.
+description: What our talented team of engineers at Rootstrap has added so far on top of the Obytes starter.
 head:
   - tag: title
     content: Changes over Obytes Starter | React Native / Expo Starter
