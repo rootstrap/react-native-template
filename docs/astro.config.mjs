@@ -71,6 +71,11 @@ export default defineConfig({
           link: '/overview',
         },
         {
+          label: 'Changes over Obytes Starter',
+          link: '/changes-over-obytes',
+          badge: 'new',
+        },
+        {
           label: 'Start Here',
           items: [
             // Each item here is one entry in the navigation menu.
