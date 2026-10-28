@@ -1,0 +1,170 @@
+---
+title: Analytics
+description: Provider-agnostic analytics layer with typed events and automatic screen tracking.
+head:
+  - tag: title
+    content: Analytics | React Native / Expo Starter
+---
+
+import CodeBlock from '../../../components/code.astro';
+
+Analytics should be part of a project from day one, but the vendor is often chosen (or changed) later. The starter ships a small analytics layer that keeps vendor SDKs out of your screens and components: app code only ever calls `useAnalytics()`, and the layer fans every call out to the providers you register.
+
+Out of the box the layer is wired with a console provider, so it works with no vendor SDK and no native configuration. Swapping or adding a vendor is a change in a single file.
+
+## How it works
+
+```
+Screens / components
+        │  useAnalytics().trackEvent(...) / trackScreen(...)
+        ▼
+AnalyticsProvider (React context)  ──►  provider A (console)
+        ▲                           ──►  provider B (Firebase, Segment, ...)
+        │
+AnalyticsScreenTracker  (listens to expo-router route changes)
+```
+
+| Piece                                        | Location                                        |
+| -------------------------------------------- | ----------------------------------------------- |
+| Event catalogue and provider adapter contract | `src/lib/analytics/types.ts`                    |
+| Built-in console provider                    | `src/lib/analytics/console-provider.ts`         |
+| React context, `useAnalytics()` hook         | `src/components/providers/analytics.tsx`        |
+| Automatic screen tracking                    | `src/components/analytics-screen-tracker.tsx`   |
+| Wiring (which providers the app uses)        | `src/app/_layout.tsx`                           |
+
+## Tracking events
+
+Use the `useAnalytics()` hook anywhere below the provider tree. `trackEvent` is typed against the event catalogue, so an unknown event name or a wrong params shape fails to compile.
+
+```tsx
+import { useAnalytics } from '@/components/providers/analytics';
+
+export function MyComponent() {
+  const analytics = useAnalytics();
+
+  const onPressButton = () => {
+    analytics.trackEvent('BUTTON_PRESS', { accessibilityId: 'submit-button' });
+  };
+
+  return <Button testID="submit-button" label="Submit" onPress={onPressButton} />;
+}
+```
+
+The hook also exposes:
+
+- `trackScreen(screenName, params?)`: report a screen view manually (the screen tracker already does this on route changes).
+- `identify(userId, traits?)`: associate the following events with a user, for example after sign in.
+- `reset()`: clear the current user, for example after sign out.
+
+Every call is forwarded to all registered providers. Failures inside a provider are caught and logged with `console.error`, so a broken vendor SDK never crashes the app or stops the other providers from receiving the call.
+
+## Adding an event to the catalogue
+
+The catalogue is a plain TypeScript map from event name to its params. Add a new entry and `trackEvent` will accept it immediately:
+
+<CodeBlock file="src/lib/analytics/types.ts" />
+
+```ts
+export type AnalyticsEventParams = EventCatalogue<{
+  BUTTON_PRESS: { accessibilityId: string };
+  POST_CREATED: { postId: number; hasImage: boolean };
+  SIGN_OUT: undefined; // no params: trackEvent('SIGN_OUT') compiles
+}>;
+```
+
+Keep params flat and primitive (`string`, `number`, `boolean`, `null`) so they can be sent as-is to any vendor. Prefer `SCREAMING_SNAKE_CASE` event names and `camelCase` param keys; map them to the vendor's naming inside the adapter if needed.
+
+## Automatic screen tracking
+
+`AnalyticsScreenTracker` is mounted once inside `AnalyticsProvider` in `src/app/_layout.tsx`. It reads the current route with `usePathname()` from expo-router and calls `trackScreen(pathname)` every time it changes, so `/feed`, `/settings` or `/feed/42` are reported without any code in the screens themselves.
+
+<CodeBlock file="src/components/analytics-screen-tracker.tsx" />
+
+If you prefer manual screen tracking, remove the component from the layout and call `trackScreen` from the screens you care about.
+
+## The console provider
+
+The default provider prints every call in development builds (`__DEV__`) and does nothing in production. It is useful while building features, and it keeps the template free of native dependencies.
+
+<CodeBlock file="src/lib/analytics/console-provider.ts" />
+
+## Plugging in a real provider
+
+A provider is any object that implements `AnalyticsProviderAdapter`. Create one per vendor, then register it in `src/app/_layout.tsx`.
+
+### Example: Google Analytics through Firebase
+
+Google Analytics for mobile apps is delivered through Firebase. The sketch below shows what the adapter looks like with [React Native Firebase](https://rnfirebase.io/analytics/usage). It is not included in the template because it requires per-project native configuration (`google-services.json`, `GoogleService-Info.plist` and the `@react-native-firebase/app` config plugin), which cannot be shipped in a generic starter.
+
+1. Install the SDK with the Expo-compatible versions and add the config plugin to `app.config.ts` following the [React Native Firebase Expo guide](https://rnfirebase.io/#expo).
+
+   ```bash
+   pnpm expo install @react-native-firebase/app @react-native-firebase/analytics
+   ```
+
+2. Write the adapter, for example in `src/lib/analytics/firebase-provider.ts`:
+
+   ```ts
+   import analytics from '@react-native-firebase/analytics';
+
+   import type { AnalyticsProviderAdapter } from './types';
+
+   export const firebaseAnalyticsProvider: AnalyticsProviderAdapter = {
+     init: async () => {
+       await analytics().setAnalyticsCollectionEnabled(true);
+     },
+     trackEvent: async (name, params) => {
+       // Firebase requires lowercase snake_case event names.
+       await analytics().logEvent(name.toLowerCase(), params);
+     },
+     trackScreen: async (screenName, params) => {
+       await analytics().logScreenView({
+         screen_name: screenName,
+         screen_class: screenName,
+         ...params,
+       });
+     },
+     identify: async (userId, traits) => {
+       await analytics().setUserId(userId);
+       if (traits) {
+         await analytics().setUserProperties(
+           Object.fromEntries(
+             Object.entries(traits).map(([key, value]) => [key, value == null ? null : String(value)]),
+           ),
+         );
+       }
+     },
+     reset: async () => {
+       await analytics().resetAnalyticsData();
+     },
+   };
+   ```
+
+3. Register it next to (or instead of) the console provider in `src/app/_layout.tsx`:
+
+   ```tsx
+   import { consoleAnalyticsProvider } from '@/lib';
+   import { firebaseAnalyticsProvider } from '@/lib/analytics/firebase-provider';
+
+   const analyticsProviders = [consoleAnalyticsProvider, firebaseAnalyticsProvider];
+   ```
+
+   Keep `analyticsProviders` a module-level constant: the provider list is used as an effect dependency, so a new array on every render would re-run `init()`.
+
+The same recipe applies to any other vendor (Segment, Amplitude, PostHog, Mixpanel...): implement the adapter, register it, and nothing else in the app has to change.
+
+## Testing
+
+Tests live in `__tests__/components/providers/analytics.test.tsx`, `__tests__/components/analytics-screen-tracker.test.tsx` and `__tests__/lib/analytics/console-provider.test.ts`. To assert on analytics in your own component tests, wrap the component in `AnalyticsProvider` with a mock provider:
+
+```tsx
+const provider = { init: jest.fn(), trackEvent: jest.fn(), trackScreen: jest.fn() };
+
+render(
+  <AnalyticsProvider providers={[provider]}>
+    <MyComponent />
+  </AnalyticsProvider>,
+);
+
+expect(provider.trackEvent).toHaveBeenCalledWith('BUTTON_PRESS', { accessibilityId: 'submit-button' });
+```

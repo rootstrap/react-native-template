@@ -143,6 +143,11 @@ export default defineConfig({
               link: '/guides/storage/',
             },
             {
+              label: 'Analytics',
+              link: '/guides/analytics/',
+              badge: 'new',
+            },
+            {
               label: 'Upgrade Dependencies',
               link: '/guides/upgrading-deps/',
             },
