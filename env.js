@@ -15,6 +15,8 @@
  */
 const z = require('zod');
 
+const { envField } = require('./env-fields');
+
 const packageJSON = require('./package.json');
 const path = require('node:path');
 
@@ -100,7 +102,7 @@ const withEnvSuffix = (name) =>
 
 /**
  * 2nd part: Define your env variables schema
- * we use zod to define our env variables schema
+ * we use zod and the `envField` helpers (see `env-fields.js`) to define our env variables schema
  *
  * we split the env variables into two parts:
  *    1. client: These variables are used in the client-side code (`src` folder).
@@ -108,23 +110,15 @@ const withEnvSuffix = (name) =>
  *
  * Main rules:
  *    1. If you need your variable on the client-side, you should add it to the client schema; otherwise, you should add it to the buildTime schema.
- *    2. Whenever you want to add a new variable, you should add it to the correct schema based on the previous rule, then you should add it to the corresponding object (_clientEnv or _buildTimeEnv).
+ *    2. Declare variables read from the `.env` file with `envField.string()`, `envField.number()` or `envField.boolean()`.
+ *       Their values are read from `process.env` and converted to the declared type automatically, so you only declare them once.
+ *    3. Static values defined in this file (such as NAME or BUNDLE_ID) are declared with plain zod schemas and their values are set in `clientStaticValues` or `buildTimeStaticValues`.
  *
- * Note: `z.string()` means that the variable exists and can be an empty string, but not `undefined`.
- * If you want to make the variable required, you should use `z.string().min(1)` instead.
+ * Note: env fields are required by default; an empty value (e.g. `API_URL=`) is treated as missing.
+ * Pass `{ optional: true }` to allow a missing value, or `{ default: value }` to fall back to a default value.
  * Read more about zod here: https://zod.dev/?id=strings
  *
  */
-
-// eslint-disable-next-line no-unused-vars, unused-imports/no-unused-vars
-const parseString = (/** @type {string | undefined} */ value) =>
-  value === '' ? undefined : value;
-// eslint-disable-next-line no-unused-vars, unused-imports/no-unused-vars
-const parseNumber = (/** @type {string | undefined} */ value) =>
-  value ? Number(value) : undefined;
-// eslint-disable-next-line no-unused-vars, unused-imports/no-unused-vars
-const parseBoolean = (/** @type {string | undefined} */ value) =>
-  value ? value === 'true' : undefined;
 
 const clientEnvSchema = z.object({
   APP_ENV: z.enum(['development', 'production', 'qa', 'staging']),
@@ -135,48 +129,71 @@ const clientEnvSchema = z.object({
   VERSION: z.string(),
 
   // ADD YOUR CLIENT ENV VARS HERE
-  API_URL: z.string(),
-  VAR_NUMBER: z.number(),
-  VAR_BOOL: z.boolean(),
-  TERMS_OF_SERVICE_URL: z.string(),
-  WEBSITE_URL: z.string(),
+  API_URL: envField.string(),
+  VAR_NUMBER: envField.number(),
+  VAR_BOOL: envField.boolean(),
+  TERMS_OF_SERVICE_URL: envField.string(),
+  WEBSITE_URL: envField.string(),
 });
 
 const buildTimeEnvSchema = z.object({
   EXPO_ACCOUNT_OWNER: z.string(),
   EAS_PROJECT_ID: z.string(),
   // ADD YOUR BUILD TIME ENV VARS HERE
-  SECRET_KEY: z.string(),
+  SECRET_KEY: envField.string(),
 });
 
 /**
  * @type {Partial<z.infer<typeof clientEnvSchema>>}
  */
-const _clientEnv = {
+const clientStaticValues = {
   APP_ENV,
   NAME,
   SCHEME,
   BUNDLE_ID: withEnvSuffix(BUNDLE_ID),
   PACKAGE: withEnvSuffix(PACKAGE),
   VERSION: packageJSON.version,
-
-  // ADD YOUR ENV VARS HERE TOO
-  API_URL: parseString(process.env.API_URL),
-  VAR_NUMBER: parseNumber(process.env.VAR_NUMBER),
-  VAR_BOOL: parseBoolean(process.env.VAR_BOOL),
-  WEBSITE_URL: parseString(process.env.WEBSITE_URL),
-  TERMS_OF_SERVICE_URL: parseString(process.env.TERMS_OF_SERVICE_URL),
 };
 
 /**
- * @type {Record<keyof z.infer<typeof buildTimeEnvSchema> , unknown>}
+ * @type {Partial<z.infer<typeof buildTimeEnvSchema>>}
  */
-const _buildTimeEnv = {
+const buildTimeStaticValues = {
   EXPO_ACCOUNT_OWNER,
   EAS_PROJECT_ID,
-  // ADD YOUR ENV VARS HERE TOO
-  SECRET_KEY: parseString(process.env.SECRET_KEY),
 };
+
+/**
+ * Reads the raw value of every variable declared in the schema from `process.env`,
+ * then overrides them with the static values defined in this file.
+ * @param {z.AnyZodObject} schema
+ * @param {Record<string, unknown>} staticValues
+ * @returns {Record<string, unknown>}
+ */
+const readEnv = (schema, staticValues) => ({
+  ...Object.fromEntries(
+    Object.keys(schema.shape).map((key) => [key, process.env[key]]),
+  ),
+  ...staticValues,
+});
+
+/**
+ * Parses every variable on its own, keeping `undefined` for the invalid ones instead of failing.
+ * Used when the env variables don't need to be validated.
+ * @param {z.AnyZodObject} schema
+ * @param {Record<string, unknown>} values
+ * @returns {Record<string, unknown>}
+ */
+const parseWithoutValidation = (schema, values) =>
+  Object.fromEntries(
+    Object.entries(schema.shape).map(([key, fieldSchema]) => {
+      const parsed = fieldSchema.safeParse(values[key]);
+      return [key, parsed.success ? parsed.data : undefined];
+    }),
+  );
+
+const _clientEnv = readEnv(clientEnvSchema, clientStaticValues);
+const _buildTimeEnv = readEnv(buildTimeEnvSchema, buildTimeStaticValues);
 
 /**
  * 3rd part: Merge and Validate your env variables
@@ -237,9 +254,9 @@ if (shouldValidateEnv) {
 } else {
   // Don't worry about TypeScript here; if we don't need to validate the env variables is because we aren't using them
   //@ts-ignore
-  Env = _wholeEnv;
+  Env = parseWithoutValidation(wholeEnvSchema, _wholeEnv);
   //@ts-ignore
-  ClientEnv = _clientEnv;
+  ClientEnv = parseWithoutValidation(clientEnvSchema, _clientEnv);
 }
 
 module.exports = {

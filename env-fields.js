@@ -1,0 +1,111 @@
+/*
+ * Helpers to declare environment variables in `env.js`.
+ * Each `envField` builder returns a zod schema that receives the raw value read from `process.env`
+ * (always a string or undefined), converts it to the right type and validates it.
+ * This way every variable is declared only once, with its type, in the schemas defined in `env.js`.
+ *
+ * Options:
+ *    - optional: the variable may be missing or empty; its value will be `undefined`.
+ *    - default: value used when the variable is missing or empty.
+ *
+ * An empty value (e.g. `API_URL=`) is treated the same as a missing one.
+ */
+const z = require('zod');
+
+/**
+ * @template {z.ZodTypeAny} T
+ * @typedef {{ optional?: boolean, default?: z.output<T> }} EnvFieldOptions
+ */
+
+/**
+ * @template {z.ZodTypeAny} T
+ * @template {EnvFieldOptions<T>} O
+ * @typedef {O extends { default: {} } ? z.ZodDefault<T> : O extends { optional: true } ? z.ZodOptional<T> : T} EnvFieldInner
+ */
+
+/**
+ * @template {z.ZodTypeAny} T
+ * @template {EnvFieldOptions<T>} O
+ * @typedef {z.ZodEffects<EnvFieldInner<T, O>, EnvFieldInner<T, O>['_output'], unknown>} EnvField
+ */
+
+/**
+ * Builds an env field schema: raw values are converted with `parse` (empty strings become `undefined`)
+ * and then validated with `schema`, applying the `optional` and `default` options.
+ * @template {z.ZodTypeAny} T
+ * @template {EnvFieldOptions<T>} O
+ * @param {T} schema
+ * @param {(value: string) => unknown} parse
+ * @param {O} options
+ * @returns {EnvField<T, O>} the env field schema
+ */
+function createEnvField(schema, parse, options) {
+  /** @type {z.ZodTypeAny} */
+  let inner = schema;
+  if (options.default !== undefined) {
+    inner = schema.default(options.default);
+  }
+  else if (options.optional) {
+    inner = schema.optional();
+  }
+
+  return /** @type {EnvField<T, O>} */ (
+    z.preprocess((value) => {
+      if (value === undefined || value === '') {
+        return undefined;
+      }
+      return typeof value === 'string' ? parse(value) : value;
+    }, inner)
+  );
+}
+
+/**
+ * Numbers are parsed with `Number`; values that are not numbers (e.g. `abc`) are rejected.
+ * @param {string} value
+ */
+const parseNumber = value => (value.trim() === '' ? Number.NaN : Number(value));
+
+/**
+ * Only `true` and `false` are accepted; any other value is rejected.
+ * @param {string} value
+ */
+function parseBoolean(value) {
+  if (value === 'true') {
+    return true;
+  }
+  if (value === 'false') {
+    return false;
+  }
+  return value;
+}
+
+const envField = {
+  /**
+   * @template {EnvFieldOptions<z.ZodString>} [O={}]
+   * @param {O} [options]
+   */
+  string: options =>
+    createEnvField(
+      z.string(),
+      value => value,
+      /** @type {O} */ (options ?? {}),
+    ),
+  /**
+   * @template {EnvFieldOptions<z.ZodNumber>} [O={}]
+   * @param {O} [options]
+   */
+  number: options =>
+    createEnvField(z.number(), parseNumber, /** @type {O} */ (options ?? {})),
+  /**
+   * @template {EnvFieldOptions<z.ZodBoolean>} [O={}]
+   * @param {O} [options]
+   */
+  boolean: options =>
+    createEnvField(
+      z.boolean(),
+      parseBoolean,
+      /** @type {O} */ (options ?? {}),
+    ),
+};
+
+module.exports = { envField };
