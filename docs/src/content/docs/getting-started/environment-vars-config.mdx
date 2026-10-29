@@ -10,7 +10,7 @@ import Code from '../../../components/code.astro';
 
 Managing environment variables in your project is an essential task, but it can also be challenging. That's why we have included a complete setup for environment variables in this project. This setup comes with validation and type-checking using the `zod` library.
 
-All the code related to environment variables is located in the `env.js` and `src/lib/env.js` files. The `env.js` read the `APP_ENV` variable and loads the correct `.env` file, then defines the `zod` schema for the environment variables for client and build-time, parses the `_env` object, and returns the parsed object, or throws errors in case of invalid or missing variables.
+All the code related to environment variables is located in the `env.js`, `env-fields.js` and `src/lib/env.js` files. The `env.js` read the `APP_ENV` variable and loads the correct `.env` file, then defines the `zod` schema for the environment variables for client and build-time using the `envField` helpers from `env-fields.js`, reads the declared variables from `process.env`, and returns the parsed object, or throws errors in case of invalid or missing variables.
 
 To increase security, we are splitting environment variables into two parts:
 
@@ -28,38 +28,39 @@ To add a new environment variable to the project, follow these steps:
 1. Add the new environment variable to the correct `zod` schema inside the `env.js` file based on this simple rule :
    If the variable is used in the `src` folder, add it to the `client` schema, otherwise add it to the `buildTime` schema.
 
+Declare it with one of the `envField` builders (`envField.string()`, `envField.number()` or `envField.boolean()`). The value is read from `process.env` automatically and converted to the declared type, so this is the only place where you need to declare the variable.
+
 This will ensure that the new variable is validated correctly. and make sure we are only sending the correct vars to the client side
 Here's an example:
 
 ```js title="env.js"
-const client = z.object({
+const clientEnvSchema = z.object({
   // ...
   // add the new environment variable here/ accessible on the client side and build time(app.config.ts)
-  NEW_ENV_VAR: z.string(),
+  NEW_ENV_VAR: envField.string(),
+  NEW_NUMBER_VAR: envField.number({ default: 4321 }),
+  NEW_FLAG_VAR: envField.boolean({ optional: true }),
 });
 
-const buildTime = z.object({
+const buildTimeEnvSchema = z.object({
   // ...
   // add the new environment variable here / accessible only on build time(app.config.ts)
-  NEW_SECRET_ENV: z.string(),
+  NEW_SECRET_ENV: envField.string(),
 });
 ```
 
-2. Add the new environment variable to the correct env object inside the `env.js`, `_clientEnv` for client variables and `_buildTimeEnv` for build time variables. Here's an example:
+2. Pick the right options for the variable. Every `envField` builder accepts the following options:
 
-```js title="env.js"
-const _clientEnv = {
-  // ...
-  // add the new environment variable here
-  NEW_ENV_VAR: process.env.NEW_ENV_VAR,
-};
+| Option     | Description                                                                          |
+| ---------- | ------------------------------------------------------------------------------------ |
+| `optional` | When `true`, the variable can be missing or empty and its value will be `undefined`. |
+| `default`  | Value used when the variable is missing or empty.                                    |
 
-const _buildTimeEnv = {
-  // ...
-  // add the new environment variable here
-  NEW_SECRET_ENV: process.env.NEW_SECRET_ENV,
-};
-```
+Without options, the variable is required. Empty values (e.g. `API_URL=`) are treated as missing. Values are converted as follows:
+
+- `envField.string()`: the value is used as is.
+- `envField.number()`: the value is converted with `Number`; values that are not numbers (e.g. `abc`) are rejected.
+- `envField.boolean()`: only `true` and `false` are accepted; any other value is rejected.
 
 3. Add the new environment variable to your `.env` files. Make sure to include it in all relevant files (`development`, `staging`, and `production`). Here's an example:
 
@@ -108,7 +109,7 @@ As mentioned earlier, `zod` is used to validate environment variables at runtime
 ```
 
 :::note[Important]
-As `dotenv` handles variables as strings, you need to convert them to the correct type while reading them from the `process.env` object. check the example below for more details on how to use numbers and boolean values.
+As `dotenv` handles variables as strings, the `envField` builders convert them to the declared type (`string`, `number` or `boolean`) before validating them, so you don't need to parse them yourself.
 :::
 
 ## How it works
@@ -123,7 +124,7 @@ If you take a look at the `env.js` file, you will notice that the file is split 
 
 we define some static variables for the app such as the app name, bundle Id and package. While these variables can be added to the `.env` files, we recommend keeping them in the `env.js` file as they are not meant to change. To handle different app variants, you can add suffixes to these variables using the `withEnvSuffix` function.
 
-**In the second part**, we define the `zod` schema for the environment variables.
+**In the second part**, we define the `zod` schema for the environment variables. Variables loaded from the `.env` file are declared with the `envField` builders, while static values defined in `env.js` (such as `NAME` or `BUNDLE_ID`) are declared with plain `zod` schemas and their values are set in the `clientStaticValues` and `buildTimeStaticValues` objects.
 
 We split the environment variables into two parts:
 
@@ -133,9 +134,13 @@ We split the environment variables into two parts:
 
 These schemas are used to validate the environment variables. All the environment variables should be added to the correct schema.
 
-We use the `z.infer` utility to infer the environment variables' types from the schema and use it to define the `_clientEnv` and `_buildTimeEnv` objects' type. This means that if you add a new environment variable to the schema, you will get a type error if you don't add it to the correct `_clientEnv` and `_buildTimeEnv` object as well, and vice versa.
+The values of the variables declared in each schema are read from `process.env` automatically, so each variable is declared only once. We use the `z.infer` utility to infer the environment variables' types from the schema, so `Env` and `ClientEnv` are typed with the converted values (for example, `number` for `envField.number()`).
 
-**Finally**, in the third part, we merge variables to `_env`, pare it using the zod schema, and return the parsed object as well as the client environment variable, or throw errors in case of invalid or missing variables.
+The `envField` builders live in the `env-fields.js` file:
+
+<Code file="env-fields.js" />
+
+**Finally**, in the third part, we merge variables to `_wholeEnv`, parse it using the zod schema, and return the parsed object as well as the client environment variable, or throw errors in case of invalid or missing variables.
 
 #### ✅ Use and send environment variables to the client
 

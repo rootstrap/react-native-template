@@ -49,27 +49,16 @@ The starter kit did not come with Sentry pre-configured, but it's very easy to s
    ```js title='env.js'
    // ... existing imports and configurations
 
-   const client = z.object({
+   const clientEnvSchema = z.object({
      // ... other client env vars
-     SENTRY_DSN: z.string().min(1, 'SENTRY_DSN is required'),
+     SENTRY_DSN: envField.string(),
    });
 
-   const buildTime = z.object({
+   const buildTimeEnvSchema = z.object({
      // ... other build-time env vars
-     SENTRY_ORG: z.string().min(1, 'SENTRY_ORG is required'),
-     SENTRY_PROJECT: z.string().min(1, 'SENTRY_PROJECT is required'),
+     SENTRY_ORG: envField.string(),
+     SENTRY_PROJECT: envField.string(),
    });
-
-   const _clientEnv = {
-     // ... other client env vars
-     SENTRY_DSN: process.env.SENTRY_DSN,
-   };
-
-   const _buildTimeEnv = {
-     // ... other build-time env vars
-     SENTRY_ORG: process.env.SENTRY_ORG,
-     SENTRY_PROJECT: process.env.SENTRY_PROJECT,
-   };
 
    // ... rest of the file
    ```
