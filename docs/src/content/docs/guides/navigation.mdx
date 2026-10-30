@@ -22,4 +22,10 @@ Here is a simple example of the tabs layout.
 
 <CodeBlock file="src/app/(app)/_layout.tsx" />
 
+## Sitemap route
+
+Expo Router injects a [`/_sitemap`](https://docs.expo.dev/router/reference/sitemap/) route that lists every route in the app, which is handy for debugging. Since it exposes the full route list, the template only generates it outside production: the `expo-router` plugin in `app.config.ts` is configured with `sitemap: Env.APP_ENV !== 'production'`. On `development`, `qa` and `staging` builds you can open `<scheme>://_sitemap` (or `/_sitemap` on web); on `production` builds that path shows the not-found screen.
+
+To change this behavior, update the `sitemap` option of the `expo-router` plugin in `app.config.ts` (set it to `true` to always include the route, or `false` to always remove it).
+
 Make sure to check the official docs for more information and examples about [expo-router](https://docs.expo.dev/router/introduction/).
