@@ -62,6 +62,8 @@ Route guards are centralised in `src/app/_layout.tsx`. The `GuardedStack` compon
 | Translation strings                                | `src/translations/en.json`                           |
 | Environment config                                 | `src/lib/env.js` (access via `Env` from `@/lib/env`) |
 | General persistent storage                         | `src/lib/storage.tsx` (MMKV)                         |
+| Analytics — event catalogue & provider contract    | `src/lib/analytics/types.ts`                         |
+| Analytics — context, `useAnalytics()`, screen tracking | `src/components/providers/analytics.tsx`, `src/components/analytics-screen-tracker.tsx` |
 | Global TypeScript types                            | `src/types/index.ts`                                 |
 
 ---

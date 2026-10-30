@@ -12,8 +12,10 @@ import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { APIProvider } from '@/api';
 
 import interceptors from '@/api/common/interceptors';
+import { AnalyticsScreenTracker } from '@/components/analytics-screen-tracker';
+import { AnalyticsProvider } from '@/components/providers/analytics';
 import { AuthProvider, useAuth } from '@/components/providers/auth';
-import { hydrateAuth, loadSelectedTheme, useIsFirstTime } from '@/lib';
+import { consoleAnalyticsProvider, hydrateAuth, loadSelectedTheme, useIsFirstTime } from '@/lib';
 import { useThemeConfig } from '@/lib/use-theme-config';
 // Import  global CSS file
 import '../../global.css';
@@ -27,6 +29,8 @@ export const unstable_settings = {
 hydrateAuth();
 loadSelectedTheme();
 interceptors();
+// Analytics providers the app reports to. Add real vendor adapters here.
+const analyticsProviders = [consoleAnalyticsProvider];
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 void SplashScreen.preventAutoHideAsync();
 // Set the animation options. This is optional.
@@ -103,10 +107,13 @@ function Providers({ children }: Readonly<{ children: React.ReactNode }>) {
         <ThemeProvider value={theme}>
           <APIProvider>
             <AuthProvider>
-              <BottomSheetModalProvider>
-                {children}
-                <FlashMessage position="top" />
-              </BottomSheetModalProvider>
+              <AnalyticsProvider providers={analyticsProviders}>
+                <AnalyticsScreenTracker />
+                <BottomSheetModalProvider>
+                  {children}
+                  <FlashMessage position="top" />
+                </BottomSheetModalProvider>
+              </AnalyticsProvider>
             </AuthProvider>
           </APIProvider>
         </ThemeProvider>
