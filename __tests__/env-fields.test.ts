@@ -44,6 +44,9 @@ describe('envField', () => {
       expect(envField.number().safeParse('  ').success).toBe(false);
       expect(envField.number().safeParse('Infinity').success).toBe(false);
       expect(envField.number().safeParse('-Infinity').success).toBe(false);
+      expect(envField.number().safeParse('0x10').success).toBe(false);
+      expect(envField.number().safeParse('1e3').success).toBe(false);
+      expect(envField.number().safeParse(' 42 ').success).toBe(false);
     });
 
     it('rejects missing and empty values by default', () => {
@@ -99,6 +102,13 @@ describe('envField', () => {
       expect(schema.parse('')).toBe(false);
       expect(schema.parse('true')).toBe(true);
     });
+  });
+
+  it('uses the default value when both optional and default are set', () => {
+    const schema = envField.string({ optional: true, default: 'fallback' });
+
+    expect(schema.parse(undefined)).toBe('fallback');
+    expect(schema.parse('value')).toBe('value');
   });
 
   it('reports missing variables as required when used in an object schema', () => {

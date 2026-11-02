@@ -59,11 +59,16 @@ function createEnvField(schema, parse, options) {
   );
 }
 
+const DECIMAL_NUMBER_REGEX = /^-?\d+(?:\.\d+)?$/;
+
 /**
- * Numbers are parsed with `Number`; values that are not finite numbers (e.g. `abc` or `Infinity`) are rejected.
+ * Only plain decimal numbers (e.g. `42` or `-3.5`) are accepted; any other value
+ * (e.g. `abc`, `Infinity`, `0x10`, `1e3` or values with spaces) is rejected.
  * @param {string} value
  */
-const parseNumber = value => (value.trim() === '' ? Number.NaN : Number(value));
+function parseNumber(value) {
+  return DECIMAL_NUMBER_REGEX.test(value) ? Number(value) : Number.NaN;
+}
 
 /**
  * Only `true` and `false` are accepted; any other value is rejected.
@@ -98,8 +103,8 @@ const envField = {
     createEnvField(
       z.number().finite(),
       parseNumber,
-      /** @type {O} */ (options ?? {}
-      )),
+      /** @type {O} */ (options ?? {}),
+    ),
   /**
    * @template {EnvFieldOptions<z.ZodBoolean>} [O={}]
    * @param {O} [options]

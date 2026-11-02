@@ -59,7 +59,7 @@ const buildTimeEnvSchema = z.object({
 Without options, the variable is required. Empty values (e.g. `API_URL=`) are treated as missing. Values are converted as follows:
 
 - `envField.string()`: the value is used as is.
-- `envField.number()`: the value is converted with `Number`; values that are not finite numbers (e.g. `abc` or `Infinity`) are rejected.
+- `envField.number()`: only plain decimal numbers (e.g. `42` or `-3.5`) are accepted; any other value (e.g. `abc`, `Infinity`, `0x10` or `1e3`) is rejected.
 - `envField.boolean()`: only `true` and `false` are accepted; any other value is rejected.
 
 3. Add the new environment variable to your `.env` files. Make sure to include it in all relevant files (`development`, `staging`, and `production`). Here's an example:
