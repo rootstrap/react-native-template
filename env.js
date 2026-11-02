@@ -15,7 +15,11 @@
  */
 const z = require('zod');
 
-const { envField } = require('./env-fields');
+const {
+  envField,
+  parseWithoutValidation,
+  readEnv,
+} = require('./env-fields');
 
 const packageJSON = require('./package.json');
 const path = require('node:path');
@@ -162,35 +166,6 @@ const buildTimeStaticValues = {
   EXPO_ACCOUNT_OWNER,
   EAS_PROJECT_ID,
 };
-
-/**
- * Reads the raw value of every variable declared in the schema from `process.env`,
- * then overrides them with the static values defined in this file.
- * @param {z.AnyZodObject} schema
- * @param {Record<string, unknown>} staticValues
- * @returns {Record<string, unknown>}
- */
-const readEnv = (schema, staticValues) => ({
-  ...Object.fromEntries(
-    Object.keys(schema.shape).map((key) => [key, process.env[key]]),
-  ),
-  ...staticValues,
-});
-
-/**
- * Parses every variable on its own, keeping `undefined` for the invalid ones instead of failing.
- * Used when the env variables don't need to be validated.
- * @param {z.AnyZodObject} schema
- * @param {Record<string, unknown>} values
- * @returns {Record<string, unknown>}
- */
-const parseWithoutValidation = (schema, values) =>
-  Object.fromEntries(
-    Object.entries(schema.shape).map(([key, fieldSchema]) => {
-      const parsed = fieldSchema.safeParse(values[key]);
-      return [key, parsed.success ? parsed.data : undefined];
-    }),
-  );
 
 const _clientEnv = readEnv(clientEnvSchema, clientStaticValues);
 const _buildTimeEnv = readEnv(buildTimeEnvSchema, buildTimeStaticValues);

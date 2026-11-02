@@ -60,7 +60,7 @@ function createEnvField(schema, parse, options) {
 }
 
 /**
- * Numbers are parsed with `Number`; values that are not numbers (e.g. `abc`) are rejected.
+ * Numbers are parsed with `Number`; values that are not finite numbers (e.g. `abc` or `Infinity`) are rejected.
  * @param {string} value
  */
 const parseNumber = value => (value.trim() === '' ? Number.NaN : Number(value));
@@ -95,7 +95,11 @@ const envField = {
    * @param {O} [options]
    */
   number: options =>
-    createEnvField(z.number(), parseNumber, /** @type {O} */ (options ?? {})),
+    createEnvField(
+      z.number().finite(),
+      parseNumber,
+      /** @type {O} */ (options ?? {}
+      )),
   /**
    * @template {EnvFieldOptions<z.ZodBoolean>} [O={}]
    * @param {O} [options]
@@ -108,4 +112,36 @@ const envField = {
     ),
 };
 
-module.exports = { envField };
+/**
+ * Reads the raw value of every variable declared in the schema from `process.env`,
+ * then overrides them with the static values defined in `env.js`.
+ * @param {z.AnyZodObject} schema
+ * @param {Record<string, unknown>} staticValues
+ * @returns {Record<string, unknown>} the raw values, ready to be parsed with the schema
+ */
+function readEnv(schema, staticValues) {
+  return {
+    ...Object.fromEntries(
+      Object.keys(schema.shape).map(key => [key, process.env[key]]),
+    ),
+    ...staticValues,
+  };
+}
+
+/**
+ * Parses every variable on its own, keeping `undefined` for the invalid ones instead of failing.
+ * Used when the env variables don't need to be validated.
+ * @param {z.AnyZodObject} schema
+ * @param {Record<string, unknown>} values
+ * @returns {Record<string, unknown>} the parsed values
+ */
+function parseWithoutValidation(schema, values) {
+  return Object.fromEntries(
+    Object.entries(schema.shape).map(([key, fieldSchema]) => {
+      const parsed = fieldSchema.safeParse(values[key]);
+      return [key, parsed.success ? parsed.data : undefined];
+    }),
+  );
+}
+
+module.exports = { envField, parseWithoutValidation, readEnv };
