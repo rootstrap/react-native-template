@@ -28,7 +28,7 @@ To add a new environment variable to the project, follow these steps:
 1. Add the new environment variable to the correct `zod` schema inside the `env.js` file based on this simple rule :
    If the variable is used in the `src` folder, add it to the `client` schema, otherwise add it to the `buildTime` schema.
 
-Declare it with one of the `envField` builders (`envField.string()`, `envField.number()` or `envField.boolean()`). The value is read from `process.env` automatically and converted to the declared type, so this is the only place where you need to declare the variable.
+   Declare it with one of the `envField` builders (`envField.string()`, `envField.number()` or `envField.boolean()`). The value is read from `process.env` automatically and converted to the declared type, so this is the only place where you need to declare the variable.
 
 This will ensure that the new variable is validated correctly. and make sure we are only sending the correct vars to the client side
 Here's an example:
@@ -59,7 +59,7 @@ const buildTimeEnvSchema = z.object({
 Without options, the variable is required. Empty values (e.g. `API_URL=`) are treated as missing. Values are converted as follows:
 
 - `envField.string()`: the value is used as is.
-- `envField.number()`: the value is converted with `Number`; values that are not numbers (e.g. `abc`) are rejected.
+- `envField.number()`: the value is converted with `Number`; values that are not finite numbers (e.g. `abc` or `Infinity`) are rejected.
 - `envField.boolean()`: only `true` and `false` are accepted; any other value is rejected.
 
 3. Add the new environment variable to your `.env` files. Make sure to include it in all relevant files (`development`, `staging`, and `production`). Here's an example:

@@ -48,6 +48,7 @@ The starter kit did not come with Sentry pre-configured, but it's very easy to s
 
    ```js title='env.js'
    // ... existing imports and configurations
+   const { envField } = require('./env-fields');
 
    const clientEnvSchema = z.object({
      // ... other client env vars
