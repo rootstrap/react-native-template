@@ -1,6 +1,11 @@
 import { z } from 'zod';
 
-import { envField, parseWithoutValidation, readEnv } from '../env-fields';
+import {
+  envField,
+  isEnvField,
+  parseWithoutValidation,
+  readEnv,
+} from '../env-fields';
 
 const getErrorMessages = (schema: z.ZodTypeAny, value: unknown) =>
   schema.safeParse(value).error?.issues.map(issue => issue.message);
@@ -153,6 +158,16 @@ describe('envField', () => {
   });
 });
 
+describe('isEnvField', () => {
+  it('detects the schemas created with the envField builders', () => {
+    expect(isEnvField(envField.string())).toBe(true);
+    expect(isEnvField(envField.number({ optional: true }))).toBe(true);
+    expect(isEnvField(envField.boolean({ default: false }))).toBe(true);
+    expect(isEnvField(z.string())).toBe(false);
+    expect(isEnvField(z.preprocess(value => value, z.number()))).toBe(false);
+  });
+});
+
 describe('readEnv', () => {
   const originalEnv = process.env;
 
@@ -185,6 +200,18 @@ describe('readEnv', () => {
     expect(readEnv(schema, { NAME: 'StaticName' })).toEqual({
       NAME: 'StaticName',
     });
+  });
+
+  it('throws when a variable without a static value is not declared with envField', () => {
+    process.env.VAR_NUMBER = '42';
+    const schema = z.object({
+      API_URL: envField.string(),
+      VAR_NUMBER: z.number(),
+    });
+
+    expect(() => readEnv(schema, {})).toThrow(
+      'The env variable "VAR_NUMBER" is read from process.env but it isn\'t declared with an envField builder',
+    );
   });
 });
 

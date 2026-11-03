@@ -30,6 +30,21 @@ const z = require('zod');
  */
 
 /**
+ * Schemas created with the `envField` builders, used to make sure that every variable
+ * read from `process.env` is converted from a string to its declared type.
+ * @type {WeakSet<z.ZodTypeAny>}
+ */
+const envFieldSchemas = new WeakSet();
+
+/**
+ * @param {z.ZodTypeAny} schema
+ * @returns {boolean} whether the schema was created with one of the `envField` builders
+ */
+function isEnvField(schema) {
+  return envFieldSchemas.has(schema);
+}
+
+/**
  * Builds an env field schema: raw values are converted with `parse` (empty strings become `undefined`)
  * and then validated with `schema`, applying the `optional` and `default` options.
  * @template {z.ZodTypeAny} T
@@ -49,14 +64,15 @@ function createEnvField(schema, parse, options) {
     inner = schema.optional();
   }
 
-  return /** @type {EnvField<T, O>} */ (
-    z.preprocess((value) => {
-      if (value === undefined || value === '') {
-        return undefined;
-      }
-      return typeof value === 'string' ? parse(value) : value;
-    }, inner)
-  );
+  const envFieldSchema = z.preprocess((value) => {
+    if (value === undefined || value === '') {
+      return undefined;
+    }
+    return typeof value === 'string' ? parse(value) : value;
+  }, inner);
+  envFieldSchemas.add(envFieldSchema);
+
+  return /** @type {EnvField<T, O>} */ (envFieldSchema);
 }
 
 /**
@@ -142,15 +158,30 @@ const envField = {
 /**
  * Reads the raw value of every variable declared in the schema from `process.env`,
  * then overrides them with the static values defined in `env.js`.
+ * Variables without a static value must be declared with an `envField` builder, as their raw
+ * value is always a string; otherwise an error is thrown.
  * @param {z.AnyZodObject} schema
  * @param {Record<string, unknown>} staticValues
  * @returns {Record<string, unknown>} the raw values, ready to be parsed with the schema
  */
 function readEnv(schema, staticValues) {
+  /** @type {[string, z.ZodTypeAny][]} */
+  const fields = Object.entries(schema.shape);
+  const envValues = fields
+    .filter(([key]) => !Object.hasOwn(staticValues, key))
+    .map(([key, fieldSchema]) => {
+      if (!isEnvField(fieldSchema)) {
+        throw new Error(
+          `The env variable "${key}" is read from process.env but it isn't declared with an envField builder. `
+          + 'Declare it with envField.string(), envField.number() or envField.boolean() in env.js, '
+          + 'or set its value in the static values.',
+        );
+      }
+      return [key, process.env[key]];
+    });
+
   return {
-    ...Object.fromEntries(
-      Object.keys(schema.shape).map(key => [key, process.env[key]]),
-    ),
+    ...Object.fromEntries(envValues),
     ...staticValues,
   };
 }
@@ -171,4 +202,4 @@ function parseWithoutValidation(schema, values) {
   );
 }
 
-module.exports = { envField, parseWithoutValidation, readEnv };
+module.exports = { envField, isEnvField, parseWithoutValidation, readEnv };

@@ -116,6 +116,7 @@ const withEnvSuffix = (name) =>
  *    1. If you need your variable on the client-side, you should add it to the client schema; otherwise, you should add it to the buildTime schema.
  *    2. Declare variables read from the `.env` file with `envField.string()`, `envField.number()` or `envField.boolean()`.
  *       Their values are read from `process.env` and converted to the declared type automatically, so you only declare them once.
+ *       Every variable without a static value is read from `process.env`, so it must use an `envField` builder: declaring it with a plain zod schema (e.g. `z.number()`) throws an error.
  *    3. Static values defined in this file (such as NAME or BUNDLE_ID) are declared with plain zod schemas and their values are set in `clientStaticValues` or `buildTimeStaticValues`.
  *
  * Note: env fields are required by default; an empty value (e.g. `API_URL=`) is treated as missing.
