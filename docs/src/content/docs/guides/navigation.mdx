@@ -24,7 +24,9 @@ Here is a simple example of the tabs layout.
 
 ## Sitemap route
 
-Expo Router injects a [`/_sitemap`](https://docs.expo.dev/router/reference/sitemap/) route that lists every route in the app, which is handy for debugging. Since it exposes the full route list, the template only generates it outside production: the `expo-router` plugin in `app.config.ts` is configured with `sitemap: Env.APP_ENV !== 'production'`. On `development`, `qa` and `staging` builds you can open `<scheme>://_sitemap` (or `/_sitemap` on web); on `production` builds that path shows the not-found screen.
+Expo Router injects a [`/_sitemap`](https://docs.expo.dev/router/reference/sitemap/) route that lists every route in the app, which is handy for debugging. The template removes this in-app route browser from production builds: the `expo-router` plugin in `app.config.ts` is configured with `sitemap: Env.APP_ENV !== 'production'`. This does not hide the route names themselves, which still ship in the JS bundle and the typed-routes output. On `development`, `qa` and `staging` builds you can open `<scheme>://_sitemap` (or `/_sitemap` on web); on `production` builds that path is handled by the template's catch-all route, `src/app/[...messing].tsx`.
+
+If you remove that catch-all route, unmatched paths fall back to Expo Router's built-in not-found screen, which renders a hard-coded link to `/_sitemap`. In production that link leads nowhere, so keep a custom catch-all (or `+not-found`) route if you disable the sitemap.
 
 Here is what the sitemap screen looks like (captured on the web build, `development` environment):
 
