@@ -32,4 +32,12 @@ Here is what the sitemap screen looks like (captured on the web build, `developm
 
 To change this behavior, update the `sitemap` option of the `expo-router` plugin in `app.config.ts` (set it to `true` to always include the route, or `false` to always remove it).
 
+Because the option is read from `APP_ENV` when the app config is evaluated, OTA updates must also be published with `APP_ENV` set. `env.js` falls back to `development` when it is unset, so an `eas update` published to the `production` channel without `APP_ENV=production` would re-enable `/_sitemap` in the production app. Use the per-environment scripts, which set `APP_ENV` and target the matching channel:
+
+```bash
+pnpm run update:production --message "Fix login copy"
+```
+
+`update:development`, `update:qa` and `update:staging` work the same way for the other channels.
+
 Make sure to check the official docs for more information and examples about [expo-router](https://docs.expo.dev/router/introduction/).
