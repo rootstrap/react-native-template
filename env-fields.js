@@ -59,15 +59,31 @@ function createEnvField(schema, parse, options) {
   );
 }
 
+/**
+ * Builds a zod error map that replaces the type errors of invalid values with a message
+ * describing the accepted format and the received value, so it's clear how to fix it.
+ * Missing values keep the default `Required` message.
+ * @param {string} expected description of the accepted format
+ * @returns {z.ZodErrorMap} the error map
+ */
+function invalidValueErrorMap(expected) {
+  return (issue, ctx) => {
+    if (issue.code === 'invalid_type' && ctx.data !== undefined) {
+      return { message: `must be ${expected}, received ${JSON.stringify(ctx.data)}` };
+    }
+    return { message: ctx.defaultError };
+  };
+}
+
 const DECIMAL_NUMBER_REGEX = /^-?\d+(?:\.\d+)?$/;
 
 /**
  * Only plain decimal numbers (e.g. `42` or `-3.5`) are accepted; any other value
- * (e.g. `abc`, `Infinity`, `0x10`, `1e3` or values with spaces) is rejected.
+ * (e.g. `abc`, `Infinity`, `0x10`, `1e3` or values with spaces) is returned as is so it's rejected.
  * @param {string} value
  */
 function parseNumber(value) {
-  return DECIMAL_NUMBER_REGEX.test(value) ? Number(value) : Number.NaN;
+  return DECIMAL_NUMBER_REGEX.test(value) ? Number(value) : value;
 }
 
 /**
@@ -101,7 +117,11 @@ const envField = {
    */
   number: options =>
     createEnvField(
-      z.number().finite(),
+      z
+        .number({
+          errorMap: invalidValueErrorMap('a plain decimal number (e.g. 42 or -3.5)'),
+        })
+        .finite(),
       parseNumber,
       /** @type {O} */ (options ?? {}),
     ),
@@ -111,7 +131,7 @@ const envField = {
    */
   boolean: options =>
     createEnvField(
-      z.boolean(),
+      z.boolean({ errorMap: invalidValueErrorMap('\'true\' or \'false\'') }),
       parseBoolean,
       /** @type {O} */ (options ?? {}),
     ),

@@ -58,15 +58,23 @@ describe('env', () => {
     expect(Env.NAME).toBe('RootstrapApp');
   });
 
-  it('throws when a variable is invalid and the env has to be validated', () => {
+  it('throws and logs how to fix the invalid variables when the env has to be validated', () => {
     const consoleError = jest
       .spyOn(console, 'error')
       .mockImplementation(() => {});
 
     expect(() =>
-      loadEnv({ ...VALID_ENV, VAR_NUMBER: 'abc' }, RUN_SCRIPT),
+      loadEnv(
+        { ...VALID_ENV, VAR_NUMBER: 'abc', VAR_BOOL: 'yes' },
+        RUN_SCRIPT,
+      ),
     ).toThrow('Invalid environment variables');
-    expect(consoleError).toHaveBeenCalled();
+    expect(consoleError.mock.calls[0][1]).toMatchObject({
+      VAR_NUMBER: [
+        'must be a plain decimal number (e.g. 42 or -3.5), received "abc"',
+      ],
+      VAR_BOOL: ['must be \'true\' or \'false\', received "yes"'],
+    });
   });
 
   it('returns undefined for invalid variables when the env is not validated', () => {

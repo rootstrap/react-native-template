@@ -203,7 +203,7 @@ if (shouldValidateEnv) {
       '❌ Invalid environment variables:',
       parsedWholeEnv.error.flatten().fieldErrors,
 
-      `\n❌ Missing variables in \x1b[1m\x1b[4m\x1b[31m${envFile}\x1b[0m file. Make sure all required variables are defined in the \x1b[1m\x1b[4m\x1b[31m${envFile}\x1b[0m file.`,
+      `\n❌ Missing or invalid variables in \x1b[1m\x1b[4m\x1b[31m${envFile}\x1b[0m file. Make sure all required variables are defined with valid values in the \x1b[1m\x1b[4m\x1b[31m${envFile}\x1b[0m file.`,
     ];
 
     if (isLocalBuild) {

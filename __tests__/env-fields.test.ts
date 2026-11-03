@@ -2,6 +2,9 @@ import { z } from 'zod';
 
 import { envField, parseWithoutValidation, readEnv } from '../env-fields';
 
+const getErrorMessages = (schema: z.ZodTypeAny, value: unknown) =>
+  schema.safeParse(value).error?.issues.map(issue => issue.message);
+
 describe('envField', () => {
   describe('string', () => {
     it('returns the value as is', () => {
@@ -49,6 +52,15 @@ describe('envField', () => {
       expect(envField.number().safeParse(' 42 ').success).toBe(false);
     });
 
+    it('describes the accepted format and the received value when invalid', () => {
+      expect(getErrorMessages(envField.number(), 'abc')).toEqual([
+        'must be a plain decimal number (e.g. 42 or -3.5), received "abc"',
+      ]);
+      expect(getErrorMessages(envField.number({ optional: true }), '1e3')).toEqual([
+        'must be a plain decimal number (e.g. 42 or -3.5), received "1e3"',
+      ]);
+    });
+
     it('rejects missing and empty values by default', () => {
       expect(envField.number().safeParse(undefined).success).toBe(false);
       expect(envField.number().safeParse('').success).toBe(false);
@@ -81,6 +93,15 @@ describe('envField', () => {
       expect(envField.boolean().safeParse('yes').success).toBe(false);
       expect(envField.boolean().safeParse('1').success).toBe(false);
       expect(envField.boolean().safeParse('TRUE').success).toBe(false);
+    });
+
+    it('describes the accepted format and the received value when invalid', () => {
+      expect(getErrorMessages(envField.boolean(), 'yes')).toEqual([
+        'must be \'true\' or \'false\', received "yes"',
+      ]);
+      expect(getErrorMessages(envField.boolean({ default: false }), '1')).toEqual([
+        'must be \'true\' or \'false\', received "1"',
+      ]);
     });
 
     it('rejects missing and empty values by default', () => {
