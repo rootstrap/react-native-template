@@ -30,6 +30,8 @@ To add a new environment variable to the project, follow these steps:
 
    Declare it with one of the `envField` builders (`envField.string()`, `envField.number()` or `envField.boolean()`). The value is read from `process.env` automatically and converted to the declared type, so this is the only place where you need to declare the variable.
 
+   Every variable without a static value (see `clientStaticValues` and `buildTimeStaticValues`) is read from `process.env`, so it must be declared with an `envField` builder. Declaring it with a plain `zod` schema (e.g. `z.number()`) throws an error naming the variable, because its raw value would always be a string.
+
 This will ensure that the new variable is validated correctly. and make sure we are only sending the correct vars to the client side
 Here's an example:
 
@@ -61,6 +63,12 @@ Without options, the variable is required. Empty values (e.g. `API_URL=`) are tr
 - `envField.string()`: the value is used as is.
 - `envField.number()`: only plain decimal numbers (e.g. `42` or `-3.5`) are accepted; any other value (e.g. `abc`, `Infinity`, `0x10` or `1e3`) is rejected.
 - `envField.boolean()`: only `true` and `false` are accepted, case-insensitively (e.g. `TRUE` or `False`); any other value (e.g. `1` or `yes`) is rejected.
+
+Invalid values are reported with the accepted format and the received value, for example `VAR_BOOL=yes` is reported as `must be 'true' or 'false', received "yes"`.
+
+:::caution[Upgrading from a previous version of the template]
+Number and boolean variables used to be converted manually in `env.js` with a looser conversion: any boolean value other than `true` (such as `1` or `yes`) silently became `false`, and numbers such as `1e3`, `0x10` or values with surrounding spaces were accepted. The `envField` builders are stricter, so those values now fail validation instead. If you pull template updates (for example, through the `sync-with-upstream.yml` workflow), review your `.env` files and the env files used by your CI and EAS builds, and make sure number variables are plain decimal numbers and boolean variables are `true` or `false`.
+:::
 
 3. Add the new environment variable to your `.env` files. Make sure to include it in all relevant files (`development`, `staging`, and `production`). Here's an example:
 
@@ -104,9 +112,13 @@ As mentioned earlier, `zod` is used to validate environment variables at runtime
 
 ```bash
 ❌ Invalid environment variables: { TEST: [ 'Required' ] }
-❌ Missing variables in .env.development file, Make sure all required variables are defined in the .env.development file.
+❌ Missing or invalid variables in .env.development file. Make sure all required variables are defined with valid values in the .env.development file.
 💡 Tip: If you recently updated the .env.development file and the error still persists, try restarting the server with the -c flag to clear the cache.
 ```
+
+:::note[When validation runs]
+The variables are only validated when running the app (`expo start` or `expo run`) or when building it, on EAS or locally, with one of the commands listed in `ENVIRONMENT_DEPENDANT_SCRIPTS` in `env.js` (such as `eas build`, `expo prebuild` or `expo export`). Only these flows fail fast on missing or invalid variables. For any other command (for example, `eas update`), validation is skipped: missing or invalid values end up as `undefined` in `Env` and `ClientEnv`, and therefore in the `extra` field of the app config, without any error.
+:::
 
 :::note[Important]
 As `dotenv` handles variables as strings, the `envField` builders convert them to the declared type (`string`, `number` or `boolean`) before validating them, so you don't need to parse them yourself.

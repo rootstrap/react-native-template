@@ -228,6 +228,10 @@ if (shouldValidateEnv) {
   Env = parsedWholeEnv.data;
   ClientEnv = clientEnvSchema.parse(_clientEnv);
 } else {
+  // The env variables are only validated when running the app or when building it with one of the ENVIRONMENT_DEPENDANT_SCRIPTS
+  // (for example, `eas update` isn't one of them).
+  // For any other script, missing or invalid values don't fail: they end up as `undefined` in `Env` and `ClientEnv`,
+  // and therefore in the `extra` field of the app config.
   // Don't worry about TypeScript here; if we don't need to validate the env variables is because we aren't using them
   //@ts-ignore
   Env = parseWithoutValidation(wholeEnvSchema, _wholeEnv);
