@@ -89,10 +89,18 @@ describe('envField', () => {
       expect(envField.boolean().parse('false')).toBe(false);
     });
 
+    it('parses "true" and "false" case-insensitively', () => {
+      expect(envField.boolean().parse('TRUE')).toBe(true);
+      expect(envField.boolean().parse('True')).toBe(true);
+      expect(envField.boolean().parse('FALSE')).toBe(false);
+      expect(envField.boolean().parse('False')).toBe(false);
+    });
+
     it('rejects any other value', () => {
       expect(envField.boolean().safeParse('yes').success).toBe(false);
       expect(envField.boolean().safeParse('1').success).toBe(false);
-      expect(envField.boolean().safeParse('TRUE').success).toBe(false);
+      expect(envField.boolean().safeParse('0').success).toBe(false);
+      expect(envField.boolean().safeParse(' true ').success).toBe(false);
     });
 
     it('describes the accepted format and the received value when invalid', () => {

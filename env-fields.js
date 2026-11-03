@@ -87,14 +87,16 @@ function parseNumber(value) {
 }
 
 /**
- * Only `true` and `false` are accepted; any other value is rejected.
+ * Only `true` and `false` are accepted, case-insensitively (e.g. `TRUE` or `False`);
+ * any other value (e.g. `1`, `yes` or values with spaces) is returned as is so it's rejected.
  * @param {string} value
  */
 function parseBoolean(value) {
-  if (value === 'true') {
+  const normalizedValue = value.toLowerCase();
+  if (normalizedValue === 'true') {
     return true;
   }
-  if (value === 'false') {
+  if (normalizedValue === 'false') {
     return false;
   }
   return value;
