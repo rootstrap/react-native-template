@@ -2,8 +2,12 @@ import type { ConfigContext, ExpoConfig } from '@expo/config';
 
 type AppConfigFn = (context: ConfigContext) => ExpoConfig;
 
-const loadConfigFor = (appEnv: string): ExpoConfig => {
-  process.env.APP_ENV = appEnv;
+const loadConfigFor = (appEnv: string | undefined): ExpoConfig => {
+  if (appEnv === undefined) {
+    delete process.env.APP_ENV;
+  } else {
+    process.env.APP_ENV = appEnv;
+  }
   let appConfig: AppConfigFn | undefined;
   jest.isolateModules(() => {
     appConfig = require('../app.config').default;
@@ -15,10 +19,17 @@ const loadConfigFor = (appEnv: string): ExpoConfig => {
 };
 
 const getExpoRouterOptions = (config: ExpoConfig) => {
-  const entry = config.plugins?.find(
-    (plugin) => Array.isArray(plugin) && plugin[0] === 'expo-router',
+  const entry = config.plugins?.find((plugin) =>
+    Array.isArray(plugin)
+      ? plugin[0] === 'expo-router'
+      : plugin === 'expo-router',
   );
-  return Array.isArray(entry) ? entry[1] : undefined;
+  if (!Array.isArray(entry)) {
+    throw new Error(
+      `Expected the expo-router plugin to be configured as ['expo-router', options], received ${JSON.stringify(entry)}`,
+    );
+  }
+  return entry[1];
 };
 
 describe('app.config expo-router sitemap', () => {
@@ -46,4 +57,18 @@ describe('app.config expo-router sitemap', () => {
       expect(getExpoRouterOptions(config)).toEqual({ sitemap: true });
     },
   );
+
+  it('keeps the sitemap route when APP_ENV is unset (defaults to development)', () => {
+    const config = loadConfigFor(undefined);
+
+    expect(getExpoRouterOptions(config)).toEqual({ sitemap: true });
+  });
+
+  it('fails loudly when the expo-router entry has no options', () => {
+    const config = { plugins: ['expo-router'] } as ExpoConfig;
+
+    expect(() => getExpoRouterOptions(config)).toThrow(
+      /Expected the expo-router plugin/,
+    );
+  });
 });
