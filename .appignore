@@ -6,7 +6,7 @@
 # update Pull Request.
 #
 # One path (file or folder) per line, relative to the repository root.
-# Lines starting with # and blank lines are ignored.
+# Lines starting with # and blank lines are ignored (inline comments are not supported).
 
 .appignore
 cli

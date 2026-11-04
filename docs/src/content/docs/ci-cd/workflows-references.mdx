@@ -79,7 +79,8 @@ This workflow keeps a project created from the template up to date: it computes 
 Some template files and folders only make sense in the template repository (the CLI, the documentation site, template-only workflows, etc.) and must never be carried into the project. These paths are listed in the `.appignore` file at the root of the template repository:
 
 - One path (file or folder) per line, relative to the repository root.
-- Lines starting with `#` and blank lines are ignored.
+- Lines starting with `#` and blank lines are ignored. Inline comments are not supported.
+- If the file is missing or has no paths, the workflow falls back to a default list and logs a warning.
 
 The workflow reads `.appignore` from the template release it syncs with, so any change in the listed paths is excluded from the update Pull Request. To stop syncing a new template path into projects, add it to `.appignore` in the template repository; projects running a version of the workflow that reads `.appignore` pick it up with the next template release, without changing their workflow. Template releases published before `.appignore` was introduced fall back to a default list defined in the workflow.
 

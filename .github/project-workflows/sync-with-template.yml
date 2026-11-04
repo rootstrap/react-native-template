@@ -26,7 +26,7 @@
 # of the template release being synced (one path per line, `#` comments and blank lines allowed).
 # Any changes in these files or directories will be ignored and won't be incorporated to the Pull Request.
 # To exclude a new path, add it to the `.appignore` file in the template repository.
-# Template releases published before `.appignore` existed fall back to a default list defined in this workflow.
+# Template releases published before `.appignore` existed (or with no paths in it) fall back to a default list defined in this workflow.
 
 name: 🔄 Sync with template
 
@@ -125,32 +125,44 @@ jobs:
         shell: bash
         run: |
           APPIGNORE_FILE=react-native-template/.appignore
-          EXCLUDED_ROUTES=()
+          # Used only for template releases without a usable .appignore file
+          DEFAULT_ROUTES=(
+            .appignore
+            cli
+            docs
+            ios
+            android
+            .github/workflows/deploy-docs.yml
+            .github/workflows/new-template-version.yml
+            .github/workflows/upstream-to-pr.yml
+            .github/workflows/sync-with-upstream.yml
+            README-project.md
+          )
+          ROUTES=()
           if [ -f "$APPIGNORE_FILE" ]; then
             while IFS= read -r route || [ -n "$route" ]; do
               # Trim surrounding whitespace (including CRLF line endings)
               route="${route#"${route%%[![:space:]]*}"}"
               route="${route%"${route##*[![:space:]]}"}"
+              # Paths are relative to the repository root
+              route="${route#/}"
               if [ -z "$route" ] || [[ "$route" == \#* ]]; then
                 continue
               fi
-              EXCLUDED_ROUTES+=(":(exclude)$route")
+              ROUTES+=("$route")
             done < "$APPIGNORE_FILE"
+            if [ ${#ROUTES[@]} -eq 0 ]; then
+              echo "::warning::$APPIGNORE_FILE in template $TEMPLATE_UPDATE_VERSION has no paths. Using the default list of excluded paths."
+              ROUTES=("${DEFAULT_ROUTES[@]}")
+            fi
           else
             echo "::warning::$APPIGNORE_FILE not found in template $TEMPLATE_UPDATE_VERSION. Using the default list of excluded paths."
-            for route in \
-              cli \
-              docs \
-              ios \
-              android \
-              .github/workflows/deploy-docs.yml \
-              .github/workflows/new-template-version.yml \
-              .github/workflows/upstream-to-pr.yml \
-              .github/workflows/sync-with-upstream.yml \
-              README-project.md; do
-              EXCLUDED_ROUTES+=(":(exclude)$route")
-            done
+            ROUTES=("${DEFAULT_ROUTES[@]}")
           fi
+          EXCLUDED_ROUTES=()
+          for route in "${ROUTES[@]}"; do
+            EXCLUDED_ROUTES+=(":(exclude)$route")
+          done
           echo "Excluded paths:"
           printf '  %s\n' "${EXCLUDED_ROUTES[@]}"
           cd react-native-template
