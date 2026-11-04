@@ -76,6 +76,8 @@ const removeUnrelatedFiles = () => {
     'cli',
     '.github/workflows/deploy-cli.yml',
     'LICENSE',
+    // Only read from the template release by the sync-with-template workflow
+    '.appignore',
   ]);
 };
 
