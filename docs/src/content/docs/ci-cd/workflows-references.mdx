@@ -81,6 +81,10 @@ Some template files and folders only make sense in the template repository (the 
 - One path (file or folder) per line, relative to the repository root.
 - Lines starting with `#` and blank lines are ignored.
 
-The workflow reads `.appignore` from the template release it syncs with, so any change in the listed paths is excluded from the update Pull Request. To stop syncing a new template path into projects, add it to `.appignore` in the template repository; projects pick it up with the next template release, without changing their workflow. Template releases published before `.appignore` was introduced fall back to a default list defined in the workflow.
+The workflow reads `.appignore` from the template release it syncs with, so any change in the listed paths is excluded from the update Pull Request. To stop syncing a new template path into projects, add it to `.appignore` in the template repository; projects running a version of the workflow that reads `.appignore` pick it up with the next template release, without changing their workflow. Template releases published before `.appignore` was introduced fall back to a default list defined in the workflow.
+
+:::note
+In generated projects this workflow lives in `.github/workflows/sync-with-template.yml`, while the template keeps it in `.github/project-workflows/sync-with-template.yml`, so template updates to the workflow itself are not applied automatically. Projects created before `.appignore` was introduced still run a workflow with a hard-coded `DIFF_EXCLUDED_ROUTES` list: replace their `.github/workflows/sync-with-template.yml` with the latest version from the template once to start using `.appignore`. Until then, a template sync may add the `.appignore` file to the project; it is not used by the project and can be deleted.
+:::
 
 <CodeBlock file=".github/project-workflows/sync-with-template.yml" />
