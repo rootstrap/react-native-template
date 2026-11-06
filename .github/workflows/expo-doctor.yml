@@ -66,7 +66,8 @@ jobs:
   fix-dependencies:
     name: Fix Expo dependencies (expo)
     needs: doctor
-    # Only for runs on the default branch, so the fix is applied to the same code that was checked
+    # Only for runs on the default branch. The fix is applied to the latest commit of the default branch,
+    # which may be newer than the commit checked by the doctor job.
     if: always() && needs.doctor.result == 'failure' && github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
     permissions:
@@ -86,7 +87,7 @@ jobs:
         run: pnpm expo install --fix
 
       - name: 🔀 Create or update Pull Request
-        uses: peter-evans/create-pull-request@v8
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
           branch: chore/expo-doctor-fix-dependencies
           delete-branch: true
