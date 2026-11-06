@@ -3,8 +3,12 @@
 
 # ✍️ Description:
 # This workflow runs the expo doctor command to check if your project dependencies are aligned with the expo sdk version you are using.
-# Can be triggered manually from the Actions tab in your project.
+# Can be triggered manually from the Actions tab in your project, and also runs once a week on a schedule.
 # Runs Also on pull requests and pushes to the main/master branch, but only if the `package.json` or `pnpm-lock.yaml` files have been changed.
+# When expo doctor fails on the default branch outside of a pull request (push, schedule or manual run), a second job runs
+# `expo install --fix` on the default branch and opens (or updates) a pull request with the aligned dependencies, so they can be reviewed and merged.
+# Note: pull requests opened with the default GITHUB_TOKEN do not trigger other workflows; close and reopen the pull request to run the checks.
+# Note: "Allow GitHub Actions to create and approve pull requests" must be enabled in the repository settings (Settings > Actions > General).
 
 # 🚨 GITHUB SECRETS REQUIRED: NONE
 
@@ -22,6 +26,9 @@ on:
     paths:
       - package.json
       - pnpm-lock.yaml
+  schedule:
+    - cron: '0 9 * * 1' # Every Monday at 09:00 UTC
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -55,3 +62,51 @@ jobs:
         with:
           header: expo-doctor
           path: .expo/expo-doctor.md
+
+  fix-dependencies:
+    name: Fix Expo dependencies (expo)
+    needs: doctor
+    # Only for runs on the default branch. The fix is applied to the latest commit of the default branch,
+    # which may be newer than the commit checked by the doctor job.
+    if: always() && needs.doctor.result == 'failure' && github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: 📦 Checkout default branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - name: 📦 Setup Node + PNPM + install deps
+        uses: ./.github/actions/setup-node-pnpm-install
+
+      - name: 🔧 Align dependencies with the Expo SDK
+        run: pnpm expo install --fix
+
+      - name: 🔀 Create or update Pull Request
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          branch: chore/expo-doctor-fix-dependencies
+          delete-branch: true
+          add-paths: |
+            package.json
+            pnpm-lock.yaml
+          commit-message: 'chore: align dependencies with the expo sdk'
+          title: 'chore: align dependencies with the expo sdk'
+          body: |
+            ## What does this do?
+
+            Runs `pnpm expo install --fix` on the default branch to update the dependencies that Expo Doctor reported as not aligned with the installed Expo SDK version.
+
+            ## Why did you do this?
+
+            The [Expo Doctor workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed, and this pull request was created automatically by it.
+
+            ## How to review
+
+            - Review the version changes in `package.json` and `pnpm-lock.yaml`.
+            - Checks are not triggered automatically for pull requests created by GitHub Actions: close and reopen this pull request to run them.
+            - Expo Doctor may also report issues that `expo install --fix` cannot solve; check the workflow logs and fix those manually.
