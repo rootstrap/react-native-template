@@ -16,7 +16,7 @@ As most of our projects are hosted on GitHub, we use [GitHub Actions](https://gi
 - `.github/workflows/test.yml`: On PR and new commits on the master branch, run unit tests.
 - `.github/workflows/type-check.yml`: On PR and new commits on the master branch, run type checking.
 - `.github/workflows/compress-images.yml`: On new commits to the master branch, when adding images, open a pull request (PR) with the compressed images.
-- `.github/workflows/expo-doctor.yml`: On PR, new commits to the master branch, a weekly schedule, and manual runs, check whether dependencies are aligned with the Expo SDK version. When the check fails outside of a PR, run `expo install --fix` and open a pull request (PR) with the aligned dependencies for review.
+- `.github/workflows/expo-doctor.yml`: On PR, new commits to the master branch, a weekly schedule, and manual runs, check whether dependencies are aligned with the Expo SDK version. When the check fails on the master branch outside of a PR, run `expo install --fix` and open a pull request (PR) with the aligned dependencies for review.
 - `.github/workflows/new-app-version.yml`: A workflow to manually trigger and update the app version, and publish a tag.
 
 You can check the full list of workflows [here](/ci-cd/workflows-references/)

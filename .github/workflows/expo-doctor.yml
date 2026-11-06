@@ -5,8 +5,8 @@
 # This workflow runs the expo doctor command to check if your project dependencies are aligned with the expo sdk version you are using.
 # Can be triggered manually from the Actions tab in your project, and also runs once a week on a schedule.
 # Runs Also on pull requests and pushes to the main/master branch, but only if the `package.json` or `pnpm-lock.yaml` files have been changed.
-# When expo doctor fails outside of a pull request (push, schedule or manual run), a second job runs `expo install --fix`
-# on the default branch and opens (or updates) a pull request with the aligned dependencies, so they can be reviewed and merged.
+# When expo doctor fails on the default branch outside of a pull request (push, schedule or manual run), a second job runs
+# `expo install --fix` on the default branch and opens (or updates) a pull request with the aligned dependencies, so they can be reviewed and merged.
 # Note: pull requests opened with the default GITHUB_TOKEN do not trigger other workflows; close and reopen the pull request to run the checks.
 # Note: "Allow GitHub Actions to create and approve pull requests" must be enabled in the repository settings (Settings > Actions > General).
 
@@ -66,7 +66,8 @@ jobs:
   fix-dependencies:
     name: Fix Expo dependencies (expo)
     needs: doctor
-    if: always() && needs.doctor.result == 'failure' && github.event_name != 'pull_request'
+    # Only for runs on the default branch, so the fix is applied to the same code that was checked
+    if: always() && needs.doctor.result == 'failure' && github.event_name != 'pull_request' && github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
     permissions:
       contents: write
