@@ -13,7 +13,12 @@ import { APIProvider } from '@/api';
 
 import interceptors from '@/api/common/interceptors';
 import { AuthProvider, useAuth } from '@/components/providers/auth';
-import { hydrateAuth, loadSelectedTheme, useIsFirstTime } from '@/lib';
+import {
+  hydrateAuth,
+  loadSelectedTheme,
+  useIsFirstTime,
+  useSyncLanguageWithOS,
+} from '@/lib';
 import { useThemeConfig } from '@/lib/use-theme-config';
 // Import  global CSS file
 import '../../global.css';
@@ -74,6 +79,8 @@ function GuardedStack() {
 }
 
 export default function RootLayout() {
+  useSyncLanguageWithOS();
+
   return (
     <Providers>
       <RouterContent />
