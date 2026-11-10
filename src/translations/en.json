@@ -16,7 +16,6 @@
       "validation": {
         "emailRequired": "Email is required",
         "invalidEmail": "Invalid email format",
-        "passwordMinChars": "Password must be at least 6 characters",
         "passwordRequired": "Password is required"
       }
     },

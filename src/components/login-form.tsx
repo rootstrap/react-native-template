@@ -9,14 +9,13 @@ import { object, string } from 'zod';
 import { Button, ControlledInput, Text, View } from '@/components/ui';
 import { translate } from '@/lib';
 
-const MIN_CHARS = 6;
 const schema = object({
   email: string({
     required_error: translate('auth.signIn.validation.emailRequired'),
   }).email(translate('auth.signIn.validation.invalidEmail')),
   password: string({
     required_error: translate('auth.signIn.validation.passwordRequired'),
-  }).min(MIN_CHARS, translate('auth.signIn.validation.passwordMinChars')),
+  }).min(1, translate('auth.signIn.validation.passwordRequired')),
 });
 
 export type FormType = z.infer<typeof schema>;
