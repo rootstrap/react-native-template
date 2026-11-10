@@ -40,7 +40,7 @@ import z from 'zod';
 
 const schema = z.object({
   email: z.string().email(),
-  password: z.string().min(6),
+  password: z.string().min(1),
 });
 
 type FormType = z.infer<typeof schema>;
@@ -61,7 +61,7 @@ import { Button, ControlledInput, View } from '@/components/ui';
 
 const schema = z.object({
   email: z.string().email(),
-  password: z.string().min(6),
+  password: z.string().min(1),
 });
 
 type FormType = z.infer<typeof schema>;
