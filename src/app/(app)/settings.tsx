@@ -1,4 +1,3 @@
-/* eslint-disable max-lines-per-function */
 import { Link } from 'expo-router';
 import { useColorScheme } from 'nativewind';
 import * as React from 'react';
@@ -10,6 +9,7 @@ import { DeleteAccountItem } from '@/components/settings/delete-account-item';
 import { Item } from '@/components/settings/item';
 import { ItemsContainer } from '@/components/settings/items-container';
 import { LanguageItem } from '@/components/settings/language-item';
+import { LinkItem } from '@/components/settings/link-item';
 import { ThemeItem } from '@/components/settings/theme-item';
 import {
   colors,
@@ -71,33 +71,12 @@ export default function Settings() {
           </ItemsContainer>
 
           <ItemsContainer title="settings.links">
-            <Link
-              asChild
-              href={{
-                pathname: '/www',
-                params: {
-                  url: Env.TERMS_OF_SERVICE_URL,
-                  title: translate('settings.terms'),
-                },
-              }}
-            >
-              <Item text="settings.terms" />
-            </Link>
-            <Link
-              asChild
-              href={{
-                pathname: '/www',
-                params: {
-                  url: Env.WEBSITE_URL,
-                  title: translate('settings.website'),
-                },
-              }}
-            >
-              <Item
-                text="settings.website"
-                icon={<Website color={iconColor} />}
-              />
-            </Link>
+            <LinkItem text="settings.terms" url={Env.TERMS_OF_SERVICE_URL} />
+            <LinkItem
+              text="settings.website"
+              url={Env.WEBSITE_URL}
+              icon={<Website color={iconColor} />}
+            />
           </ItemsContainer>
 
           <ItemsContainer title="settings.about">
