@@ -7,7 +7,7 @@ function validate(message = '') {
   }
   if (
     (message.includes('{') || message.includes('}'))
-    && !/\{\{ ?(?:- (?:, ?)?\w+|\w+, ?\w+|\w{2,}) ?\}\}/.test(message)
+    && !/\{\{ ?(?:- (?:, ?)?\w+|\w+(?:, ?\w+)?) ?\}\}/.test(message)
   ) {
     throw new SyntaxError(
       'Interpolation error. See: https://www.i18next.com/misc/json-format',

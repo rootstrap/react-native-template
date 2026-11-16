@@ -10,6 +10,24 @@ import {
 } from '@/components/ui/icons';
 import { useIsFirstTime } from '@/lib';
 
+type TabBarIconProps = { color: string };
+
+function renderFeedIcon({ color }: TabBarIconProps) {
+  return <FeedIcon color={color} />;
+}
+
+function renderStyleIcon({ color }: TabBarIconProps) {
+  return <StyleIcon color={color} />;
+}
+
+function renderSettingsIcon({ color }: TabBarIconProps) {
+  return <SettingsIcon color={color} />;
+}
+
+function renderCreateNewPostLink() {
+  return <CreateNewPostLink />;
+}
+
 export default function TabLayout() {
   const { isAuthenticated, ready } = useAuth();
   const [isFirstTime] = useIsFirstTime();
@@ -35,8 +53,8 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Feed',
-          tabBarIcon: ({ color }) => <FeedIcon color={color} />,
-          headerRight: () => <CreateNewPostLink />,
+          tabBarIcon: renderFeedIcon,
+          headerRight: renderCreateNewPostLink,
           tabBarButtonTestID: 'feed-tab',
         }}
       />
@@ -44,7 +62,7 @@ export default function TabLayout() {
         name="style"
         options={{
           title: 'Style',
-          tabBarIcon: ({ color }) => <StyleIcon color={color} />,
+          tabBarIcon: renderStyleIcon,
           tabBarButtonTestID: 'style-tab',
         }}
       />
@@ -52,7 +70,7 @@ export default function TabLayout() {
         name="settings"
         options={{
           title: 'Settings',
-          tabBarIcon: ({ color }) => <SettingsIcon color={color} />,
+          tabBarIcon: renderSettingsIcon,
           tabBarButtonTestID: 'settings-tab',
         }}
       />

@@ -1,12 +1,12 @@
 ---
 title: Create a new App
-description: Let's create a new React native project with obytes starter.
+description: Let's create a new React Native project with the Rootstrap React Native Template.
 head:
   - tag: title
-    content: Create a new App | React Native / Expo Starter
+    content: Create a new App | Rootstrap React Native Template
 ---
 
-Let's create a new React Native project with Obytes starter.
+Let's create a new React Native project with the Rootstrap React Native Template.
 
 ## Requirements
 
