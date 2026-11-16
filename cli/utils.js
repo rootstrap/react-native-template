@@ -5,9 +5,10 @@ const { consola } = require('consola');
 const UPSTREAM_REPOSITORY = "obytes/react-native-template-obytes";
 const TEMPLATE_REPOSITORY = "rootstrap/react-native-template";
 
+const ESCAPED_SINGLE_QUOTE = String.raw`'\''`;
+
 const escapeShellArg = (value) => {
-  const escapedValue = String(value).replaceAll("'", String.raw`'\''`);
-  return `'${escapedValue}'`;
+  return `'${String(value).replaceAll("'", ESCAPED_SINGLE_QUOTE)}'`;
 };
 
 const execShellCommand = (cmd, options) => {

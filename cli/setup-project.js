@@ -62,7 +62,8 @@ const installPushgate = async (projectName) => {
     consola.success('Pushgate pre-push hook installed');
   } catch (error) {
     consola.warn(
-      'Could not auto-install Pushgate. Run installer manually from the project root.'
+      'Could not auto-install Pushgate. Run installer manually from the project root.',
+      error
     );
   }
 };
@@ -152,7 +153,7 @@ const updateGitHubWorkflows = (projectName) => {
         },
         {
           searchValue:
-            /^[ \t]*environment:[ \t]*\r?\n[ \t]*name:[ \t]*template[ \t]*\r?\n[ \t]*url:[^\r\n]*\r?\n/m,
+            /^[ \t]*environment:[ \t]*\r?\n[ \t]*name:[ \t]*template[ \t]*\r?\n[ \t]*url:[ \t]*\S[^\r\n]*\r?\n/m,
           replaceValue: '',
         },
       ],

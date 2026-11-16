@@ -31,7 +31,8 @@ ai:
   providers:
     # Provider-specific settings are kept below the provider name.
     claude:
-      model: claude-sonnet-4-20250514
+      # Alias resolved by the Claude CLI to the current Sonnet release; no bump needed on new releases.
+      model: sonnet
     # To use the standalone GitHub Copilot CLI, set provider: copilot and
     # uncomment this block. Omit model to let Copilot choose its default.
     # copilot:
