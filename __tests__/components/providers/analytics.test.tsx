@@ -32,7 +32,7 @@ async function flushPromises() {
 
 describe('AnalyticsProvider', () => {
   beforeEach(() => {
-    jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    jest.spyOn(console, 'info').mockImplementation(() => undefined);
   });
 
   afterEach(() => {
@@ -86,7 +86,7 @@ describe('AnalyticsProvider', () => {
       expect(healthy.trackScreen).toHaveBeenCalledTimes(1);
     });
     expect(broken.trackScreen).not.toHaveBeenCalled();
-    expect(console.error).toHaveBeenCalledTimes(1);
+    expect(console.info).toHaveBeenCalledTimes(1);
   });
 
   it('gives up on a provider whose init never settles', async () => {
@@ -101,7 +101,7 @@ describe('AnalyticsProvider', () => {
 
       expect(healthy.trackScreen).toHaveBeenCalledTimes(1);
       expect(hanging.trackScreen).not.toHaveBeenCalled();
-      expect(console.error).toHaveBeenCalledTimes(1);
+      expect(console.info).toHaveBeenCalledTimes(1);
     }
     finally {
       jest.useRealTimers();
@@ -170,7 +170,7 @@ describe('AnalyticsProvider', () => {
 
       await jest.advanceTimersByTimeAsync(ANALYTICS_TIMEOUT_MS);
       expect(provider.trackScreen).toHaveBeenCalledWith('/sign-in', undefined);
-      expect(console.error).toHaveBeenCalledTimes(1);
+      expect(console.info).toHaveBeenCalledTimes(1);
     }
     finally {
       jest.useRealTimers();
@@ -206,7 +206,7 @@ describe('AnalyticsProvider', () => {
         expect(failing.trackScreen).toHaveBeenCalledTimes(1);
       });
       await flushPromises();
-      expect(console.error).not.toHaveBeenCalled();
+      expect(console.info).not.toHaveBeenCalled();
     }
     finally {
       globals.__DEV__ = previousDev;
@@ -256,7 +256,7 @@ describe('AnalyticsProvider', () => {
       expect(full.reset).toHaveBeenCalledTimes(1);
     });
     await flushPromises();
-    expect(console.error).not.toHaveBeenCalled();
+    expect(console.info).not.toHaveBeenCalled();
   });
 
   it('isolates provider failures so the other providers still receive the call', async () => {
@@ -279,7 +279,7 @@ describe('AnalyticsProvider', () => {
     await waitFor(() => {
       expect(healthy.trackEvent).toHaveBeenCalledTimes(1);
       expect(healthy.trackScreen).toHaveBeenCalledTimes(1);
-      expect(console.error).toHaveBeenCalledTimes(2);
+      expect(console.info).toHaveBeenCalledTimes(2);
     });
   });
 

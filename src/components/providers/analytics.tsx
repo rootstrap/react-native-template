@@ -23,7 +23,8 @@ function reportProviderError(error: unknown) {
   if (!__DEV__) {
     return;
   }
-  console.error('[analytics] provider call failed', error);
+  // eslint-disable-next-line no-console
+  console.info('[analytics] provider call failed', error);
 }
 
 async function withTimeout(promise: Promise<void>, ms: number) {
@@ -37,6 +38,21 @@ async function withTimeout(promise: Promise<void>, ms: number) {
   finally {
     clearTimeout(timeout);
   }
+}
+
+type ProviderCall = (provider: AnalyticsProviderAdapter) => void | Promise<void>;
+
+async function callAfterBarrier(
+  barrier: Promise<boolean>,
+  provider: AnalyticsProviderAdapter,
+  call: ProviderCall,
+): Promise<boolean> {
+  const initialised = await barrier;
+  if (initialised) {
+    await withTimeout(Promise.resolve().then(async () => call(provider)), ANALYTICS_TIMEOUT_MS)
+      .catch(reportProviderError);
+  }
+  return initialised;
 }
 
 type ProviderReadiness = {
@@ -103,7 +119,7 @@ export const AnalyticsProvider: React.FC<AnalyticsProviderProps> = ({
     const barrierOf = async (provider: AnalyticsProviderAdapter) =>
       identityBarriers.get(provider) ?? readinessOf(provider).ready;
 
-    const fanOut = (call: (provider: AnalyticsProviderAdapter) => void | Promise<void>) => {
+    const fanOut = (call: ProviderCall) => {
       providers.forEach((provider) => {
         void barrierOf(provider)
           .then(async initialised => (initialised ? call(provider) : undefined))
@@ -111,16 +127,9 @@ export const AnalyticsProvider: React.FC<AnalyticsProviderProps> = ({
       });
     };
 
-    const fanOutIdentity = (call: (provider: AnalyticsProviderAdapter) => void | Promise<void>) => {
+    const fanOutIdentity = (call: ProviderCall) => {
       providers.forEach((provider) => {
-        const next = barrierOf(provider).then(async (initialised) => {
-          if (initialised) {
-            await withTimeout(Promise.resolve().then(async () => call(provider)), ANALYTICS_TIMEOUT_MS)
-              .catch(reportProviderError);
-          }
-          return initialised;
-        });
-        identityBarriers.set(provider, next);
+        identityBarriers.set(provider, callAfterBarrier(barrierOf(provider), provider, call));
       });
     };
 
