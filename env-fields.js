@@ -102,20 +102,15 @@ function parseNumber(value) {
   return DECIMAL_NUMBER_REGEX.test(value) ? Number(value) : value;
 }
 
+const BOOLEAN_REGEX = /^(?:true|false)$/i;
+
 /**
  * Only `true` and `false` are accepted, case-insensitively (e.g. `TRUE` or `False`);
  * any other value (e.g. `1`, `yes` or values with spaces) is returned as is so it's rejected.
  * @param {string} value
  */
 function parseBoolean(value) {
-  const normalizedValue = value.toLowerCase();
-  if (normalizedValue === 'true') {
-    return true;
-  }
-  if (normalizedValue === 'false') {
-    return false;
-  }
-  return value;
+  return BOOLEAN_REGEX.test(value) ? value.toLowerCase() === 'true' : value;
 }
 
 const envField = {
