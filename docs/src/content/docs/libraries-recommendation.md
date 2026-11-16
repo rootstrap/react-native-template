@@ -3,7 +3,7 @@ title: Libraries Recommendation
 description: React Native / Expo Libraries recommendation for the project based on use cases.
 head:
   - tag: title
-    content: Libraries Recommendation | React Native / Expo Starter
+    content: Libraries Recommendation | Rootstrap React Native Template
 ---
 
 The starter kit comes with a set of pre-installed and configured libraries. We recommend using these libraries for your project.
