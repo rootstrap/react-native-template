@@ -1,5 +1,10 @@
-import { AnalyticsProvider, useAnalytics } from '@/components/providers/analytics';
+import {
+  ANALYTICS_TIMEOUT_MS,
+  AnalyticsProvider,
+  useAnalytics,
+} from '@/components/providers/analytics';
 import type { AnalyticsProviderAdapter } from '@/lib/analytics';
+import { clearUserIdentified, hasIdentifiedUser } from '@/lib/analytics';
 import { fireEvent, render, renderHook, screen, waitFor } from '@/lib/test-utils';
 import { Text, TouchableOpacity, View } from '@/components/ui';
 
@@ -27,7 +32,7 @@ async function flushPromises() {
 
 describe('AnalyticsProvider', () => {
   beforeEach(() => {
-    jest.spyOn(console, 'info').mockImplementation(() => undefined);
+    jest.spyOn(console, 'error').mockImplementation(() => undefined);
   });
 
   afterEach(() => {
@@ -81,7 +86,131 @@ describe('AnalyticsProvider', () => {
       expect(healthy.trackScreen).toHaveBeenCalledTimes(1);
     });
     expect(broken.trackScreen).not.toHaveBeenCalled();
-    expect(console.info).toHaveBeenCalledTimes(1);
+    expect(console.error).toHaveBeenCalledTimes(1);
+  });
+
+  it('gives up on a provider whose init never settles', async () => {
+    jest.useFakeTimers();
+    try {
+      const hanging = createMockProvider({ init: jest.fn(async () => new Promise<void>(() => undefined)) });
+      const healthy = createMockProvider();
+      const { result } = renderAnalytics([hanging, healthy]);
+
+      result.current.trackScreen('/feed');
+      await jest.advanceTimersByTimeAsync(ANALYTICS_TIMEOUT_MS);
+
+      expect(healthy.trackScreen).toHaveBeenCalledTimes(1);
+      expect(hanging.trackScreen).not.toHaveBeenCalled();
+      expect(console.error).toHaveBeenCalledTimes(1);
+    }
+    finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('finishes a reset before forwarding later calls to the same provider', async () => {
+    const calls: string[] = [];
+    let finishReset!: () => void;
+    const provider = createMockProvider({
+      reset: jest.fn(async () => new Promise<void>((resolve) => {
+        finishReset = () => {
+          calls.push('reset');
+          resolve();
+        };
+      })),
+      trackScreen: jest.fn(() => {
+        calls.push('trackScreen');
+      }),
+    });
+    const { result } = renderAnalytics([provider]);
+
+    result.current.reset();
+    result.current.trackScreen('/sign-in');
+
+    await waitFor(() => {
+      expect(provider.reset).toHaveBeenCalledTimes(1);
+    });
+    await flushPromises();
+    expect(provider.trackScreen).not.toHaveBeenCalled();
+
+    finishReset();
+    await waitFor(() => {
+      expect(calls).toEqual(['reset', 'trackScreen']);
+    });
+  });
+
+  it('does not hold later calls behind an event that never settles', async () => {
+    const provider = createMockProvider({
+      trackEvent: jest.fn(async () => new Promise<void>(() => undefined)),
+    });
+    const { result } = renderAnalytics([provider]);
+
+    result.current.trackEvent('BUTTON_PRESS', { accessibilityId: 'login-button' });
+    result.current.trackScreen('/feed');
+    result.current.reset();
+
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledWith('/feed', undefined);
+      expect(provider.reset).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('releases calls queued behind a reset that never settles after the timeout', async () => {
+    jest.useFakeTimers();
+    try {
+      const provider = createMockProvider({
+        reset: jest.fn(async () => new Promise<void>(() => undefined)),
+      });
+      const { result } = renderAnalytics([provider]);
+
+      result.current.reset();
+      result.current.trackScreen('/sign-in');
+      await jest.advanceTimersByTimeAsync(0);
+      expect(provider.trackScreen).not.toHaveBeenCalled();
+
+      await jest.advanceTimersByTimeAsync(ANALYTICS_TIMEOUT_MS);
+      expect(provider.trackScreen).toHaveBeenCalledWith('/sign-in', undefined);
+      expect(console.error).toHaveBeenCalledTimes(1);
+    }
+    finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('remembers whether a user was identified until reset', () => {
+    clearUserIdentified();
+    const { result } = renderAnalytics([]);
+
+    result.current.identify('user-1');
+    expect(hasIdentifiedUser()).toBe(true);
+
+    result.current.reset();
+    expect(hasIdentifiedUser()).toBe(false);
+  });
+
+  it('does not log provider failures in production', async () => {
+    const globals = globalThis as unknown as { __DEV__: boolean };
+    const previousDev = globals.__DEV__;
+    globals.__DEV__ = false;
+    try {
+      const failing = createMockProvider({
+        trackScreen: jest.fn(() => {
+          throw new Error('failed for user-1');
+        }),
+      });
+      const { result } = renderAnalytics([failing]);
+
+      result.current.trackScreen('/feed');
+
+      await waitFor(() => {
+        expect(failing.trackScreen).toHaveBeenCalledTimes(1);
+      });
+      await flushPromises();
+      expect(console.error).not.toHaveBeenCalled();
+    }
+    finally {
+      globals.__DEV__ = previousDev;
+    }
   });
 
   it('fans out trackEvent to every provider', async () => {
@@ -127,7 +256,7 @@ describe('AnalyticsProvider', () => {
       expect(full.reset).toHaveBeenCalledTimes(1);
     });
     await flushPromises();
-    expect(console.info).not.toHaveBeenCalled();
+    expect(console.error).not.toHaveBeenCalled();
   });
 
   it('isolates provider failures so the other providers still receive the call', async () => {
@@ -150,7 +279,7 @@ describe('AnalyticsProvider', () => {
     await waitFor(() => {
       expect(healthy.trackEvent).toHaveBeenCalledTimes(1);
       expect(healthy.trackScreen).toHaveBeenCalledTimes(1);
-      expect(console.info).toHaveBeenCalledTimes(2);
+      expect(console.error).toHaveBeenCalledTimes(2);
     });
   });
 

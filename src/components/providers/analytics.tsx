@@ -6,6 +6,7 @@ import type {
 } from '@/lib/analytics';
 import * as React from 'react';
 import { createContext, use, useCallback, useEffect, useMemo, useState } from 'react';
+import { clearUserIdentified, markUserIdentified } from '@/lib/analytics';
 
 type AnalyticsContextProps = {
   trackEvent: <E extends AnalyticsEvent>(name: E, ...args: AnalyticsEventArgs<E>) => void;
@@ -16,9 +17,26 @@ type AnalyticsContextProps = {
 
 const AnalyticsContext = createContext<AnalyticsContextProps | undefined>(undefined);
 
+export const ANALYTICS_TIMEOUT_MS = 10_000;
+
 function reportProviderError(error: unknown) {
-  // eslint-disable-next-line no-console
-  console.info('[analytics] provider call failed', error);
+  if (!__DEV__) {
+    return;
+  }
+  console.error('[analytics] provider call failed', error);
+}
+
+async function withTimeout(promise: Promise<void>, ms: number) {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  const timedOut = new Promise<never>((_, reject) => {
+    timeout = setTimeout(() => reject(new Error(`[analytics] provider call timed out after ${ms}ms`)), ms);
+  });
+  try {
+    await Promise.race([promise, timedOut]);
+  }
+  finally {
+    clearTimeout(timeout);
+  }
 }
 
 type ProviderReadiness = {
@@ -54,8 +72,7 @@ function useProviderReadiness(providers: ReadonlyArray<AnalyticsProviderAdapter>
         return;
       }
       entry.started = true;
-      Promise.resolve()
-        .then(async () => provider.init())
+      withTimeout(Promise.resolve().then(async () => provider.init()), ANALYTICS_TIMEOUT_MS)
         .then(
           () => entry.resolve(true),
           (error: unknown) => {
@@ -70,7 +87,7 @@ function useProviderReadiness(providers: ReadonlyArray<AnalyticsProviderAdapter>
 }
 
 type AnalyticsProviderProps = {
-  /** Keep this array stable (module-level constant) so providers init only once. */
+  /** Keep this array stable (module-level constant); a new array re-creates the `useAnalytics()` callbacks. */
   providers: ReadonlyArray<AnalyticsProviderAdapter>;
   children: React.ReactNode;
 };
@@ -80,14 +97,30 @@ export const AnalyticsProvider: React.FC<AnalyticsProviderProps> = ({
   children,
 }) => {
   const readinessOf = useProviderReadiness(providers);
+  const [identityBarriers] = useState(() => new Map<AnalyticsProviderAdapter, Promise<boolean>>());
 
   const values = useMemo<AnalyticsContextProps>(() => {
+    const barrierOf = async (provider: AnalyticsProviderAdapter) =>
+      identityBarriers.get(provider) ?? readinessOf(provider).ready;
+
     const fanOut = (call: (provider: AnalyticsProviderAdapter) => void | Promise<void>) => {
       providers.forEach((provider) => {
-        void readinessOf(provider)
-          .ready
+        void barrierOf(provider)
           .then(async initialised => (initialised ? call(provider) : undefined))
           .catch(reportProviderError);
+      });
+    };
+
+    const fanOutIdentity = (call: (provider: AnalyticsProviderAdapter) => void | Promise<void>) => {
+      providers.forEach((provider) => {
+        const next = barrierOf(provider).then(async (initialised) => {
+          if (initialised) {
+            await withTimeout(Promise.resolve().then(async () => call(provider)), ANALYTICS_TIMEOUT_MS)
+              .catch(reportProviderError);
+          }
+          return initialised;
+        });
+        identityBarriers.set(provider, next);
       });
     };
 
@@ -100,13 +133,15 @@ export const AnalyticsProvider: React.FC<AnalyticsProviderProps> = ({
         fanOut(async provider => provider.trackScreen(screenName, params));
       },
       identify: (userId, traits) => {
-        fanOut(async provider => provider.identify?.(userId, traits));
+        markUserIdentified();
+        fanOutIdentity(async provider => provider.identify?.(userId, traits));
       },
       reset: () => {
-        fanOut(async provider => provider.reset?.());
+        clearUserIdentified();
+        fanOutIdentity(async provider => provider.reset?.());
       },
     };
-  }, [providers, readinessOf]);
+  }, [identityBarriers, providers, readinessOf]);
 
   return <AnalyticsContext value={values}>{children}</AnalyticsContext>;
 };

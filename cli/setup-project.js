@@ -152,7 +152,7 @@ const updateGitHubWorkflows = (projectName) => {
         },
         {
           searchValue:
-            /^[ \t]*environment:[ \t]*\n[ \t]*name:[ \t]*template[ \t]*\n[ \t]*url:.*\n/m,
+            /^[ \t]*environment:[ \t]*\r?\n[ \t]*name:[ \t]*template[ \t]*\r?\n[ \t]*url:[^\r\n]*\r?\n/m,
           replaceValue: '',
         },
       ],

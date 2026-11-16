@@ -54,9 +54,9 @@ The hook also exposes:
 
 - `trackScreen(screenName, params?)`: report a screen view manually (the screen tracker already does this on route changes).
 - `identify(userId, traits?)`: associate the following events with a user, for example after sign in.
-- `reset()`: clear the current user. `useAnalyticsSessionReset` (called in `src/app/_layout.tsx`) already calls it when the user signs out, so the next session on the device is not attributed to the previous user.
+- `reset()`: clear the current user. `useAnalyticsSessionReset` (called in `src/app/_layout.tsx`) already calls it when the user signs out, and on a launch that starts signed out (for example with an expired token) if `identify` was called in an earlier session, so the next session on the device is not attributed to the previous user even when the vendor SDK persisted the user id. Launches that start signed out without a previously identified user do not reset, so vendors keep the same anonymous id across launches before sign up.
 
-Every call is forwarded to all registered providers. Calls made before a provider's `init()` has finished wait for it, so the first screen view on launch is never sent to an uninitialised SDK; if `init()` fails, that provider is skipped. Failures inside a provider are caught and logged with `console.info`, so a broken vendor SDK never crashes the app or stops the other providers from receiving the call.
+Every call is forwarded to all registered providers. Calls made before a provider's `init()` has finished wait for it, so the first screen view on launch is never sent to an uninitialised SDK. If `init()` throws, rejects or does not settle within 10 seconds, that provider is skipped for the rest of the session. Calls made after `identify()` or `reset()` wait for it to finish (up to 10 seconds), so they are never sent under the previous user; other calls do not wait for each other. Failures inside a provider are caught and, in development builds only, logged with `console.error`, so a broken vendor SDK never crashes the app or stops the other providers from receiving the call.
 
 The template does not call `identify` for you: pass a stable, non-personal id (for example the user's database id). Do not use the email address, or the auth `uid` header, which with devise_token_auth is usually the email.
 
@@ -78,13 +78,13 @@ Keep params flat and primitive (`string`, `number`, `boolean`, `null`) so they c
 
 ## Automatic screen tracking
 
-`useAnalyticsScreenTracking` is called once in `GuardedStack` (`src/app/_layout.tsx`), which only renders after auth has been hydrated, so the placeholder stack shown while auth loads is never reported. It reads the current route with `useSegments()` from expo-router and calls `trackScreen` every time it changes, without any code in the screens themselves.
+`useAnalyticsScreenTracking` is called once in `AnalyticsTrackers`, a component that renders nothing and sits next to the root `Stack` in `GuardedStack` (`src/app/_layout.tsx`). `GuardedStack` only renders after auth has been hydrated, so the placeholder stack shown while auth loads is not reported, and keeping the hook in its own component means route changes re-render only that component, not the root `Stack`. It reads the current route with `useSegments()` from expo-router and calls `trackScreen` every time it changes, without any code in the screens themselves. The report waits one tick so that when a route guard redirects on launch (for example to `/sign-in`) only the screen the user lands on is reported, and the same screen is never reported twice in a row.
 
 Screen names are route patterns, not resolved paths: route groups are dropped and dynamic segments are kept as written, so `/feed/42` is reported as `/feed/[id]` and `/(app)/settings` as `/settings`. This keeps the number of distinct screens small and keeps ids and other path values out of your vendors. If you need the concrete value, track it as an event param.
 
 <CodeBlock file="src/components/providers/analytics-tracking.ts" />
 
-If you prefer manual screen tracking, remove the `useAnalyticsScreenTracking()` call from the layout and call `trackScreen` from the screens you care about.
+If you prefer manual screen tracking, remove the `useAnalyticsScreenTracking()` call from `AnalyticsTrackers` in the layout and call `trackScreen` from the screens you care about.
 
 ## The console provider
 
@@ -95,6 +95,8 @@ The default provider prints every call in development builds (`__DEV__`) and doe
 ## Plugging in a real provider
 
 A provider is any object that implements `AnalyticsProviderAdapter`. Create one per vendor, then register it in `src/app/_layout.tsx`.
+
+Keep `init()` quick and local: do not wait on network requests, remote config or a consent prompt inside it. Every call to that provider waits for `init()`, and if it takes longer than 10 seconds the provider is dropped for the session. Vendor SDKs already queue events until they are ready, so let the SDK handle that, and drive consent from your consent flow instead (see the Firebase note below).
 
 ### Example: Google Analytics through Firebase
 

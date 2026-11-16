@@ -3,6 +3,7 @@ import { useEffect, useRef } from 'react';
 
 import { useAnalytics } from '@/components/providers/analytics';
 import { useAuth } from '@/components/providers/auth';
+import { hasIdentifiedUser } from '@/lib/analytics';
 
 function isRouteGroup(segment: string) {
   return segment.startsWith('(') && segment.endsWith(')');
@@ -19,9 +20,17 @@ function toScreenName(segments: ReadonlyArray<string>) {
 export function useAnalyticsScreenTracking() {
   const screenName = toScreenName(useSegments());
   const { trackScreen } = useAnalytics();
+  const lastTrackedRef = useRef<string | null>(null);
 
   useEffect(() => {
-    trackScreen(screenName);
+    const timeout = setTimeout(() => {
+      if (lastTrackedRef.current === screenName) {
+        return;
+      }
+      lastTrackedRef.current = screenName;
+      trackScreen(screenName);
+    }, 0);
+    return () => clearTimeout(timeout);
   }, [screenName, trackScreen]);
 }
 
@@ -31,10 +40,12 @@ export function useAnalyticsScreenTracking() {
 export function useAnalyticsSessionReset() {
   const { isAuthenticated } = useAuth();
   const { reset } = useAnalytics();
-  const wasAuthenticatedRef = useRef(isAuthenticated);
+  const wasAuthenticatedRef = useRef<boolean | null>(null);
 
   useEffect(() => {
-    if (wasAuthenticatedRef.current && !isAuthenticated) {
+    const signedOut = wasAuthenticatedRef.current === true && !isAuthenticated;
+    const startedSignedOutAfterIdentify = wasAuthenticatedRef.current === null && !isAuthenticated && hasIdentifiedUser();
+    if (signedOut || startedSignedOutAfterIdentify) {
       reset();
     }
     wasAuthenticatedRef.current = isAuthenticated;

@@ -39,43 +39,50 @@ SplashScreen.setOptions({
   fade: true,
 });
 
+function AnalyticsTrackers() {
+  useAnalyticsSessionReset();
+  useAnalyticsScreenTracking();
+  return null;
+}
+
 function GuardedStack() {
   const { isAuthenticated } = useAuth();
   const { t } = useTranslation();
   const [isFirstTime] = useIsFirstTime();
-  useAnalyticsScreenTracking();
-  useAnalyticsSessionReset();
 
   return (
-    <Stack>
-      <Stack.Protected guard={isFirstTime}>
-        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-      </Stack.Protected>
+    <>
+      <AnalyticsTrackers />
+      <Stack>
+        <Stack.Protected guard={isFirstTime}>
+          <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+        </Stack.Protected>
 
-      <Stack.Protected guard={isAuthenticated}>
-        <Stack.Screen name="(app)" options={{ headerShown: false }} />
+        <Stack.Protected guard={isAuthenticated}>
+          <Stack.Screen name="(app)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="update-password"
+            options={{
+              title: t('updatePassword.title'),
+            }}
+          />
+        </Stack.Protected>
+
+        <Stack.Protected guard={!isAuthenticated}>
+          <Stack.Screen name="sign-in" options={{ headerShown: false }} />
+          <Stack.Screen name="sign-up" />
+          <Stack.Screen name="forgot-password" />
+        </Stack.Protected>
+
         <Stack.Screen
-          name="update-password"
+          name="www"
           options={{
-            title: t('updatePassword.title'),
+            presentation: 'modal',
+            title: '',
           }}
         />
-      </Stack.Protected>
-
-      <Stack.Protected guard={!isAuthenticated}>
-        <Stack.Screen name="sign-in" options={{ headerShown: false }} />
-        <Stack.Screen name="sign-up" />
-        <Stack.Screen name="forgot-password" />
-      </Stack.Protected>
-
-      <Stack.Screen
-        name="www"
-        options={{
-          presentation: 'modal',
-          title: '',
-        }}
-      />
-    </Stack>
+      </Stack>
+    </>
   );
 }
 

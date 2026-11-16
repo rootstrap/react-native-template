@@ -7,6 +7,7 @@ import {
 } from '@/components/providers/analytics-tracking';
 import { useAuth } from '@/components/providers/auth';
 import type { AnalyticsProviderAdapter } from '@/lib/analytics';
+import { clearUserIdentified, hasIdentifiedUser, markUserIdentified } from '@/lib/analytics';
 import { renderHook, waitFor } from '@/lib/test-utils';
 
 jest.mock('expo-router', () => ({
@@ -105,11 +106,47 @@ describe('useAnalyticsScreenTracking', () => {
     });
     expect(provider.trackScreen).toHaveBeenLastCalledWith('/settings', undefined);
   });
+
+  it('reports only the redirect target when the route changes within the same tick', async () => {
+    const provider = createMockProvider();
+    mockUseSegments.mockReturnValue(['(app)']);
+
+    const { rerender } = renderWithAnalytics(useAnalyticsScreenTracking, [provider]);
+    mockUseSegments.mockReturnValue(['sign-in']);
+    rerender({});
+
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledWith('/sign-in', undefined);
+    });
+    await new Promise(resolve => setImmediate(resolve));
+    expect(provider.trackScreen).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not report the same screen again when the providers array changes identity', async () => {
+    const provider = createMockProvider();
+    mockUseSegments.mockReturnValue(['(app)', 'settings']);
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <AnalyticsProvider providers={[provider]}>{children}</AnalyticsProvider>
+    );
+
+    const { rerender } = renderHook(useAnalyticsScreenTracking, { wrapper });
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledTimes(1);
+    });
+
+    rerender({});
+    rerender({});
+    await new Promise(resolve => setImmediate(resolve));
+
+    expect(provider.trackScreen).toHaveBeenCalledTimes(1);
+    expect(provider.init).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('useAnalyticsSessionReset', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    clearUserIdentified();
   });
 
   it('resets analytics when the user signs out', async () => {
@@ -125,9 +162,35 @@ describe('useAnalyticsSessionReset', () => {
     });
   });
 
-  it('does not reset when the app starts signed out', async () => {
+  it('resets analytics when the app starts signed out after a user was identified', async () => {
+    const provider = createMockProvider();
+    markUserIdentified();
+    mockAuthenticated(false);
+    const { rerender } = renderWithAnalytics(useAnalyticsSessionReset, [provider]);
+    rerender({});
+
+    await waitFor(() => {
+      expect(provider.reset).toHaveBeenCalledTimes(1);
+    });
+    expect(hasIdentifiedUser()).toBe(false);
+  });
+
+  it('does not reset when the app starts signed out and no user was identified', async () => {
     const provider = createMockProvider();
     mockAuthenticated(false);
+    const { rerender } = renderWithAnalytics(useAnalyticsSessionReset, [provider]);
+    rerender({});
+
+    await waitFor(() => {
+      expect(provider.init).toHaveBeenCalledTimes(1);
+    });
+    await new Promise(resolve => setImmediate(resolve));
+    expect(provider.reset).not.toHaveBeenCalled();
+  });
+
+  it('does not reset when the app starts signed in', async () => {
+    const provider = createMockProvider();
+    mockAuthenticated(true);
     const { rerender } = renderWithAnalytics(useAnalyticsSessionReset, [provider]);
     rerender({});
 
@@ -148,6 +211,7 @@ describe('useAnalyticsSessionReset', () => {
     await waitFor(() => {
       expect(provider.init).toHaveBeenCalledTimes(1);
     });
+    await new Promise(resolve => setImmediate(resolve));
     expect(provider.reset).not.toHaveBeenCalled();
   });
 });
