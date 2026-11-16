@@ -12,9 +12,8 @@ import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { APIProvider } from '@/api';
 
 import interceptors from '@/api/common/interceptors';
-import { AnalyticsScreenTracker } from '@/components/analytics-screen-tracker';
-import { AnalyticsSessionReset } from '@/components/analytics-session-reset';
 import { AnalyticsProvider } from '@/components/providers/analytics';
+import { useAnalyticsScreenTracking, useAnalyticsSessionReset } from '@/components/providers/analytics-tracking';
 import { AuthProvider, useAuth } from '@/components/providers/auth';
 import { consoleAnalyticsProvider, hydrateAuth, loadSelectedTheme, useIsFirstTime } from '@/lib';
 import { useThemeConfig } from '@/lib/use-theme-config';
@@ -44,6 +43,8 @@ function GuardedStack() {
   const { isAuthenticated } = useAuth();
   const { t } = useTranslation();
   const [isFirstTime] = useIsFirstTime();
+  useAnalyticsScreenTracking();
+  useAnalyticsSessionReset();
 
   return (
     <Stack>
@@ -93,13 +94,7 @@ function RouterContent() {
     return <Stack />;
   }
 
-  return (
-    <>
-      <AnalyticsScreenTracker />
-      <AnalyticsSessionReset />
-      <GuardedStack />
-    </>
-  );
+  return <GuardedStack />;
 }
 
 function Providers({ children }: Readonly<{ children: React.ReactNode }>) {

@@ -17,7 +17,8 @@ type AnalyticsContextProps = {
 const AnalyticsContext = createContext<AnalyticsContextProps | undefined>(undefined);
 
 function reportProviderError(error: unknown) {
-  console.error('[analytics] provider call failed', error);
+  // eslint-disable-next-line no-console
+  console.info('[analytics] provider call failed', error);
 }
 
 type ProviderReadiness = {

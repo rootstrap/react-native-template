@@ -27,7 +27,7 @@ async function flushPromises() {
 
 describe('AnalyticsProvider', () => {
   beforeEach(() => {
-    jest.spyOn(console, 'error').mockImplementation(() => undefined);
+    jest.spyOn(console, 'info').mockImplementation(() => undefined);
   });
 
   afterEach(() => {
@@ -81,7 +81,7 @@ describe('AnalyticsProvider', () => {
       expect(healthy.trackScreen).toHaveBeenCalledTimes(1);
     });
     expect(broken.trackScreen).not.toHaveBeenCalled();
-    expect(console.error).toHaveBeenCalledTimes(1);
+    expect(console.info).toHaveBeenCalledTimes(1);
   });
 
   it('fans out trackEvent to every provider', async () => {
@@ -127,7 +127,7 @@ describe('AnalyticsProvider', () => {
       expect(full.reset).toHaveBeenCalledTimes(1);
     });
     await flushPromises();
-    expect(console.error).not.toHaveBeenCalled();
+    expect(console.info).not.toHaveBeenCalled();
   });
 
   it('isolates provider failures so the other providers still receive the call', async () => {
@@ -150,7 +150,7 @@ describe('AnalyticsProvider', () => {
     await waitFor(() => {
       expect(healthy.trackEvent).toHaveBeenCalledTimes(1);
       expect(healthy.trackScreen).toHaveBeenCalledTimes(1);
-      expect(console.error).toHaveBeenCalledTimes(2);
+      expect(console.info).toHaveBeenCalledTimes(2);
     });
   });
 

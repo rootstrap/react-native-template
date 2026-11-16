@@ -21,7 +21,7 @@ Screens / components
 AnalyticsProvider (React context)  ──►  provider A (console)
         ▲                           ──►  provider B (Firebase, Segment, ...)
         │
-AnalyticsScreenTracker  (listens to expo-router route changes)
+useAnalyticsScreenTracking  (listens to expo-router route changes)
 ```
 
 | Piece                                        | Location                                        |
@@ -29,8 +29,7 @@ AnalyticsScreenTracker  (listens to expo-router route changes)
 | Event catalogue and provider adapter contract | `src/lib/analytics/types.ts`                    |
 | Built-in console provider                    | `src/lib/analytics/console-provider.ts`         |
 | React context, `useAnalytics()` hook         | `src/components/providers/analytics.tsx`        |
-| Automatic screen tracking                    | `src/components/analytics-screen-tracker.tsx`   |
-| Reset on sign out                            | `src/components/analytics-session-reset.tsx`    |
+| Automatic screen tracking, reset on sign out | `src/components/providers/analytics-tracking.ts` |
 | Wiring (which providers the app uses)        | `src/app/_layout.tsx`                           |
 
 ## Tracking events
@@ -55,9 +54,9 @@ The hook also exposes:
 
 - `trackScreen(screenName, params?)`: report a screen view manually (the screen tracker already does this on route changes).
 - `identify(userId, traits?)`: associate the following events with a user, for example after sign in.
-- `reset()`: clear the current user. `AnalyticsSessionReset` (mounted in `src/app/_layout.tsx`) already calls it when the user signs out, so the next session on the device is not attributed to the previous user.
+- `reset()`: clear the current user. `useAnalyticsSessionReset` (called in `src/app/_layout.tsx`) already calls it when the user signs out, so the next session on the device is not attributed to the previous user.
 
-Every call is forwarded to all registered providers. Calls made before a provider's `init()` has finished wait for it, so the first screen view on launch is never sent to an uninitialised SDK; if `init()` fails, that provider is skipped. Failures inside a provider are caught and logged with `console.error`, so a broken vendor SDK never crashes the app or stops the other providers from receiving the call.
+Every call is forwarded to all registered providers. Calls made before a provider's `init()` has finished wait for it, so the first screen view on launch is never sent to an uninitialised SDK; if `init()` fails, that provider is skipped. Failures inside a provider are caught and logged with `console.info`, so a broken vendor SDK never crashes the app or stops the other providers from receiving the call.
 
 The template does not call `identify` for you: pass a stable, non-personal id (for example the user's database id). Do not use the email address, or the auth `uid` header, which with devise_token_auth is usually the email.
 
@@ -79,13 +78,13 @@ Keep params flat and primitive (`string`, `number`, `boolean`, `null`) so they c
 
 ## Automatic screen tracking
 
-`AnalyticsScreenTracker` is mounted once in `src/app/_layout.tsx`, inside `AnalyticsProvider` and only after auth has been hydrated, so the placeholder stack shown while auth loads is never reported. It reads the current route with `useSegments()` from expo-router and calls `trackScreen` every time it changes, without any code in the screens themselves.
+`useAnalyticsScreenTracking` is called once in `GuardedStack` (`src/app/_layout.tsx`), which only renders after auth has been hydrated, so the placeholder stack shown while auth loads is never reported. It reads the current route with `useSegments()` from expo-router and calls `trackScreen` every time it changes, without any code in the screens themselves.
 
 Screen names are route patterns, not resolved paths: route groups are dropped and dynamic segments are kept as written, so `/feed/42` is reported as `/feed/[id]` and `/(app)/settings` as `/settings`. This keeps the number of distinct screens small and keeps ids and other path values out of your vendors. If you need the concrete value, track it as an event param.
 
-<CodeBlock file="src/components/analytics-screen-tracker.tsx" />
+<CodeBlock file="src/components/providers/analytics-tracking.ts" />
 
-If you prefer manual screen tracking, remove the component from the layout and call `trackScreen` from the screens you care about.
+If you prefer manual screen tracking, remove the `useAnalyticsScreenTracking()` call from the layout and call `trackScreen` from the screens you care about.
 
 ## The console provider
 
@@ -161,7 +160,7 @@ The same recipe applies to any other vendor (Segment, Amplitude, PostHog, Mixpan
 
 ## Testing
 
-Tests live in `__tests__/components/providers/analytics.test.tsx`, `__tests__/components/analytics-screen-tracker.test.tsx`, `__tests__/components/analytics-session-reset.test.tsx` and `__tests__/lib/analytics/console-provider.test.ts`.
+Tests live in `__tests__/components/providers/analytics.test.tsx`, `__tests__/components/providers/analytics-tracking.test.tsx` and `__tests__/lib/analytics/console-provider.test.ts`.
 
 `render` from `@/lib/test-utils` already wraps every component in an `AnalyticsProvider` with no providers, so components that call `useAnalytics()` render in tests without extra setup. To assert on analytics, wrap the component in your own `AnalyticsProvider` with a mock provider. Calls reach providers asynchronously (after `init()`), so assert inside `waitFor`:
 
