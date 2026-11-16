@@ -30,6 +30,7 @@ AnalyticsScreenTracker  (listens to expo-router route changes)
 | Built-in console provider                    | `src/lib/analytics/console-provider.ts`         |
 | React context, `useAnalytics()` hook         | `src/components/providers/analytics.tsx`        |
 | Automatic screen tracking                    | `src/components/analytics-screen-tracker.tsx`   |
+| Reset on sign out                            | `src/components/analytics-session-reset.tsx`    |
 | Wiring (which providers the app uses)        | `src/app/_layout.tsx`                           |
 
 ## Tracking events
@@ -54,9 +55,11 @@ The hook also exposes:
 
 - `trackScreen(screenName, params?)`: report a screen view manually (the screen tracker already does this on route changes).
 - `identify(userId, traits?)`: associate the following events with a user, for example after sign in.
-- `reset()`: clear the current user, for example after sign out.
+- `reset()`: clear the current user. `AnalyticsSessionReset` (mounted in `src/app/_layout.tsx`) already calls it when the user signs out, so the next session on the device is not attributed to the previous user.
 
-Every call is forwarded to all registered providers. Failures inside a provider are caught and logged with `console.error`, so a broken vendor SDK never crashes the app or stops the other providers from receiving the call.
+Every call is forwarded to all registered providers. Calls made before a provider's `init()` has finished wait for it, so the first screen view on launch is never sent to an uninitialised SDK; if `init()` fails, that provider is skipped. Failures inside a provider are caught and logged with `console.error`, so a broken vendor SDK never crashes the app or stops the other providers from receiving the call.
+
+The template does not call `identify` for you: pass a stable, non-personal id (for example the user's database id). Do not use the email address, or the auth `uid` header, which with devise_token_auth is usually the email.
 
 ## Adding an event to the catalogue
 
@@ -76,7 +79,9 @@ Keep params flat and primitive (`string`, `number`, `boolean`, `null`) so they c
 
 ## Automatic screen tracking
 
-`AnalyticsScreenTracker` is mounted once inside `AnalyticsProvider` in `src/app/_layout.tsx`. It reads the current route with `usePathname()` from expo-router and calls `trackScreen(pathname)` every time it changes, so `/feed`, `/settings` or `/feed/42` are reported without any code in the screens themselves.
+`AnalyticsScreenTracker` is mounted once in `src/app/_layout.tsx`, inside `AnalyticsProvider` and only after auth has been hydrated, so the placeholder stack shown while auth loads is never reported. It reads the current route with `useSegments()` from expo-router and calls `trackScreen` every time it changes, without any code in the screens themselves.
+
+Screen names are route patterns, not resolved paths: route groups are dropped and dynamic segments are kept as written, so `/feed/42` is reported as `/feed/[id]` and `/(app)/settings` as `/settings`. This keeps the number of distinct screens small and keeps ids and other path values out of your vendors. If you need the concrete value, track it as an event param.
 
 <CodeBlock file="src/components/analytics-screen-tracker.tsx" />
 
@@ -110,9 +115,7 @@ Google Analytics for mobile apps is delivered through Firebase. The sketch below
    import type { AnalyticsProviderAdapter } from './types';
 
    export const firebaseAnalyticsProvider: AnalyticsProviderAdapter = {
-     init: async () => {
-       await analytics().setAnalyticsCollectionEnabled(true);
-     },
+     init: () => undefined,
      trackEvent: async (name, params) => {
        // Firebase requires lowercase snake_case event names.
        await analytics().logEvent(name.toLowerCase(), params);
@@ -135,10 +138,13 @@ Google Analytics for mobile apps is delivered through Firebase. The sketch below
        }
      },
      reset: async () => {
+       await analytics().setUserId(null);
        await analytics().resetAnalyticsData();
      },
    };
    ```
+
+   Firebase starts itself from the native config, so `init` has nothing to do here. Do not turn collection on in `init` with `setAnalyticsCollectionEnabled(true)`: if your app needs consent (GDPR, App Tracking Transparency), disable collection by default in the Firebase config and enable it from your consent flow.
 
 3. Register it next to (or instead of) the console provider in `src/app/_layout.tsx`:
 
@@ -149,13 +155,15 @@ Google Analytics for mobile apps is delivered through Firebase. The sketch below
    const analyticsProviders = [consoleAnalyticsProvider, firebaseAnalyticsProvider];
    ```
 
-   Keep `analyticsProviders` a module-level constant: the provider list is used as an effect dependency, so a new array on every render would re-run `init()`.
+   Keep `analyticsProviders` a module-level constant: a new array on every render would recreate the `useAnalytics()` functions, and the screen tracker would report the current screen again on every render.
 
 The same recipe applies to any other vendor (Segment, Amplitude, PostHog, Mixpanel...): implement the adapter, register it, and nothing else in the app has to change.
 
 ## Testing
 
-Tests live in `__tests__/components/providers/analytics.test.tsx`, `__tests__/components/analytics-screen-tracker.test.tsx` and `__tests__/lib/analytics/console-provider.test.ts`. To assert on analytics in your own component tests, wrap the component in `AnalyticsProvider` with a mock provider:
+Tests live in `__tests__/components/providers/analytics.test.tsx`, `__tests__/components/analytics-screen-tracker.test.tsx`, `__tests__/components/analytics-session-reset.test.tsx` and `__tests__/lib/analytics/console-provider.test.ts`.
+
+`render` from `@/lib/test-utils` already wraps every component in an `AnalyticsProvider` with no providers, so components that call `useAnalytics()` render in tests without extra setup. To assert on analytics, wrap the component in your own `AnalyticsProvider` with a mock provider. Calls reach providers asynchronously (after `init()`), so assert inside `waitFor`:
 
 ```tsx
 const provider = { init: jest.fn(), trackEvent: jest.fn(), trackScreen: jest.fn() };
@@ -166,5 +174,7 @@ render(
   </AnalyticsProvider>,
 );
 
-expect(provider.trackEvent).toHaveBeenCalledWith('BUTTON_PRESS', { accessibilityId: 'submit-button' });
+await waitFor(() => {
+  expect(provider.trackEvent).toHaveBeenCalledWith('BUTTON_PRESS', { accessibilityId: 'submit-button' });
+});
 ```

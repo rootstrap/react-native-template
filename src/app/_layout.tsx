@@ -13,6 +13,7 @@ import { APIProvider } from '@/api';
 
 import interceptors from '@/api/common/interceptors';
 import { AnalyticsScreenTracker } from '@/components/analytics-screen-tracker';
+import { AnalyticsSessionReset } from '@/components/analytics-session-reset';
 import { AnalyticsProvider } from '@/components/providers/analytics';
 import { AuthProvider, useAuth } from '@/components/providers/auth';
 import { consoleAnalyticsProvider, hydrateAuth, loadSelectedTheme, useIsFirstTime } from '@/lib';
@@ -92,7 +93,13 @@ function RouterContent() {
     return <Stack />;
   }
 
-  return <GuardedStack />;
+  return (
+    <>
+      <AnalyticsScreenTracker />
+      <AnalyticsSessionReset />
+      <GuardedStack />
+    </>
+  );
 }
 
 function Providers({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -108,7 +115,6 @@ function Providers({ children }: Readonly<{ children: React.ReactNode }>) {
           <APIProvider>
             <AuthProvider>
               <AnalyticsProvider providers={analyticsProviders}>
-                <AnalyticsScreenTracker />
                 <BottomSheetModalProvider>
                   {children}
                   <FlashMessage position="top" />

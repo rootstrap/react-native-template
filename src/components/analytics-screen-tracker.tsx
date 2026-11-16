@@ -1,19 +1,27 @@
-import { usePathname } from 'expo-router';
+import { useSegments } from 'expo-router';
 import { useEffect } from 'react';
 
 import { useAnalytics } from '@/components/providers/analytics';
 
+function isRouteGroup(segment: string) {
+  return segment.startsWith('(') && segment.endsWith(')');
+}
+
+function toScreenName(segments: ReadonlyArray<string>) {
+  return `/${segments.filter(segment => !isRouteGroup(segment)).join('/')}`;
+}
+
 /**
  * Reports a screen view to every analytics provider whenever the route
- * changes. Mount it once, inside `AnalyticsProvider`.
+ * changes. Mount it once, inside `AnalyticsProvider`, after auth is ready.
  */
 export function AnalyticsScreenTracker() {
-  const pathname = usePathname();
+  const screenName = toScreenName(useSegments());
   const { trackScreen } = useAnalytics();
 
   useEffect(() => {
-    trackScreen(pathname);
-  }, [pathname, trackScreen]);
+    trackScreen(screenName);
+  }, [screenName, trackScreen]);
 
   return null;
 }

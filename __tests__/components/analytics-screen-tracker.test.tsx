@@ -1,15 +1,15 @@
-import { usePathname } from 'expo-router';
+import { useSegments } from 'expo-router';
 
 import { AnalyticsScreenTracker } from '@/components/analytics-screen-tracker';
 import { AnalyticsProvider } from '@/components/providers/analytics';
 import type { AnalyticsProviderAdapter } from '@/lib/analytics';
-import { render } from '@/lib/test-utils';
+import { render, waitFor } from '@/lib/test-utils';
 
 jest.mock('expo-router', () => ({
-  usePathname: jest.fn(),
+  useSegments: jest.fn(),
 }));
 
-const mockUsePathname = usePathname as jest.MockedFunction<typeof usePathname>;
+const mockUseSegments = useSegments as jest.MockedFunction<() => string[]>;
 
 function createMockProvider(): AnalyticsProviderAdapter {
   return {
@@ -19,62 +19,80 @@ function createMockProvider(): AnalyticsProviderAdapter {
   };
 }
 
+function renderTracker(providers: ReadonlyArray<AnalyticsProviderAdapter>) {
+  const tree = () => (
+    <AnalyticsProvider providers={providers}>
+      <AnalyticsScreenTracker />
+    </AnalyticsProvider>
+  );
+  const result = render(tree());
+  return { ...result, rerender: () => result.rerender(tree()) };
+}
+
 describe('AnalyticsScreenTracker', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('tracks the current screen on mount', () => {
+  it('tracks the current screen on mount', async () => {
     const provider = createMockProvider();
-    mockUsePathname.mockReturnValue('/sign-in');
+    mockUseSegments.mockReturnValue(['sign-in']);
 
-    render(
-      <AnalyticsProvider providers={[provider]}>
-        <AnalyticsScreenTracker />
-      </AnalyticsProvider>,
-    );
+    renderTracker([provider]);
 
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledWith('/sign-in', undefined);
+    });
     expect(provider.trackScreen).toHaveBeenCalledTimes(1);
-    expect(provider.trackScreen).toHaveBeenCalledWith('/sign-in', undefined);
   });
 
-  it('tracks again when the route changes and not on unrelated re-renders', () => {
+  it('reports the route pattern, without route groups or dynamic values', async () => {
     const provider = createMockProvider();
-    const providers = [provider];
-    mockUsePathname.mockReturnValue('/feed');
+    mockUseSegments.mockReturnValue(['(app)', 'feed', '[id]']);
 
-    const { rerender } = render(
-      <AnalyticsProvider providers={providers}>
-        <AnalyticsScreenTracker />
-      </AnalyticsProvider>,
-    );
+    renderTracker([provider]);
 
-    rerender(
-      <AnalyticsProvider providers={providers}>
-        <AnalyticsScreenTracker />
-      </AnalyticsProvider>,
-    );
-    expect(provider.trackScreen).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledWith('/feed/[id]', undefined);
+    });
+  });
 
-    mockUsePathname.mockReturnValue('/settings');
-    rerender(
-      <AnalyticsProvider providers={providers}>
-        <AnalyticsScreenTracker />
-      </AnalyticsProvider>,
-    );
+  it('reports the index route of a group as the root screen', async () => {
+    const provider = createMockProvider();
+    mockUseSegments.mockReturnValue(['(app)']);
 
-    expect(provider.trackScreen).toHaveBeenCalledTimes(2);
+    renderTracker([provider]);
+
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledWith('/', undefined);
+    });
+  });
+
+  it('tracks again when the route changes and not on unrelated re-renders', async () => {
+    const provider = createMockProvider();
+    mockUseSegments.mockReturnValue(['(app)', 'feed']);
+
+    const { rerender } = renderTracker([provider]);
+    mockUseSegments.mockReturnValue(['(app)', 'feed']);
+    rerender();
+
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledTimes(1);
+    });
+
+    mockUseSegments.mockReturnValue(['(app)', 'settings']);
+    rerender();
+
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledTimes(2);
+    });
     expect(provider.trackScreen).toHaveBeenLastCalledWith('/settings', undefined);
   });
 
   it('renders nothing', () => {
-    mockUsePathname.mockReturnValue('/');
+    mockUseSegments.mockReturnValue([]);
 
-    const { toJSON } = render(
-      <AnalyticsProvider providers={[createMockProvider()]}>
-        <AnalyticsScreenTracker />
-      </AnalyticsProvider>,
-    );
+    const { toJSON } = renderTracker([createMockProvider()]);
 
     expect(toJSON()).toBeNull();
   });

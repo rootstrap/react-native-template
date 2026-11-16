@@ -5,10 +5,9 @@ import type {
   AnalyticsProviderAdapter,
 } from '@/lib/analytics';
 import * as React from 'react';
-import { createContext, use, useEffect, useMemo } from 'react';
+import { createContext, use, useCallback, useEffect, useMemo, useState } from 'react';
 
 type AnalyticsContextProps = {
-  providers: ReadonlyArray<AnalyticsProviderAdapter>;
   trackEvent: <E extends AnalyticsEvent>(name: E, ...args: AnalyticsEventArgs<E>) => void;
   trackScreen: (screenName: string, params?: AnalyticsParams) => void;
   identify: (userId: string, traits?: AnalyticsParams) => void;
@@ -21,17 +20,52 @@ function reportProviderError(error: unknown) {
   console.error('[analytics] provider call failed', error);
 }
 
-/**
- * Runs `call` against every provider, isolating failures so a broken vendor
- * SDK never breaks the app or the other providers.
- */
-function fanOut(
-  providers: ReadonlyArray<AnalyticsProviderAdapter>,
-  call: (provider: AnalyticsProviderAdapter) => Promise<void>,
-) {
-  providers.forEach((provider) => {
-    void call(provider).catch(reportProviderError);
+type ProviderReadiness = {
+  started: boolean;
+  ready: Promise<boolean>;
+  resolve: (initialised: boolean) => void;
+};
+
+function createReadiness(): ProviderReadiness {
+  let resolve!: (initialised: boolean) => void;
+  const ready = new Promise<boolean>((res) => {
+    resolve = res;
   });
+  return { started: false, ready, resolve };
+}
+
+function useProviderReadiness(providers: ReadonlyArray<AnalyticsProviderAdapter>) {
+  const [readiness] = useState(() => new Map<AnalyticsProviderAdapter, ProviderReadiness>());
+
+  const readinessOf = useCallback((provider: AnalyticsProviderAdapter) => {
+    let entry = readiness.get(provider);
+    if (entry === undefined) {
+      entry = createReadiness();
+      readiness.set(provider, entry);
+    }
+    return entry;
+  }, [readiness]);
+
+  useEffect(() => {
+    providers.forEach((provider) => {
+      const entry = readinessOf(provider);
+      if (entry.started) {
+        return;
+      }
+      entry.started = true;
+      Promise.resolve()
+        .then(async () => provider.init())
+        .then(
+          () => entry.resolve(true),
+          (error: unknown) => {
+            reportProviderError(error);
+            entry.resolve(false);
+          },
+        );
+    });
+  }, [providers, readinessOf]);
+
+  return readinessOf;
 }
 
 type AnalyticsProviderProps = {
@@ -44,29 +78,34 @@ export const AnalyticsProvider: React.FC<AnalyticsProviderProps> = ({
   providers,
   children,
 }) => {
-  useEffect(() => {
-    fanOut(providers, async provider => provider.init());
-  }, [providers]);
+  const readinessOf = useProviderReadiness(providers);
 
-  const values = useMemo<AnalyticsContextProps>(
-    () => ({
-      providers,
+  const values = useMemo<AnalyticsContextProps>(() => {
+    const fanOut = (call: (provider: AnalyticsProviderAdapter) => void | Promise<void>) => {
+      providers.forEach((provider) => {
+        void readinessOf(provider)
+          .ready
+          .then(async initialised => (initialised ? call(provider) : undefined))
+          .catch(reportProviderError);
+      });
+    };
+
+    return {
       trackEvent: (name, ...args) => {
         const [params] = args;
-        fanOut(providers, async provider => provider.trackEvent(name, params));
+        fanOut(async provider => provider.trackEvent(name, params));
       },
       trackScreen: (screenName, params) => {
-        fanOut(providers, async provider => provider.trackScreen(screenName, params));
+        fanOut(async provider => provider.trackScreen(screenName, params));
       },
       identify: (userId, traits) => {
-        fanOut(providers, async provider => provider.identify?.(userId, traits));
+        fanOut(async provider => provider.identify?.(userId, traits));
       },
       reset: () => {
-        fanOut(providers, async provider => provider.reset?.());
+        fanOut(async provider => provider.reset?.());
       },
-    }),
-    [providers],
-  );
+    };
+  }, [providers, readinessOf]);
 
   return <AnalyticsContext value={values}>{children}</AnalyticsContext>;
 };

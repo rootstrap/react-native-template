@@ -1,8 +1,6 @@
-import { renderHook, waitFor } from '@testing-library/react-native';
-
 import { AnalyticsProvider, useAnalytics } from '@/components/providers/analytics';
 import type { AnalyticsProviderAdapter } from '@/lib/analytics';
-import { fireEvent, render, screen } from '@/lib/test-utils';
+import { fireEvent, render, renderHook, screen, waitFor } from '@/lib/test-utils';
 import { Text, TouchableOpacity, View } from '@/components/ui';
 
 function createMockProvider(overrides: Partial<AnalyticsProviderAdapter> = {}) {
@@ -23,6 +21,10 @@ function renderAnalytics(providers: ReadonlyArray<AnalyticsProviderAdapter>) {
   return renderHook(() => useAnalytics(), { wrapper });
 }
 
+async function flushPromises() {
+  await new Promise(resolve => setImmediate(resolve));
+}
+
 describe('AnalyticsProvider', () => {
   beforeEach(() => {
     jest.spyOn(console, 'error').mockImplementation(() => undefined);
@@ -32,44 +34,87 @@ describe('AnalyticsProvider', () => {
     jest.restoreAllMocks();
   });
 
-  it('initialises every provider once on mount', () => {
+  it('initialises every provider once on mount', async () => {
     const first = createMockProvider();
     const second = createMockProvider();
 
     const { rerender } = renderAnalytics([first, second]);
     rerender({});
 
-    expect(first.init).toHaveBeenCalledTimes(1);
-    expect(second.init).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(first.init).toHaveBeenCalledTimes(1);
+      expect(second.init).toHaveBeenCalledTimes(1);
+    });
   });
 
-  it('fans out trackEvent to every provider', () => {
+  it('waits for init to finish before forwarding calls', async () => {
+    let finishInit!: () => void;
+    const provider = createMockProvider({
+      init: jest.fn(async () => new Promise<void>((resolve) => {
+        finishInit = resolve;
+      })),
+    });
+    const { result } = renderAnalytics([provider]);
+
+    result.current.trackScreen('/feed');
+    await flushPromises();
+    expect(provider.trackScreen).not.toHaveBeenCalled();
+
+    finishInit();
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledWith('/feed', undefined);
+    });
+  });
+
+  it('skips providers whose init failed without blocking the others', async () => {
+    const broken = createMockProvider({
+      init: jest.fn(() => {
+        throw new Error('missing api key');
+      }),
+    });
+    const healthy = createMockProvider();
+    const { result } = renderAnalytics([broken, healthy]);
+
+    result.current.trackScreen('/feed');
+
+    await waitFor(() => {
+      expect(healthy.trackScreen).toHaveBeenCalledTimes(1);
+    });
+    expect(broken.trackScreen).not.toHaveBeenCalled();
+    expect(console.error).toHaveBeenCalledTimes(1);
+  });
+
+  it('fans out trackEvent to every provider', async () => {
     const first = createMockProvider();
     const second = createMockProvider();
     const { result } = renderAnalytics([first, second]);
 
     result.current.trackEvent('BUTTON_PRESS', { accessibilityId: 'login-button' });
 
-    expect(first.trackEvent).toHaveBeenCalledWith('BUTTON_PRESS', {
-      accessibilityId: 'login-button',
-    });
-    expect(second.trackEvent).toHaveBeenCalledWith('BUTTON_PRESS', {
-      accessibilityId: 'login-button',
+    await waitFor(() => {
+      expect(first.trackEvent).toHaveBeenCalledWith('BUTTON_PRESS', {
+        accessibilityId: 'login-button',
+      });
+      expect(second.trackEvent).toHaveBeenCalledWith('BUTTON_PRESS', {
+        accessibilityId: 'login-button',
+      });
     });
   });
 
-  it('fans out trackScreen to every provider', () => {
+  it('fans out trackScreen to every provider', async () => {
     const first = createMockProvider();
     const second = createMockProvider();
     const { result } = renderAnalytics([first, second]);
 
     result.current.trackScreen('/feed', { tab: 'home' });
 
-    expect(first.trackScreen).toHaveBeenCalledWith('/feed', { tab: 'home' });
-    expect(second.trackScreen).toHaveBeenCalledWith('/feed', { tab: 'home' });
+    await waitFor(() => {
+      expect(first.trackScreen).toHaveBeenCalledWith('/feed', { tab: 'home' });
+      expect(second.trackScreen).toHaveBeenCalledWith('/feed', { tab: 'home' });
+    });
   });
 
-  it('fans out identify and reset, skipping providers that do not implement them', () => {
+  it('fans out identify and reset, skipping providers that do not implement them', async () => {
     const full = createMockProvider();
     const minimal = createMockProvider({ identify: undefined, reset: undefined });
     const { result } = renderAnalytics([full, minimal]);
@@ -77,8 +122,12 @@ describe('AnalyticsProvider', () => {
     result.current.identify('user-1', { plan: 'free' });
     result.current.reset();
 
-    expect(full.identify).toHaveBeenCalledWith('user-1', { plan: 'free' });
-    expect(full.reset).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(full.identify).toHaveBeenCalledWith('user-1', { plan: 'free' });
+      expect(full.reset).toHaveBeenCalledTimes(1);
+    });
+    await flushPromises();
+    expect(console.error).not.toHaveBeenCalled();
   });
 
   it('isolates provider failures so the other providers still receive the call', async () => {
@@ -98,14 +147,14 @@ describe('AnalyticsProvider', () => {
       result.current.trackScreen('/feed');
     }).not.toThrow();
 
-    expect(healthy.trackEvent).toHaveBeenCalledTimes(1);
-    expect(healthy.trackScreen).toHaveBeenCalledTimes(1);
     await waitFor(() => {
+      expect(healthy.trackEvent).toHaveBeenCalledTimes(1);
+      expect(healthy.trackScreen).toHaveBeenCalledTimes(1);
       expect(console.error).toHaveBeenCalledTimes(2);
     });
   });
 
-  it('rejects events that are not in the catalogue at compile time', () => {
+  it('rejects events that are not in the catalogue at compile time', async () => {
     const provider = createMockProvider();
     const { result } = renderAnalytics([provider]);
 
@@ -114,7 +163,9 @@ describe('AnalyticsProvider', () => {
     // @ts-expect-error params must match the catalogue entry
     result.current.trackEvent('BUTTON_PRESS', { wrong: true });
 
-    expect(provider.trackEvent).toHaveBeenCalledTimes(2);
+    await waitFor(() => {
+      expect(provider.trackEvent).toHaveBeenCalledTimes(2);
+    });
   });
 
   it('throws when useAnalytics is used outside of AnalyticsProvider', () => {
@@ -125,7 +176,7 @@ describe('AnalyticsProvider', () => {
 });
 
 describe('useAnalytics in a component', () => {
-  it('tracks an event when the user presses a button', () => {
+  it('tracks an event when the user presses a button', async () => {
     const provider = createMockProvider();
 
     const TestComponent = () => {
@@ -150,8 +201,10 @@ describe('useAnalytics in a component', () => {
 
     fireEvent.press(screen.getByTestId('track-button'));
 
-    expect(provider.trackEvent).toHaveBeenCalledWith('BUTTON_PRESS', {
-      accessibilityId: 'track-button',
+    await waitFor(() => {
+      expect(provider.trackEvent).toHaveBeenCalledWith('BUTTON_PRESS', {
+        accessibilityId: 'track-button',
+      });
     });
   });
 });
