@@ -6,7 +6,8 @@ const UPSTREAM_REPOSITORY = "obytes/react-native-template-obytes";
 const TEMPLATE_REPOSITORY = "rootstrap/react-native-template";
 
 const escapeShellArg = (value) => {
-  return `'${String(value).replaceAll("'", "'\\''")}'`;
+  const escapedValue = String(value).replaceAll("'", "'\\''");
+  return `'${escapedValue}'`;
 };
 
 const execShellCommand = (cmd, options) => {
