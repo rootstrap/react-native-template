@@ -117,7 +117,7 @@ As mentioned earlier, `zod` is used to validate environment variables at runtime
 ```
 
 :::note[When validation runs]
-The variables are only validated when running the app (`expo start` or `expo run`) or when building it, on EAS or locally, with one of the commands listed in `ENVIRONMENT_DEPENDANT_SCRIPTS` in `env.js` (such as `eas build`, `expo prebuild` or `expo export`). Only these flows fail fast on missing or invalid variables. For any other command (for example, `eas update`), validation is skipped: missing or invalid values end up as `undefined` in `Env` and `ClientEnv`, and therefore in the `extra` field of the app config, without any error.
+`env.js` decides whether to validate from the `package.json` script being run (`npm_lifecycle_script`). The variables are only validated when that script runs the app (`expo start` or `expo run`, e.g. `pnpm start` or `pnpm ios`), or when it builds the app with one of the commands listed in `ENVIRONMENT_DEPENDANT_SCRIPTS` (such as `eas build` or `expo export`) and the build runs on EAS or the script includes `--local`, `eas-cli-local-build-plugin` or `expo export`. Only these flows fail fast on missing or invalid variables. Validation is skipped for any other case, such as a local `pnpm prebuild:<env>` (`expo prebuild` outside EAS), `eas update`, or commands run directly instead of through a `package.json` script (e.g. `npx expo start`): missing or invalid values end up as `undefined` in `Env` and `ClientEnv`, and therefore in the `extra` field of the app config, without any error.
 :::
 
 :::note[Important]
