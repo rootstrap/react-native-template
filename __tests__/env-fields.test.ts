@@ -64,6 +64,7 @@ describe('envField', () => {
       expect(getErrorMessages(envField.number({ optional: true }), '1e3')).toEqual([
         'must be a plain decimal number (e.g. 42 or -3.5), received "1e3"',
       ]);
+      expect(getErrorMessages(envField.number(), '9'.repeat(400))?.[0]).toMatch(/^must be a plain decimal number/);
     });
 
     it('rejects missing and empty values by default', () => {

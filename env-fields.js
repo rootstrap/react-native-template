@@ -95,11 +95,11 @@ const DECIMAL_NUMBER_REGEX = /^-?\d+(?:\.\d+)?$/;
 
 /**
  * Only plain decimal numbers (e.g. `42` or `-3.5`) are accepted; any other value
- * (e.g. `abc`, `Infinity`, `0x10`, `1e3` or values with spaces) is returned as is so it's rejected.
+ * (e.g. `abc`, `Infinity`, `0x10`, `1e3`, values with spaces or too large to be finite) is returned as is so it's rejected.
  * @param {string} value
  */
 function parseNumber(value) {
-  return DECIMAL_NUMBER_REGEX.test(value) ? Number(value) : value;
+  return DECIMAL_NUMBER_REGEX.test(value) && Number.isFinite(Number(value)) ? Number(value) : value;
 }
 
 const BOOLEAN_REGEX = /^(?:true|false)$/i;
