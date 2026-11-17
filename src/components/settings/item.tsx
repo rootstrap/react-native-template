@@ -1,3 +1,4 @@
+import type { PressableProps } from 'react-native';
 import type { TxKeyPath } from '@/lib';
 import * as React from 'react';
 
@@ -10,15 +11,30 @@ type ItemProps = {
   value?: string;
   onPress?: () => void;
   icon?: React.ReactNode;
+  role?: PressableProps['role'];
+  /**
+   * Web only: renders the row as an anchor (`<a href>`) that opens `externalHref`
+   * in a new browser tab.
+   */
+  externalHref?: string;
 };
 
 export const Item = forwardRef<View, ItemProps>(
-  ({ text, value, icon, onPress }: ItemProps, ref) => {
-    const isPressable = onPress !== undefined;
+  ({ text, value, icon, onPress, role, externalHref }: ItemProps, ref) => {
+    const isPressable = onPress !== undefined || externalHref !== undefined;
+    // react-native-web renders a View with `href` as an `<a>` element.
+    const anchorProps = externalHref === undefined
+      ? {}
+      : {
+          href: externalHref,
+          hrefAttrs: { target: '_blank', rel: 'noopener noreferrer' },
+        };
     return (
       <Pressable
         ref={ref}
         onPress={onPress}
+        role={role}
+        {...anchorProps}
         pointerEvents={isPressable ? 'auto' : 'none'}
         className="flex-1 flex-row items-center justify-between px-4 py-2"
       >
