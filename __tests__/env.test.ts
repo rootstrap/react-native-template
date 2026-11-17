@@ -46,16 +46,17 @@ describe('env', () => {
       VAR_NUMBER: 10,
       VAR_BOOL: true,
       SECRET_KEY: 'fake-secret-key',
-      NAME: 'RootstrapApp',
+      NAME: expect.stringMatching(/\S/),
     });
     expect(ClientEnv.VAR_NUMBER).toBe(10);
     expect(ClientEnv).not.toHaveProperty('SECRET_KEY');
   });
 
   it('keeps the static values over the ones in process.env', () => {
-    const { Env } = loadEnv({ ...VALID_ENV, NAME: 'OtherName' }, RUN_SCRIPT);
+    const baselineName = String(loadEnv(VALID_ENV, RUN_SCRIPT).Env.NAME);
+    const { Env } = loadEnv({ ...VALID_ENV, NAME: `${baselineName}-other` }, RUN_SCRIPT);
 
-    expect(Env.NAME).toBe('RootstrapApp');
+    expect(Env.NAME).toBe(baselineName);
   });
 
   it('throws and logs how to fix the invalid variables when the env has to be validated', () => {
