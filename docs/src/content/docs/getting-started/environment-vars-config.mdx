@@ -58,7 +58,7 @@ const buildTimeEnvSchema = z.object({
 | `optional` | When `true`, the variable can be missing or empty and its value will be `undefined`. |
 | `default`  | Value used when the variable is missing or empty.                                    |
 
-Without options, the variable is required. Empty values (e.g. `API_URL=`) are treated as missing. Values are converted as follows:
+Without options, the variable is required. Empty values (e.g. `API_URL=`) are treated as missing. Use the schema returned by `envField` as is and pass these options instead of chaining `zod` methods on it (e.g. `envField.string().optional()` or `.describe()`): a chained schema isn't recognized as an env field, so loading `env.js` throws. Values are converted as follows:
 
 - `envField.string()`: the value is used as is.
 - `envField.number()`: only plain decimal numbers (e.g. `42` or `-3.5`) are accepted; any other value (e.g. `abc`, `Infinity`, `0x10` or `1e3`) is rejected.

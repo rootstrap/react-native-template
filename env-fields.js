@@ -8,7 +8,7 @@
  *    - optional: the variable may be missing or empty; its value will be `undefined`.
  *    - default: value used when the variable is missing or empty.
  *
- * An empty value (e.g. `API_URL=`) is treated the same as a missing one.
+ * An empty value (e.g. `API_URL=`) is treated the same as a missing one. Use the returned schema as is: chaining zod methods on it isn't supported.
  */
 const z = require('zod');
 
@@ -169,7 +169,8 @@ function readEnv(schema, staticValues) {
         throw new Error(
           `The env variable "${key}" is read from process.env but it isn't declared with an envField builder. `
           + 'Declare it with envField.string(), envField.number() or envField.boolean() in env.js, '
-          + 'or set its value in the static values.',
+          + 'or set its value in the static values. Use the envField schema as returned: pass { optional, default } '
+          + 'instead of chaining zod methods on it (e.g. .optional() or .describe()), which returns an untracked schema.',
         );
       }
       return [key, process.env[key]];
