@@ -62,7 +62,8 @@ const installPushgate = async (projectName) => {
     consola.success('Pushgate pre-push hook installed');
   } catch (error) {
     consola.warn(
-      'Could not auto-install Pushgate. Run installer manually from the project root.'
+      'Could not auto-install Pushgate. Run installer manually from the project root.',
+      error
     );
   }
 };
@@ -76,6 +77,8 @@ const removeUnrelatedFiles = () => {
     'cli',
     '.github/workflows/deploy-cli.yml',
     'LICENSE',
+    // Only read from the template release by the sync-with-template workflow
+    '.appignore',
   ]);
 };
 
@@ -152,7 +155,7 @@ const updateGitHubWorkflows = (projectName) => {
         },
         {
           searchValue:
-            /^\s*environment:\s*\n\s*name:\s*template\s*\n\s*url:\s*.+\s*\n/m,
+            /^[ \t]*environment:[ \t]*\r?\n[ \t]*name:[ \t]*template[ \t]*\r?\n[ \t]*url:[ \t]*\S[^\r\n]*\r?\n/m,
           replaceValue: '',
         },
       ],

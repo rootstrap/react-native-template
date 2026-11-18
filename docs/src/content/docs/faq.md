@@ -1,12 +1,12 @@
 ---
 title: Frequently asked questions
-description: Frequently asked questions about the React Native / Expo Starter.
+description: Frequently asked questions about the Rootstrap React Native Template.
 head:
   - tag: title
-    content: FAQ | React Native / Expo Starter
+    content: FAQ | Rootstrap React Native Template
 ---
 
-This page is a collection of frequently asked questions about the React Native / Expo Starter.
+This page is a collection of frequently asked questions about the Rootstrap React Native Template.
 
 ### Is this starter for me?
 

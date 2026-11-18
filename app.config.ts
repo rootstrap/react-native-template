@@ -84,7 +84,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
     'expo-dev-client',
     'expo-localization',
-    'expo-router',
+    ['expo-router', { sitemap: Env.APP_ENV !== 'production' }],
     ['app-icon-badge', appIconBadgeConfig],
   ],
   extra: {

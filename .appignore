@@ -1,0 +1,20 @@
+# Template paths that are never carried into generated apps.
+#
+# The "Sync with template" workflow (.github/project-workflows/sync-with-template.yml)
+# reads this file from the template release it syncs with and excludes these paths
+# from the diff applied to the app, so changes to them are not included in the
+# update Pull Request.
+#
+# One path (file or folder) per line, relative to the repository root.
+# Lines starting with # and blank lines are ignored (inline comments are not supported).
+
+.appignore
+cli
+docs
+ios
+android
+.github/workflows/deploy-docs.yml
+.github/workflows/new-template-version.yml
+.github/workflows/upstream-to-pr.yml
+.github/workflows/sync-with-upstream.yml
+README-project.md
