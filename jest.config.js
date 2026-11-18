@@ -1,5 +1,6 @@
 module.exports = {
   preset: 'jest-expo',
+  resolver: 'react-native-reanimated/jest/resolver',
   setupFilesAfterEnv: ['<rootDir>/jest-setup.ts'],
   testMatch: ['**/?(*.)+(spec|test).ts?(x)'],
   testPathIgnorePatterns: ['/node_modules/', '<rootDir>/.claude/worktrees/'],

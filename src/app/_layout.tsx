@@ -13,6 +13,7 @@ import { APIProvider } from '@/api';
 import interceptors from '@/api/common/interceptors';
 import { AuthProvider, useAuth } from '@/components/providers/auth';
 import { hydrateAuth, loadSelectedTheme, useIsFirstTime } from '@/lib';
+import { getFallbackRoute } from '@/lib/auth/get-fallback-route';
 import { useThemeConfig } from '@/lib/use-theme-config';
 // Import  global CSS file
 import '../../global.css';
@@ -33,19 +34,6 @@ SplashScreen.setOptions({
   duration: 500,
   fade: true,
 });
-
-function getFallbackRoute({
-  isFirstTime,
-  isAuthenticated,
-}: {
-  isFirstTime: boolean;
-  isAuthenticated: boolean;
-}) {
-  if (isFirstTime) {
-    return '/onboarding';
-  }
-  return isAuthenticated ? '/' : '/sign-in';
-}
 
 function GuardedStack() {
   const { isAuthenticated } = useAuth();

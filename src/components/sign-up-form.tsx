@@ -2,7 +2,7 @@ import type { SubmitHandler } from 'react-hook-form';
 import type { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { object, string } from 'zod';
 
@@ -51,7 +51,7 @@ export function SignUpForm({
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={styles.content}
+        contentContainerClassName="grow"
       >
         <View className="flex-1 justify-center gap-4 p-4">
           <Text testID="form-title" className="text-center text-2xl">
@@ -102,9 +102,3 @@ export function SignUpForm({
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  content: {
-    flexGrow: 1,
-  },
-});

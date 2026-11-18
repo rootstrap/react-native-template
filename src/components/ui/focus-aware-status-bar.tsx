@@ -1,3 +1,4 @@
+import { NavigationBar } from 'expo-navigation-bar';
 import { useIsFocused } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'nativewind';
@@ -13,12 +14,16 @@ export function FocusAwareStatusBar({ hidden = false }: Props) {
     return null;
   }
 
-  return isFocused
-    ? (
-        <StatusBar
-          style={colorScheme === 'light' ? 'dark' : 'light'}
-          hidden={hidden}
-        />
-      )
-    : null;
+  if (!isFocused) {
+    return null;
+  }
+
+  const style = colorScheme === 'light' ? 'dark' : 'light';
+
+  return (
+    <>
+      <StatusBar style={style} hidden={hidden} />
+      <NavigationBar style={style} hidden={hidden} />
+    </>
+  );
 }

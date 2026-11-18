@@ -1,8 +1,14 @@
 import { render, screen } from '@testing-library/react-native';
 import { createRef } from 'react';
+import { getAnimatedStyle as getAnimatedStyleUntyped } from 'react-native-reanimated';
+import type { ReactTestInstance } from 'react-test-renderer';
 
 import type { ProgressBarRef } from '../../../src/components/ui/progress-bar';
 import { ProgressBar } from '../../../src/components/ui/progress-bar';
+
+const getAnimatedStyle = getAnimatedStyleUntyped as unknown as (
+  component: ReactTestInstance,
+) => Record<string, unknown>;
 
 describe('ProgressBar component', () => {
   const PROGRESS_BAR = 'progress-bar';
@@ -13,14 +19,27 @@ describe('ProgressBar component', () => {
 
   it('sets initial progress correctly', () => {
     render(<ProgressBar initialProgress={50} />);
-    expect(screen.getByTestId(PROGRESS_BAR)).toHaveStyle({ width: '50%' });
+    const progressBar = screen.getByTestId(PROGRESS_BAR);
+    expect(getAnimatedStyle(progressBar)).toMatchObject({ width: '50%' });
   });
 
-  it('exposes setProgress through the ref', () => {
+  it('setProgress function works correctly', async () => {
+    const finalValue = 75;
+    const progressAnimationDuration = 250;
     const ref = createRef<ProgressBarRef>();
     render(<ProgressBar ref={ref} initialProgress={0} />);
+    const progressBar = screen.getByTestId(PROGRESS_BAR);
 
-    expect(screen.getByTestId(PROGRESS_BAR)).toHaveStyle({ width: '0%' });
-    expect(() => ref.current?.setProgress(75)).not.toThrow();
+    // Call setProgress and check the updated value
+    if (ref.current) {
+      expect(getAnimatedStyle(progressBar)).toMatchObject({ width: '0%' });
+      jest.useFakeTimers();
+      ref.current.setProgress(finalValue);
+      jest.advanceTimersByTime(progressAnimationDuration); // Duration of the animation
+      const updatedProgressBar = await screen.findByTestId(PROGRESS_BAR);
+      expect(getAnimatedStyle(updatedProgressBar)).toMatchObject({
+        width: `${finalValue}%`,
+      });
+    }
   });
 });
