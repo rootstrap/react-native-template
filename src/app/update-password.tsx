@@ -3,6 +3,7 @@ import { useNavigation } from 'expo-router';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { ScrollView } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { z } from 'zod';
@@ -65,42 +66,47 @@ export default function UpdatePassword() {
   return (
     <>
       <FocusAwareStatusBar />
-      <KeyboardAvoidingView>
-        <View className="gap-8 p-4">
-          <View className="gap-2">
-            <Text className="text-center text-2xl">
-              {t('updatePassword.title')}
-            </Text>
-            <Text className="text-center text-gray-600">
-              {t('updatePassword.description')}
-            </Text>
+      <KeyboardAvoidingView className="flex-1" behavior="padding">
+        <ScrollView
+          contentInsetAdjustmentBehavior="automatic"
+          keyboardShouldPersistTaps="handled"
+        >
+          <View className="gap-8 p-4">
+            <View className="gap-2">
+              <Text className="text-center text-2xl">
+                {t('updatePassword.title')}
+              </Text>
+              <Text className="text-center text-gray-600">
+                {t('updatePassword.description')}
+              </Text>
+            </View>
+            <View className="gap-2">
+              <ControlledInput
+                testID="password-input"
+                autoCapitalize="none"
+                secureTextEntry
+                control={control}
+                name="password"
+                label={t('updatePassword.passwordLabel')}
+                placeholder={t('updatePassword.passwordPlaceholder')}
+              />
+              <ControlledInput
+                testID="confirm-password-input"
+                autoCapitalize="none"
+                secureTextEntry
+                control={control}
+                name="passwordConfirmation"
+                label={t('updatePassword.confirmPasswordLabel')}
+                placeholder={t('updatePassword.confirmPasswordPlaceholder')}
+              />
+              <Button
+                testID="update-password-button"
+                label={t('updatePassword.buttonLabel')}
+                onPress={() => { void handleSubmit(onSubmit)(); }}
+              />
+            </View>
           </View>
-          <View className="gap-2">
-            <ControlledInput
-              testID="password-input"
-              autoCapitalize="none"
-              secureTextEntry
-              control={control}
-              name="password"
-              label={t('updatePassword.passwordLabel')}
-              placeholder={t('updatePassword.passwordPlaceholder')}
-            />
-            <ControlledInput
-              testID="confirm-password-input"
-              autoCapitalize="none"
-              secureTextEntry
-              control={control}
-              name="passwordConfirmation"
-              label={t('updatePassword.confirmPasswordLabel')}
-              placeholder={t('updatePassword.confirmPasswordPlaceholder')}
-            />
-            <Button
-              testID="update-password-button"
-              label={t('updatePassword.buttonLabel')}
-              onPress={() => { void handleSubmit(onSubmit)(); }}
-            />
-          </View>
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </>
   );

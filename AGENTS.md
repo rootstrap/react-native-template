@@ -42,7 +42,7 @@ When reviewing code, read and apply the rules in ./REVIEW.md
 - **Forms**: Always use `react-hook-form` + `zod` + `@hookform/resolvers`. Never use `useState` for form state or uncontrolled inputs.
 - **Animations**: Never use `Animated` from React Native directly. Use `moti` for declarative animations or `react-native-reanimated` for gesture-driven ones.
 - **Token refresh**: Token refresh is **not implemented** — there is a `TODO` in `src/components/providers/auth.tsx`. Do not add refresh logic without a deliberate design decision; adding partial refresh code will conflict with the existing 401 handling.
-- **New dependencies**: Before installing any library, verify the latest version compatible with this stack — React Native 0.81, Expo SDK 54, and React 19. Check compatibility via `npx expo install <package>` (which resolves the Expo-blessed version) or the package's peer dependencies. Do not install the latest npm version blindly — it may not support this SDK version.
+- **New dependencies**: Before installing any library, verify the latest version compatible with this stack — React Native 0.88, Expo SDK 58, and React 19.3. Check compatibility via `npx expo install <package>` (which resolves the Expo-blessed version) or the package's peer dependencies. Do not install the latest npm version blindly — it may not support this SDK version.
 
 ---
 

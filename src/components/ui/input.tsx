@@ -74,7 +74,7 @@ export type InputControllerType<T extends FieldValues> = {
 
 type ControlledInputProps<T extends FieldValues> = NInputProps & InputControllerType<T>;
 
-export const Input = forwardRef<NTextInput, NInputProps>((props, ref) => {
+export const Input = forwardRef<React.ComponentRef<typeof NTextInput>, NInputProps>((props, ref) => {
   const { label, error, testID, ...inputProps } = props;
   const [isFocussed, setIsFocussed] = useState(false);
   const onBlur = useCallback(() => setIsFocussed(false), []);

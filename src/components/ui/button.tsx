@@ -1,3 +1,4 @@
+import type { ComponentRef } from 'react';
 import type { PressableProps, View } from 'react-native';
 import type { VariantProps } from 'tailwind-variants';
 import { forwardRef, useMemo } from 'react';
@@ -93,7 +94,7 @@ type Props = {
   textClassName?: string;
 } & ButtonVariants & Omit<PressableProps, 'disabled'>;
 
-export const Button = forwardRef<View, Props>(
+export const Button = forwardRef<ComponentRef<typeof View>, Props>(
   (
     {
       label: text,
