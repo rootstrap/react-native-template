@@ -13,10 +13,9 @@
  * we use dotenv to load the correct variables from the .env file based on the APP_ENV variable (default is development)
  * APP_ENV is passed as an inline variable while executing the command, for example: APP_ENV=staging pnpm build:android
  */
-const z = require('zod');
-
 const {
   envField,
+  envSchema,
   parseWithoutValidation,
   readEnv,
 } = require('./env-fields');
@@ -25,7 +24,7 @@ const packageJSON = require('./package.json');
 const path = require('node:path');
 
 const APP_ENV =
-  /** @type {z.infer<typeof clientEnvSchema>['APP_ENV']} */
+  /** @type {import('./env-fields').InferEnv<typeof clientEnvSchema>['APP_ENV']} */
   (process.env.APP_ENV) ?? 'development';
 
 const isEASBuild = process.env.EAS_BUILD === 'true';
@@ -106,7 +105,7 @@ const withEnvSuffix = (name) =>
 
 /**
  * 2nd part: Define your env variables schema
- * we use zod and the `envField` helpers (see `env-fields.js`) to define our env variables schema
+ * we use the `envField` helpers (see `env-fields.js`) to define our env variables schema
  *
  * we split the env variables into two parts:
  *    1. client: These variables are used in the client-side code (`src` folder).
@@ -114,10 +113,10 @@ const withEnvSuffix = (name) =>
  *
  * Main rules:
  *    1. If you need your variable on the client-side, you should add it to the client schema; otherwise, you should add it to the buildTime schema.
- *    2. Declare variables read from the `.env` file with `envField.string()`, `envField.number()` or `envField.boolean()`.
+ *    2. Declare every variable with `envField.string()`, `envField.number()`, `envField.boolean()` or `envField.enum([...])`.
  *       Their values are read from `process.env` and converted to the declared type automatically, so you only declare them once.
- *       Every variable without a static value is read from `process.env`, so it must use an `envField` builder: declaring it with a plain zod schema (e.g. `z.number()`) throws an error.
- *    3. Static values defined in this file (such as NAME or BUNDLE_ID) are declared with plain zod schemas and their values are set in `clientStaticValues` or `buildTimeStaticValues`.
+ *       Every variable without a static value is read from `process.env`: declaring it with a schema that isn't built by `envField` throws an error.
+ *    3. Static values defined in this file (such as NAME or BUNDLE_ID) are declared the same way and their values are set in `clientStaticValues` or `buildTimeStaticValues`.
  *
  * Note: env fields are required by default; an empty value (e.g. `API_URL=`) is treated as missing.
  * Pass `{ optional: true }` to allow a missing value, or `{ default: value }` to fall back to a default value.
@@ -125,13 +124,13 @@ const withEnvSuffix = (name) =>
  *
  */
 
-const clientEnvSchema = z.object({
-  APP_ENV: z.enum(['development', 'production', 'qa', 'staging']),
-  NAME: z.string(),
-  SCHEME: z.string(),
-  BUNDLE_ID: z.string(),
-  PACKAGE: z.string(),
-  VERSION: z.string(),
+const clientEnvSchema = envSchema({
+  APP_ENV: envField.enum(['development', 'production', 'qa', 'staging']),
+  NAME: envField.string(),
+  SCHEME: envField.string(),
+  BUNDLE_ID: envField.string(),
+  PACKAGE: envField.string(),
+  VERSION: envField.string(),
 
   // ADD YOUR CLIENT ENV VARS HERE
   API_URL: envField.string(),
@@ -141,15 +140,15 @@ const clientEnvSchema = z.object({
   WEBSITE_URL: envField.string(),
 });
 
-const buildTimeEnvSchema = z.object({
-  EXPO_ACCOUNT_OWNER: z.string(),
-  EAS_PROJECT_ID: z.string(),
+const buildTimeEnvSchema = envSchema({
+  EXPO_ACCOUNT_OWNER: envField.string(),
+  EAS_PROJECT_ID: envField.string(),
   // ADD YOUR BUILD TIME ENV VARS HERE
   SECRET_KEY: envField.string(),
 });
 
 /**
- * @type {Partial<z.infer<typeof clientEnvSchema>>}
+ * @type {Partial<import('./env-fields').InferEnv<typeof clientEnvSchema>>}
  */
 const clientStaticValues = {
   APP_ENV,
@@ -161,7 +160,7 @@ const clientStaticValues = {
 };
 
 /**
- * @type {Partial<z.infer<typeof buildTimeEnvSchema>>}
+ * @type {Partial<import('./env-fields').InferEnv<typeof buildTimeEnvSchema>>}
  */
 const buildTimeStaticValues = {
   EXPO_ACCOUNT_OWNER,
@@ -185,12 +184,12 @@ const _wholeEnv = {
 const wholeEnvSchema = buildTimeEnvSchema.merge(clientEnvSchema);
 
 /**
- * @type {z.infer<typeof wholeEnvSchema>}
+ * @type {import('./env-fields').InferEnv<typeof wholeEnvSchema>}
  */
 let Env;
 
 /**
- * @type {z.infer<typeof clientEnvSchema>}
+ * @type {import('./env-fields').InferEnv<typeof clientEnvSchema>}
  */
 let ClientEnv;
 

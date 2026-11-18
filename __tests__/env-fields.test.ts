@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import {
   envField,
+  envSchema,
   isEnvField,
   parseWithoutValidation,
   readEnv,
@@ -13,9 +14,7 @@ const getErrorMessages = (schema: z.ZodTypeAny, value: unknown) =>
 describe('envField', () => {
   describe('string', () => {
     it('returns the value as is', () => {
-      expect(envField.string().parse('https://example.com')).toBe(
-        'https://example.com',
-      );
+      expect(envField.string().parse('https://example.com')).toBe('https://example.com');
     });
 
     it('rejects missing and empty values by default', () => {
@@ -58,12 +57,8 @@ describe('envField', () => {
     });
 
     it('describes the accepted format and the received value when invalid', () => {
-      expect(getErrorMessages(envField.number(), 'abc')).toEqual([
-        'must be a plain decimal number (e.g. 42 or -3.5), received "abc"',
-      ]);
-      expect(getErrorMessages(envField.number({ optional: true }), '1e3')).toEqual([
-        'must be a plain decimal number (e.g. 42 or -3.5), received "1e3"',
-      ]);
+      expect(getErrorMessages(envField.number(), 'abc')).toEqual(['must be a plain decimal number (e.g. 42 or -3.5), received "abc"']);
+      expect(getErrorMessages(envField.number({ optional: true }), '1e3')).toEqual(['must be a plain decimal number (e.g. 42 or -3.5), received "1e3"']);
       expect(getErrorMessages(envField.number(), '9'.repeat(400))?.[0]).toMatch(/^must be a plain decimal number/);
     });
 
@@ -110,12 +105,8 @@ describe('envField', () => {
     });
 
     it('describes the accepted format and the received value when invalid', () => {
-      expect(getErrorMessages(envField.boolean(), 'yes')).toEqual([
-        'must be \'true\' or \'false\', received "yes"',
-      ]);
-      expect(getErrorMessages(envField.boolean({ default: false }), '1')).toEqual([
-        'must be \'true\' or \'false\', received "1"',
-      ]);
+      expect(getErrorMessages(envField.boolean(), 'yes')).toEqual(['must be \'true\' or \'false\', received "yes"']);
+      expect(getErrorMessages(envField.boolean({ default: false }), '1')).toEqual(['must be \'true\' or \'false\', received "1"']);
     });
 
     it('rejects missing and empty values by default', () => {
@@ -139,6 +130,17 @@ describe('envField', () => {
     });
   });
 
+  describe('enum', () => {
+    it('accepts only the given values', () => {
+      const schema = envField.enum(['development', 'production']);
+
+      expect(schema.parse('production')).toBe('production');
+      expect(schema.safeParse('staging').success).toBe(false);
+      expect(schema.safeParse('').success).toBe(false);
+      expect(envField.enum(['qa', 'staging'], { default: 'qa' }).parse(undefined)).toBe('qa');
+    });
+  });
+
   it('uses the default value when both optional and default are set', () => {
     const schema = envField.string({ optional: true, default: 'fallback' });
 
@@ -147,15 +149,10 @@ describe('envField', () => {
   });
 
   it('reports missing variables as required when used in an object schema', () => {
-    const result = z
-      .object({ API_URL: envField.string(), VAR_NUMBER: envField.number() })
-      .safeParse({ API_URL: '', VAR_NUMBER: undefined });
+    const result = envSchema({ API_URL: envField.string(), VAR_NUMBER: envField.number() }).safeParse({ API_URL: '', VAR_NUMBER: undefined });
 
     expect(result.success).toBe(false);
-    expect(result.error?.flatten().fieldErrors).toEqual({
-      API_URL: ['Required'],
-      VAR_NUMBER: ['Required'],
-    });
+    expect(result.error?.flatten().fieldErrors).toEqual({ API_URL: ['Required'], VAR_NUMBER: ['Required'] });
   });
 });
 
@@ -164,6 +161,7 @@ describe('isEnvField', () => {
     expect(isEnvField(envField.string())).toBe(true);
     expect(isEnvField(envField.number({ optional: true }))).toBe(true);
     expect(isEnvField(envField.boolean({ default: false }))).toBe(true);
+    expect(isEnvField(envField.enum(['qa', 'staging']))).toBe(true);
     expect(isEnvField(z.string())).toBe(false);
     expect(isEnvField(z.preprocess(value => value, z.number()))).toBe(false);
   });
@@ -183,32 +181,21 @@ describe('readEnv', () => {
   it('reads the declared variables from process.env', () => {
     process.env.API_URL = 'https://api.example.com';
     process.env.UNDECLARED_VAR = 'ignored';
-    const schema = z.object({
-      API_URL: envField.string(),
-      VAR_NUMBER: envField.number(),
-    });
+    const schema = envSchema({ API_URL: envField.string(), VAR_NUMBER: envField.number() });
 
-    expect(readEnv(schema, {})).toEqual({
-      API_URL: 'https://api.example.com',
-      VAR_NUMBER: undefined,
-    });
+    expect(readEnv(schema, {})).toEqual({ API_URL: 'https://api.example.com', VAR_NUMBER: undefined });
   });
 
   it('overrides process.env with the static values', () => {
     process.env.NAME = 'FromEnvFile';
-    const schema = z.object({ NAME: z.string() });
+    const schema = envSchema({ NAME: envField.string() });
 
-    expect(readEnv(schema, { NAME: 'StaticName' })).toEqual({
-      NAME: 'StaticName',
-    });
+    expect(readEnv(schema, { NAME: 'StaticName' })).toEqual({ NAME: 'StaticName' });
   });
 
   it('throws when a variable without a static value is not declared with envField', () => {
     process.env.VAR_NUMBER = '42';
-    const schema = z.object({
-      API_URL: envField.string(),
-      VAR_NUMBER: z.number(),
-    });
+    const schema = z.object({ API_URL: envField.string(), VAR_NUMBER: z.number() });
 
     expect(() => readEnv(schema, {})).toThrow(
       'The env variable "VAR_NUMBER" is read from process.env but it isn\'t declared with an envField builder',
@@ -217,34 +204,20 @@ describe('readEnv', () => {
 });
 
 describe('parseWithoutValidation', () => {
-  const schema = z.object({
+  const schema = envSchema({
     API_URL: envField.string(),
     VAR_NUMBER: envField.number(),
     VAR_BOOL: envField.boolean({ default: false }),
   });
 
   it('parses the valid values', () => {
-    expect(
-      parseWithoutValidation(schema, {
-        API_URL: 'https://api.example.com',
-        VAR_NUMBER: '42',
-        VAR_BOOL: 'true',
-      }),
-    ).toEqual({
-      API_URL: 'https://api.example.com',
-      VAR_NUMBER: 42,
-      VAR_BOOL: true,
-    });
+    const values = { API_URL: 'https://api.example.com', VAR_NUMBER: '42', VAR_BOOL: 'true' };
+
+    expect(parseWithoutValidation(schema, values)).toEqual({ API_URL: 'https://api.example.com', VAR_NUMBER: 42, VAR_BOOL: true });
   });
 
   it('returns undefined for invalid or missing values without throwing', () => {
-    expect(
-      parseWithoutValidation(schema, { VAR_NUMBER: 'abc', VAR_BOOL: 'yes' }),
-    ).toEqual({
-      API_URL: undefined,
-      VAR_NUMBER: undefined,
-      VAR_BOOL: undefined,
-    });
+    expect(parseWithoutValidation(schema, { VAR_NUMBER: 'abc', VAR_BOOL: 'yes' })).toEqual({ API_URL: undefined, VAR_NUMBER: undefined, VAR_BOOL: undefined });
   });
 
   it('applies default values for missing values', () => {

@@ -2,7 +2,7 @@
  * Helpers to declare environment variables in `env.js`.
  * Each `envField` builder returns a zod schema that receives the raw value read from `process.env`
  * (always a string or undefined), converts it to the right type and validates it.
- * This way every variable is declared only once, with its type, in the schemas defined in `env.js`.
+ * This way every variable, including the static values set in `env.js`, is declared only once, with its type, in its schemas.
  *
  * Options:
  *    - optional: the variable may be missing or empty; its value will be `undefined`.
@@ -16,13 +16,11 @@ const z = require('zod');
  * @template {z.ZodTypeAny} T
  * @typedef {{ optional?: boolean, default?: z.output<T> }} EnvFieldOptions
  */
-
 /**
  * @template {z.ZodTypeAny} T
  * @template {EnvFieldOptions<T>} O
  * @typedef {O extends { default: {} } ? z.ZodDefault<T> : O extends { optional: true } ? z.ZodOptional<T> : T} EnvFieldInner
  */
-
 /**
  * @template {z.ZodTypeAny} T
  * @template {EnvFieldOptions<T>} O
@@ -36,13 +34,8 @@ const z = require('zod');
  */
 const envFieldSchemas = new WeakSet();
 
-/**
- * @param {z.ZodTypeAny} schema
- * @returns {boolean} whether the schema was created with one of the `envField` builders
- */
-function isEnvField(schema) {
-  return envFieldSchemas.has(schema);
-}
+/** @param {z.ZodTypeAny} schema whether the schema was created with one of the `envField` builders */
+const isEnvField = schema => envFieldSchemas.has(schema);
 
 /**
  * Builds an env field schema: raw values are converted with `parse` (empty strings become `undefined`)
@@ -51,27 +44,16 @@ function isEnvField(schema) {
  * @template {EnvFieldOptions<T>} O
  * @param {T} schema
  * @param {(value: string) => unknown} parse
- * @param {O} options
+ * @param {O} [options]
  * @returns {EnvField<T, O>} the env field schema
  */
-function createEnvField(schema, parse, options) {
+function createEnvField(schema, parse, options = /** @type {O} */ ({})) {
   /** @type {z.ZodTypeAny} */
-  let inner = schema;
-  if (options.default !== undefined) {
-    inner = schema.default(options.default);
-  }
-  else if (options.optional) {
-    inner = schema.optional();
-  }
-
-  const envFieldSchema = z.preprocess((value) => {
-    if (value === undefined || value === '') {
-      return undefined;
-    }
-    return typeof value === 'string' ? parse(value) : value;
-  }, inner);
+  const optionalSchema = options.optional ? schema.optional() : schema;
+  const inner = options.default === undefined ? optionalSchema : schema.default(options.default);
+  const parseRaw = (/** @type {string} */ value) => (value === '' ? undefined : parse(value));
+  const envFieldSchema = z.preprocess(value => (typeof value === 'string' ? parseRaw(value) : value), inner);
   envFieldSchemas.add(envFieldSchema);
-
   return /** @type {EnvField<T, O>} */ (envFieldSchema);
 }
 
@@ -83,12 +65,9 @@ function createEnvField(schema, parse, options) {
  * @returns {z.ZodErrorMap} the error map
  */
 function invalidValueErrorMap(expected) {
-  return (issue, ctx) => {
-    if (issue.code === 'invalid_type' && ctx.data !== undefined) {
-      return { message: `must be ${expected}, received ${JSON.stringify(ctx.data)}` };
-    }
-    return { message: ctx.defaultError };
-  };
+  return (issue, ctx) => ({
+    message: issue.code === 'invalid_type' && ctx.data !== undefined ? `must be ${expected}, received ${JSON.stringify(ctx.data)}` : ctx.defaultError,
+  });
 }
 
 const DECIMAL_NUMBER_REGEX = /^-?\d+(?:\.\d+)?$/;
@@ -118,37 +97,38 @@ const envField = {
    * @template {EnvFieldOptions<z.ZodString>} [O={}]
    * @param {O} [options]
    */
-  string: options =>
-    createEnvField(
-      z.string(),
-      value => value,
-      /** @type {O} */ (options ?? {}),
-    ),
+  string: options => createEnvField(z.string(), value => value, options),
   /**
    * @template {EnvFieldOptions<z.ZodNumber>} [O={}]
    * @param {O} [options]
    */
-  number: options =>
-    createEnvField(
-      z
-        .number({
-          errorMap: invalidValueErrorMap('a plain decimal number (e.g. 42 or -3.5)'),
-        })
-        .finite(),
-      parseNumber,
-      /** @type {O} */ (options ?? {}),
-    ),
+  number: options => createEnvField(z.number({ errorMap: invalidValueErrorMap('a plain decimal number (e.g. 42 or -3.5)') }).finite(), parseNumber, options),
   /**
    * @template {EnvFieldOptions<z.ZodBoolean>} [O={}]
    * @param {O} [options]
    */
-  boolean: options =>
-    createEnvField(
-      z.boolean({ errorMap: invalidValueErrorMap('\'true\' or \'false\'') }),
-      parseBoolean,
-      /** @type {O} */ (options ?? {}),
-    ),
+  boolean: options => createEnvField(z.boolean({ errorMap: invalidValueErrorMap('\'true\' or \'false\'') }), parseBoolean, options),
+  /**
+   * @template {string} U
+   * @template {Readonly<[U, ...U[]]>} V
+   * @template {EnvFieldOptions<z.ZodEnum<z.Writeable<V>>>} [O={}]
+   * @param {V} values
+   * @param {O} [options]
+   */
+  enum: (values, options) => createEnvField(z.enum(values), value => value, options),
 };
+
+/**
+ * Builds the object schema of a group of env fields; use `InferEnv` to get the type of its parsed values.
+ * @template {z.ZodRawShape} T
+ * @param {T} shape
+ */
+const envSchema = shape => z.object(shape);
+
+/**
+ * @template {z.ZodTypeAny} T
+ * @typedef {z.infer<T>} InferEnv
+ */
 
 /**
  * Reads the raw value of every variable declared in the schema from `process.env`,
@@ -168,7 +148,7 @@ function readEnv(schema, staticValues) {
       if (!isEnvField(fieldSchema)) {
         throw new Error(
           `The env variable "${key}" is read from process.env but it isn't declared with an envField builder. `
-          + 'Declare it with envField.string(), envField.number() or envField.boolean() in env.js, '
+          + 'Declare it with envField.string(), envField.number(), envField.boolean() or envField.enum() in env.js, '
           + 'or set its value in the static values. Use the envField schema as returned: pass { optional, default } '
           + 'instead of chaining zod methods on it (e.g. .optional() or .describe()), which returns an untracked schema.',
         );
@@ -198,4 +178,4 @@ function parseWithoutValidation(schema, values) {
   );
 }
 
-module.exports = { envField, isEnvField, parseWithoutValidation, readEnv };
+module.exports = { envField, envSchema, isEnvField, parseWithoutValidation, readEnv };
