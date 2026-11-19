@@ -66,7 +66,7 @@ export default function UpdatePassword() {
   return (
     <>
       <FocusAwareStatusBar />
-      <KeyboardAvoidingView className="flex-1" behavior="padding">
+      <KeyboardAvoidingView className="flex-1" behavior="padding" automaticOffset>
         <ScrollView
           contentInsetAdjustmentBehavior="automatic"
           keyboardShouldPersistTaps="handled"

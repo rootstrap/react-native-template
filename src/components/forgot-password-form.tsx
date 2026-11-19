@@ -36,7 +36,7 @@ export function ForgotPasswordForm(props: Readonly<ForgotPasswordFormProps>) {
   };
 
   return (
-    <KeyboardAvoidingView className="flex-1" behavior="padding">
+    <KeyboardAvoidingView className="flex-1" behavior="padding" automaticOffset>
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         keyboardShouldPersistTaps="handled"
