@@ -1,9 +1,14 @@
 import { render, screen } from '@testing-library/react-native';
 import { createRef } from 'react';
-import { getAnimatedStyle } from 'react-native-reanimated';
+import { getAnimatedStyle as getAnimatedStyleUntyped } from 'react-native-reanimated';
+import type { ReactTestInstance } from 'react-test-renderer';
 
 import type { ProgressBarRef } from '../../../src/components/ui/progress-bar';
 import { ProgressBar } from '../../../src/components/ui/progress-bar';
+
+const getAnimatedStyle = getAnimatedStyleUntyped as unknown as (
+  component: ReactTestInstance,
+) => Record<string, unknown>;
 
 describe('ProgressBar component', () => {
   const PROGRESS_BAR = 'progress-bar';

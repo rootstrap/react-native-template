@@ -1,3 +1,4 @@
+import type { ColorValue } from 'react-native';
 import { Link, Redirect, SplashScreen, Tabs } from 'expo-router';
 import { useCallback, useEffect } from 'react';
 
@@ -10,7 +11,7 @@ import {
 } from '@/components/ui/icons';
 import { useIsFirstTime } from '@/lib';
 
-type TabBarIconProps = { color: string };
+type TabBarIconProps = { color: ColorValue };
 
 function renderFeedIcon({ color }: TabBarIconProps) {
   return <FeedIcon color={color} />;

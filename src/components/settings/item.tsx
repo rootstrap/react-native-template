@@ -12,7 +12,7 @@ type ItemProps = {
   icon?: React.ReactNode;
 };
 
-export const Item = forwardRef<View, ItemProps>(
+export const Item = forwardRef<React.ComponentRef<typeof View>, ItemProps>(
   ({ text, value, icon, onPress }: ItemProps, ref) => {
     const isPressable = onPress !== undefined;
     return (

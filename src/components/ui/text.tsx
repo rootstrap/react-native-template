@@ -1,4 +1,4 @@
-import type { TextProps, TextStyle } from 'react-native';
+import type { TextProps } from 'react-native';
 import type { TxKeyPath } from '@/lib/i18n';
 import { useMemo } from 'react';
 import { I18nManager, Text as NNText, StyleSheet } from 'react-native';
@@ -27,7 +27,7 @@ export function Text({
     [className],
   );
 
-  const nStyle: TextStyle = useMemo(
+  const nStyle = useMemo(
     () =>
       StyleSheet.flatten([
         {

@@ -29,6 +29,7 @@ export default antfu(
     ignores: [
       'dist/*',
       'node_modules',
+      '.claude/worktrees/',
       '__tests__/',
       'coverage',
       '.expo',
