@@ -10,7 +10,7 @@ import {
   Settings as SettingsIcon,
   Style as StyleIcon,
 } from '@/components/ui/icons';
-import { translate, useIsFirstTime } from '@/lib';
+import { useIsFirstTime } from '@/lib';
 
 type TabBarIconProps = { color: ColorValue };
 
@@ -72,7 +72,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: translate('settings.title'),
+          title: t('settings.title'),
           tabBarIcon: renderSettingsIcon,
           tabBarButtonTestID: 'settings-tab',
         }}
