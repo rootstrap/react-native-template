@@ -55,19 +55,27 @@ function GuardedStack() {
       <AnalyticsTrackers />
       <Stack>
         <Stack.Protected guard={isFirstTime} redirectTo={fallbackRoute}>
-          <Stack.Screen name="onboarding" />
+          <Stack.Screen name="onboarding" options={{ headerShown: false }} />
         </Stack.Protected>
 
         <Stack.Protected guard={isAuthenticated} redirectTo={fallbackRoute}>
-          <Stack.Screen name="(app)" />
+          <Stack.Screen name="(app)" options={{ headerShown: false }} />
           <Stack.Screen name="update-password" />
         </Stack.Protected>
 
         <Stack.Protected guard={!isAuthenticated} redirectTo={fallbackRoute}>
-          <Stack.Screen name="sign-in" />
+          <Stack.Screen name="sign-in" options={{ headerShown: false }} />
           <Stack.Screen name="sign-up" />
           <Stack.Screen name="forgot-password" />
         </Stack.Protected>
+
+        <Stack.Screen
+          name="www"
+          options={{
+            presentation: 'modal',
+            title: '',
+          }}
+        />
       </Stack>
     </>
   );

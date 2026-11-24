@@ -1,5 +1,5 @@
 import type { ColorValue } from 'react-native';
-import { Link, Redirect, SplashScreen, Stack, Tabs } from 'expo-router';
+import { Link, Redirect, SplashScreen, Tabs } from 'expo-router';
 import { useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -51,36 +51,33 @@ export default function TabLayout() {
     return <Redirect href="/sign-in" />;
   }
   return (
-    <>
-      <Stack.Screen options={{ headerShown: false }} />
-      <Tabs>
-        <Tabs.Screen
-          name="index"
-          options={{
-            title: t('tabs.feed'),
-            tabBarIcon: renderFeedIcon,
-            headerRight: renderCreateNewPostLink,
-            tabBarButtonTestID: 'feed-tab',
-          }}
-        />
-        <Tabs.Screen
-          name="style"
-          options={{
-            title: t('tabs.style'),
-            tabBarIcon: renderStyleIcon,
-            tabBarButtonTestID: 'style-tab',
-          }}
-        />
-        <Tabs.Screen
-          name="settings"
-          options={{
-            title: translate('settings.title'),
-            tabBarIcon: renderSettingsIcon,
-            tabBarButtonTestID: 'settings-tab',
-          }}
-        />
-      </Tabs>
-    </>
+    <Tabs>
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: t('tabs.feed'),
+          tabBarIcon: renderFeedIcon,
+          headerRight: renderCreateNewPostLink,
+          tabBarButtonTestID: 'feed-tab',
+        }}
+      />
+      <Tabs.Screen
+        name="style"
+        options={{
+          title: t('tabs.style'),
+          tabBarIcon: renderStyleIcon,
+          tabBarButtonTestID: 'style-tab',
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: translate('settings.title'),
+          tabBarIcon: renderSettingsIcon,
+          tabBarButtonTestID: 'settings-tab',
+        }}
+      />
+    </Tabs>
   );
 }
 

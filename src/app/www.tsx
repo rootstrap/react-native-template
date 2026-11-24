@@ -11,9 +11,8 @@ export default function WWW() {
   const { url, title } = useLocalSearchParams();
 
   const screenOptions = {
-    presentation: 'modal',
     title: typeof title === 'string' ? title : '',
-  } as const;
+  };
 
   return (
     <>

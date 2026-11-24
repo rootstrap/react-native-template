@@ -1,4 +1,4 @@
-import { Stack, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 
 import { Cover } from '@/components/cover';
 import {
@@ -17,7 +17,6 @@ export default function Onboarding() {
 
   return (
     <View className="flex h-full items-center justify-center">
-      <Stack.Screen options={{ headerShown: false }} />
       <FocusAwareStatusBar />
       <View className="w-full flex-1">
         <Cover />

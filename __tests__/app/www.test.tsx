@@ -27,7 +27,7 @@ describe('WWW', () => {
     mockUseRouter.mockReturnValue({ back });
   });
 
-  it('opens the url in a modal titled with the title param', () => {
+  it('opens the url titled with the title param', () => {
     mockUseLocalSearchParams.mockReturnValue({
       url: 'https://example.com',
       title: 'Example',
@@ -37,7 +37,6 @@ describe('WWW', () => {
 
     expect(mockStackScreen).toHaveBeenCalledTimes(1);
     expect(mockStackScreen.mock.calls[0][0].options).toEqual({
-      presentation: 'modal',
       title: 'Example',
     });
     expect(mockWebView.mock.calls[0][0].source).toEqual({
