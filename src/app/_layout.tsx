@@ -16,6 +16,7 @@ import { useAnalyticsScreenTracking, useAnalyticsSessionReset } from '@/componen
 import { AuthProvider, useAuth } from '@/components/providers/auth';
 import { consoleAnalyticsProvider, hydrateAuth, loadSelectedTheme, useIsFirstTime } from '@/lib';
 import { getFallbackRoute } from '@/lib/auth/get-fallback-route';
+import { useSyncLanguageWithOS } from '@/lib/i18n';
 import { useThemeConfig } from '@/lib/use-theme-config';
 // Import  global CSS file
 import '../../global.css';
@@ -88,6 +89,8 @@ function GuardedStack() {
 }
 
 export default function RootLayout() {
+  useSyncLanguageWithOS();
+
   return (
     <Providers>
       <RouterContent />
