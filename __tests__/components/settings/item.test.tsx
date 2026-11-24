@@ -25,8 +25,7 @@ describe('Item component', () => {
     const mockOnPress = jest.fn();
     render(<Item text="settings.language" onPress={mockOnPress} />);
 
-    const pressable = screen.getByText('Language').parent;
-    fireEvent.press(pressable);
+    fireEvent.press(screen.getByText('Language'));
 
     expect(mockOnPress).toHaveBeenCalled();
   });

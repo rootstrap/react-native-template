@@ -1,7 +1,6 @@
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 
-import { ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
+import { Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -16,6 +15,7 @@ import { AnalyticsProvider } from '@/components/providers/analytics';
 import { useAnalyticsScreenTracking, useAnalyticsSessionReset } from '@/components/providers/analytics-tracking';
 import { AuthProvider, useAuth } from '@/components/providers/auth';
 import { consoleAnalyticsProvider, hydrateAuth, loadSelectedTheme, useIsFirstTime } from '@/lib';
+import { getFallbackRoute } from '@/lib/auth/get-fallback-route';
 import { useSyncLanguageWithOS } from '@/lib/i18n';
 import { useThemeConfig } from '@/lib/use-theme-config';
 // Import  global CSS file
@@ -24,7 +24,7 @@ import '../../global.css';
 export { ErrorBoundary } from 'expo-router';
 
 export const unstable_settings = {
-  initialRouteName: '(app)',
+  anchor: '(app)',
 };
 
 hydrateAuth();
@@ -50,16 +50,17 @@ function GuardedStack() {
   const { isAuthenticated } = useAuth();
   const { t } = useTranslation();
   const [isFirstTime] = useIsFirstTime();
+  const fallbackRoute = getFallbackRoute({ isFirstTime, isAuthenticated });
 
   return (
     <>
       <AnalyticsTrackers />
       <Stack>
-        <Stack.Protected guard={isFirstTime}>
+        <Stack.Protected guard={isFirstTime} redirectTo={fallbackRoute}>
           <Stack.Screen name="onboarding" options={{ headerShown: false }} />
         </Stack.Protected>
 
-        <Stack.Protected guard={isAuthenticated}>
+        <Stack.Protected guard={isAuthenticated} redirectTo={fallbackRoute}>
           <Stack.Screen name="(app)" options={{ headerShown: false }} />
           <Stack.Screen
             name="update-password"
@@ -69,7 +70,7 @@ function GuardedStack() {
           />
         </Stack.Protected>
 
-        <Stack.Protected guard={!isAuthenticated}>
+        <Stack.Protected guard={!isAuthenticated} redirectTo={fallbackRoute}>
           <Stack.Screen name="sign-in" options={{ headerShown: false }} />
           <Stack.Screen name="sign-up" />
           <Stack.Screen name="forgot-password" />
