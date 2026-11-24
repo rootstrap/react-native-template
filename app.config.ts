@@ -1,4 +1,3 @@
-/* eslint-disable max-lines-per-function */
 import type { ConfigContext, ExpoConfig } from '@expo/config';
 import type { AppIconBadgeConfig } from 'app-icon-badge/types';
 
@@ -31,7 +30,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   orientation: 'portrait',
   icon: './assets/icon.png',
   userInterfaceStyle: 'automatic',
-  newArchEnabled: true,
   updates: {
     fallbackToCacheTimeout: 0,
     url: `https://u.expo.dev/${Env.EAS_PROJECT_ID}`,
@@ -66,7 +64,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'expo-build-properties',
       {
         ios: {
-          deploymentTarget: '16.0',
+          deploymentTarget: '16.4',
         },
       },
     ],
@@ -86,9 +84,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     ],
     'expo-dev-client',
     'expo-localization',
-    'expo-router',
+    ['expo-router', { sitemap: Env.APP_ENV !== 'production' }],
     ['app-icon-badge', appIconBadgeConfig],
-    ['react-native-edge-to-edge'],
   ],
   extra: {
     ...ClientEnv,

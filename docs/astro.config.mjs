@@ -71,6 +71,11 @@ export default defineConfig({
           link: '/overview',
         },
         {
+          label: 'Changes over Obytes Starter',
+          link: '/changes-over-obytes',
+          badge: 'new',
+        },
+        {
           label: 'Start Here',
           items: [
             // Each item here is one entry in the navigation menu.
@@ -141,6 +146,11 @@ export default defineConfig({
             {
               label: 'Storage',
               link: '/guides/storage/',
+            },
+            {
+              label: 'Analytics',
+              link: '/guides/analytics/',
+              badge: 'new',
             },
             {
               label: 'Upgrade Dependencies',

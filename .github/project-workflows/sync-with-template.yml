@@ -20,9 +20,13 @@
 
 # ℹ️ Environment variables:
 # - TEMPLATE_REPOSITORY: Repository to sync with
-# - DIFF_EXCLUDED_ROUTES: List of files or directories to exclude from the diff.
-#                         Any changes in these files or directories will be ignored
-#                         and won't be incorporated to the Pull Request.
+
+# 🙈 Excluded paths:
+# The files and directories excluded from the diff are read from the `.appignore` file
+# of the template release being synced (one path per line, `#` comments and blank lines allowed).
+# Any changes in these files or directories will be ignored and won't be incorporated to the Pull Request.
+# To exclude a new path, add it to the `.appignore` file in the template repository.
+# Template releases published before `.appignore` existed (or with no paths in it) fall back to a default list defined in this workflow.
 
 name: 🔄 Sync with template
 
@@ -39,16 +43,6 @@ on:
 
 env:
   TEMPLATE_REPOSITORY: rootstrap/react-native-template
-  DIFF_EXCLUDED_ROUTES: |
-    cli
-    docs
-    ios
-    android
-    .github/workflows/deploy-docs.yml
-    .github/workflows/new-template-version.yml
-    .github/workflows/upstream-to-pr.yml
-    .github/workflows/sync-with-upstream.yml
-    README-project.md
 
 jobs:
   sync:
@@ -128,13 +122,51 @@ jobs:
           path: react-native-template
       - name: Get diff between latest release and used release
         if: ${{ env.BRANCH_EXISTS == 'false' }}
+        shell: bash
         run: |
-          EXCLUDED_ROUTES=""
-          for route in $DIFF_EXCLUDED_ROUTES; do
-            EXCLUDED_ROUTES="$EXCLUDED_ROUTES ':(exclude)$route'"
+          APPIGNORE_FILE=react-native-template/.appignore
+          # Used only for template releases without a usable .appignore file
+          DEFAULT_ROUTES=(
+            .appignore
+            cli
+            docs
+            ios
+            android
+            .github/workflows/deploy-docs.yml
+            .github/workflows/new-template-version.yml
+            .github/workflows/upstream-to-pr.yml
+            .github/workflows/sync-with-upstream.yml
+            README-project.md
+          )
+          ROUTES=()
+          if [ -f "$APPIGNORE_FILE" ]; then
+            while IFS= read -r route || [ -n "$route" ]; do
+              # Trim surrounding whitespace (including CRLF line endings)
+              route="${route#"${route%%[![:space:]]*}"}"
+              route="${route%"${route##*[![:space:]]}"}"
+              # Paths are relative to the repository root
+              route="${route#/}"
+              if [ -z "$route" ] || [[ "$route" == \#* ]]; then
+                continue
+              fi
+              ROUTES+=("$route")
+            done < "$APPIGNORE_FILE"
+            if [ ${#ROUTES[@]} -eq 0 ]; then
+              echo "::warning::$APPIGNORE_FILE in template $TEMPLATE_UPDATE_VERSION has no paths. Using the default list of excluded paths."
+              ROUTES=("${DEFAULT_ROUTES[@]}")
+            fi
+          else
+            echo "::warning::$APPIGNORE_FILE not found in template $TEMPLATE_UPDATE_VERSION. Using the default list of excluded paths."
+            ROUTES=("${DEFAULT_ROUTES[@]}")
+          fi
+          EXCLUDED_ROUTES=()
+          for route in "${ROUTES[@]}"; do
+            EXCLUDED_ROUTES+=(":(exclude)$route")
           done
+          echo "Excluded paths:"
+          printf '  %s\n' "${EXCLUDED_ROUTES[@]}"
           cd react-native-template
-          git diff ${{ env.PROJECT_TEMPLATE_VERSION }} -- . $(echo $EXCLUDED_ROUTES | xargs) > ../update.patch
+          git diff "$PROJECT_TEMPLATE_VERSION" -- . "${EXCLUDED_ROUTES[@]}" > ../update.patch
       - name: Update template version in package.json
         if: ${{ env.BRANCH_EXISTS == 'false' }}
         run: |

@@ -23,6 +23,7 @@ export default function WWW() {
             <View className="flex-1 bg-white">
               <WebView
                 source={{ uri: url }}
+                contentInsetAdjustmentBehavior="automatic"
                 className="flex-1"
                 onError={() => router.back()}
               />

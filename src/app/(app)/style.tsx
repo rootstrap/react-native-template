@@ -1,3 +1,4 @@
+import type { ColorValue } from 'react-native';
 import { Tabs } from 'expo-router';
 import * as React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -9,6 +10,12 @@ import { Typography } from '@/components/typography';
 import { FocusAwareStatusBar, SafeAreaView, ScrollView } from '@/components/ui';
 import { Style as StyleIcon } from '@/components/ui/icons';
 
+type TabBarIconProps = { color: ColorValue };
+
+function renderStyleIcon({ color }: TabBarIconProps) {
+  return <StyleIcon color={color} />;
+}
+
 export default function Style() {
   const { t } = useTranslation();
 
@@ -17,7 +24,7 @@ export default function Style() {
       <Tabs.Screen
         options={{
           title: t('tabs.style'),
-          tabBarIcon: ({ color }) => <StyleIcon color={color} />,
+          tabBarIcon: renderStyleIcon,
           tabBarButtonTestID: 'style-tab',
         }}
       />

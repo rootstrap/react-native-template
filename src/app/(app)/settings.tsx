@@ -1,4 +1,5 @@
 /* eslint-disable max-lines-per-function */
+import type { ColorValue } from 'react-native';
 import { Link, Tabs } from 'expo-router';
 import { useColorScheme } from 'nativewind';
 import * as React from 'react';
@@ -10,6 +11,7 @@ import { DeleteAccountItem } from '@/components/settings/delete-account-item';
 import { Item } from '@/components/settings/item';
 import { ItemsContainer } from '@/components/settings/items-container';
 import { LanguageItem } from '@/components/settings/language-item';
+import { LinkItem } from '@/components/settings/link-item';
 import { ThemeItem } from '@/components/settings/theme-item';
 import {
   colors,
@@ -21,6 +23,12 @@ import {
 import { Settings as SettingsIcon, Website } from '@/components/ui/icons';
 import { translate } from '@/lib';
 import { Env } from '@/lib/env';
+
+type TabBarIconProps = { color: ColorValue };
+
+function renderSettingsIcon({ color }: TabBarIconProps) {
+  return <SettingsIcon color={color} />;
+}
 
 export default function Settings() {
   const { logout } = useAuth();
@@ -47,7 +55,7 @@ export default function Settings() {
       <Tabs.Screen
         options={{
           title: translate('settings.title'),
-          tabBarIcon: ({ color }) => <SettingsIcon color={color} />,
+          tabBarIcon: renderSettingsIcon,
           tabBarButtonTestID: 'settings-tab',
         }}
       />
@@ -78,33 +86,12 @@ export default function Settings() {
           </ItemsContainer>
 
           <ItemsContainer title="settings.links">
-            <Link
-              asChild
-              href={{
-                pathname: '/www',
-                params: {
-                  url: Env.TERMS_OF_SERVICE_URL,
-                  title: translate('settings.terms'),
-                },
-              }}
-            >
-              <Item text="settings.terms" />
-            </Link>
-            <Link
-              asChild
-              href={{
-                pathname: '/www',
-                params: {
-                  url: Env.WEBSITE_URL,
-                  title: translate('settings.website'),
-                },
-              }}
-            >
-              <Item
-                text="settings.website"
-                icon={<Website color={iconColor} />}
-              />
-            </Link>
+            <LinkItem text="settings.terms" url={Env.TERMS_OF_SERVICE_URL} />
+            <LinkItem
+              text="settings.website"
+              url={Env.WEBSITE_URL}
+              icon={<Website color={iconColor} />}
+            />
           </ItemsContainer>
 
           <ItemsContainer title="settings.about">

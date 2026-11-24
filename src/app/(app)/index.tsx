@@ -1,3 +1,4 @@
+import type { ColorValue } from 'react-native';
 import { Link, Tabs } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
@@ -9,6 +10,16 @@ import {
 } from '@/components/ui';
 import { Feed as FeedIcon } from '@/components/ui/icons';
 
+type TabBarIconProps = { color: ColorValue };
+
+function renderFeedIcon({ color }: TabBarIconProps) {
+  return <FeedIcon color={color} />;
+}
+
+function renderCreateNewPostLink() {
+  return <CreateNewPostLink />;
+}
+
 export default function Feed() {
   const { t } = useTranslation();
 
@@ -17,8 +28,8 @@ export default function Feed() {
       <Tabs.Screen
         options={{
           title: t('tabs.feed'),
-          tabBarIcon: ({ color }) => <FeedIcon color={color} />,
-          headerRight: () => <CreateNewPostLink />,
+          tabBarIcon: renderFeedIcon,
+          headerRight: renderCreateNewPostLink,
           tabBarButtonTestID: 'feed-tab',
         }}
       />

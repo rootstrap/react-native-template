@@ -3,7 +3,7 @@ title: Overview
 description: An overview of why we built this starter, including its features, the libraries used, and more.
 head:
   - tag: title
-    content: Overview | React Native / Expo Starter
+    content: Overview | Rootstrap React Native Template
 ---
 
 Welcome to the Rootstrap's Expo / React Native Template!
@@ -110,9 +110,9 @@ We value the feedback and contributions of our users, and we encourage you to le
 
 ## Contributors
 
-This starter is maintained by [Obytes mobile tribe team](https://www.obytes.com/team) and we welcome new contributors to join us in improving it. If you are interested in getting involved in the project, please don't hesitate to open an issue or submit a pull request.
+This starter is maintained by the Rootstrap React Native team and we welcome new contributors to join us in improving it. If you are interested in getting involved in the project, please don't hesitate to open an issue or submit a pull request.
 
-In addition to maintaining this starter kit, we are also available to work on custom projects and help you build your dream app. If you are looking for experienced and reliable developers to bring your app vision to life, please visit our website at [obytes.com/contact](https://www.obytes.com/contact) to get in touch with us. We would be happy to discuss your project in more detail and explore how we can help you achieve your goals.
+In addition to maintaining this starter kit, we are also available to work on custom projects and help you build your dream app. If you are looking for experienced and reliable developers to bring your app vision to life, please visit our website at [rootstrap.com/contact](https://rootstrap.com/contact) to get in touch with us. We would be happy to discuss your project in more detail and explore how we can help you achieve your goals.
 
 ## ❓ FAQ
 

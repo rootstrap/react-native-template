@@ -3,7 +3,7 @@ title: Internationalization
 description: How to add internationalization to your app.
 head:
   - tag: title
-    content: Internationalization | React Native / Expo Starter
+    content: Internationalization | Rootstrap React Native Template
 ---
 
 import CodeBlock from '../../../components/code.astro';
@@ -59,6 +59,14 @@ export const Foo = () => {
 Additionally, the `useSetLanguage` hook will save the selected language in device storage using `MMKV` and will be used as the default language when the app is opened again As well as adding some extra config for RTL languages while updating the selected language.
 
 <CodeBlock file="src/lib/i18n/utils.tsx" />
+
+## Following the OS language
+
+When no language has been selected in the app, the app uses the OS language. The `useSyncLanguageWithOS` hook, mounted once in `src/app/_layout.tsx`, reads the OS language again every time the app comes back to the foreground and updates the current language if the user changed it in the device settings. Once a language is selected in the app, it always takes precedence over the OS language.
+
+:::note
+The RTL layout direction is only applied at startup, so switching between LTR and RTL OS languages while the app is running takes effect after the app is restarted.
+:::
 
 ## Robust translation
 

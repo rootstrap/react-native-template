@@ -29,7 +29,7 @@ import {
 import Reanimated from 'react-native-reanimated';
 
 const AnimatedScrollView
-  = Reanimated.createAnimatedComponent<KeyboardAwareScrollViewProps>(
+  = Reanimated.createAnimatedComponent(
     KeyboardAwareScrollView,
   );
 const BottomSheetScrollViewComponent = createBottomSheetScrollableComponent<
