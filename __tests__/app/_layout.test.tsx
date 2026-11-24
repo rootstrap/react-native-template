@@ -1,9 +1,9 @@
-import { SplashScreen } from 'expo-router';
+import { SplashScreen, Tabs } from 'expo-router';
 
 import TabLayout from '@/app/(app)/_layout';
 import { useAuth } from '@/components/providers/auth';
 import { useIsFirstTime } from '@/lib/hooks/use-is-first-time';
-import { render } from '@/lib/test-utils';
+import { render, screen } from '@/lib/test-utils';
 
 // Mock all dependencies
 jest.mock('@dev-plugins/react-query', () => ({
@@ -20,7 +20,7 @@ jest.mock('@/lib/hooks/use-is-first-time', () => ({
 
 jest.mock('expo-router', () => {
   const MockTabs = ({ children }: { children: React.ReactNode }) => children;
-  MockTabs.Screen = () => null;
+  MockTabs.Screen = jest.fn(() => null);
 
   return {
     Redirect: ({ href: _href }: { href: string }) => null,
@@ -46,6 +46,11 @@ const mockUseIsFirstTime = useIsFirstTime as jest.MockedFunction<
   typeof useIsFirstTime
 >;
 const mockSplashScreen = SplashScreen as jest.Mocked<typeof SplashScreen>;
+const mockTabsScreen = Tabs.Screen as unknown as jest.Mock;
+
+const tabOptions = (name: string) =>
+  mockTabsScreen.mock.calls.find(([props]) => props.name === name)?.[0]
+    .options;
 
 const setupFirstTimeUser = () => {
   mockUseIsFirstTime.mockReturnValue([true, jest.fn()]);
@@ -135,5 +140,32 @@ describe('TabLayout', () => {
     render(<TabLayout />);
     expect(mockUseAuth).toHaveBeenCalled();
     expect(mockUseIsFirstTime).toHaveBeenCalled();
+  });
+
+  it('titles the feed tab and adds a create link to its header', () => {
+    setupAuthenticatedUser();
+    render(<TabLayout />);
+
+    const options = tabOptions('index');
+    expect(options).toMatchObject({
+      title: 'Feed',
+      tabBarButtonTestID: 'feed-tab',
+    });
+    expect(options.tabBarIcon).toEqual(expect.any(Function));
+
+    render(options.headerRight());
+    expect(screen.getByText('Create')).toBeOnTheScreen();
+  });
+
+  it('titles the style tab', () => {
+    setupAuthenticatedUser();
+    render(<TabLayout />);
+
+    const options = tabOptions('style');
+    expect(options).toMatchObject({
+      title: 'Style',
+      tabBarButtonTestID: 'style-tab',
+    });
+    expect(options.tabBarIcon).toEqual(expect.any(Function));
   });
 });

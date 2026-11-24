@@ -1,6 +1,4 @@
-/* eslint-disable max-lines-per-function */
-import type { ColorValue } from 'react-native';
-import { Link, Tabs } from 'expo-router';
+import { Link } from 'expo-router';
 import { useColorScheme } from 'nativewind';
 import * as React from 'react';
 import { showMessage } from 'react-native-flash-message';
@@ -20,15 +18,9 @@ import {
   Text,
   View,
 } from '@/components/ui';
-import { Settings as SettingsIcon, Website } from '@/components/ui/icons';
+import { Website } from '@/components/ui/icons';
 import { translate } from '@/lib';
 import { Env } from '@/lib/env';
-
-type TabBarIconProps = { color: ColorValue };
-
-function renderSettingsIcon({ color }: TabBarIconProps) {
-  return <SettingsIcon color={color} />;
-}
 
 export default function Settings() {
   const { logout } = useAuth();
@@ -52,13 +44,6 @@ export default function Settings() {
 
   return (
     <>
-      <Tabs.Screen
-        options={{
-          title: translate('settings.title'),
-          tabBarIcon: renderSettingsIcon,
-          tabBarButtonTestID: 'settings-tab',
-        }}
-      />
       <FocusAwareStatusBar />
       <ScrollView>
         <View className="flex-1 gap-2 p-4">
