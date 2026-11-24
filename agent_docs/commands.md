@@ -64,6 +64,19 @@ Builds are created with Expo Application Services. Always set `APP_ENV` via the 
 
 ---
 
+## Update (EAS)
+
+OTA updates are published with `eas update`. Always use these scripts so `APP_ENV` matches the target channel; publishing without it falls back to `development` config (e.g. re-enables the `/_sitemap` route in production). Pass a message with `--message "..."`.
+
+| Command                       | Description                        |
+| ----------------------------- | ---------------------------------- |
+| `pnpm run update:development` | EAS update — `development` channel |
+| `pnpm run update:qa`          | EAS update — `qa` channel          |
+| `pnpm run update:staging`     | EAS update — `staging` channel     |
+| `pnpm run update:production`  | EAS update — `production` channel  |
+
+---
+
 ## Setup
 
 | Command        | Description                                                         |

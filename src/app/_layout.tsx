@@ -12,13 +12,11 @@ import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { APIProvider } from '@/api';
 
 import interceptors from '@/api/common/interceptors';
+import { AnalyticsProvider } from '@/components/providers/analytics';
+import { useAnalyticsScreenTracking, useAnalyticsSessionReset } from '@/components/providers/analytics-tracking';
 import { AuthProvider, useAuth } from '@/components/providers/auth';
-import {
-  hydrateAuth,
-  loadSelectedTheme,
-  useIsFirstTime,
-  useSyncLanguageWithOS,
-} from '@/lib';
+import { consoleAnalyticsProvider, hydrateAuth, loadSelectedTheme, useIsFirstTime } from '@/lib';
+import { useSyncLanguageWithOS } from '@/lib/i18n';
 import { useThemeConfig } from '@/lib/use-theme-config';
 // Import  global CSS file
 import '../../global.css';
@@ -32,6 +30,8 @@ export const unstable_settings = {
 hydrateAuth();
 loadSelectedTheme();
 interceptors();
+// Analytics providers the app reports to. Add real vendor adapters here.
+const analyticsProviders = [consoleAnalyticsProvider];
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 void SplashScreen.preventAutoHideAsync();
 // Set the animation options. This is optional.
@@ -40,41 +40,50 @@ SplashScreen.setOptions({
   fade: true,
 });
 
+function AnalyticsTrackers() {
+  useAnalyticsSessionReset();
+  useAnalyticsScreenTracking();
+  return null;
+}
+
 function GuardedStack() {
   const { isAuthenticated } = useAuth();
   const { t } = useTranslation();
   const [isFirstTime] = useIsFirstTime();
 
   return (
-    <Stack>
-      <Stack.Protected guard={isFirstTime}>
-        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-      </Stack.Protected>
+    <>
+      <AnalyticsTrackers />
+      <Stack>
+        <Stack.Protected guard={isFirstTime}>
+          <Stack.Screen name="onboarding" options={{ headerShown: false }} />
+        </Stack.Protected>
 
-      <Stack.Protected guard={isAuthenticated}>
-        <Stack.Screen name="(app)" options={{ headerShown: false }} />
+        <Stack.Protected guard={isAuthenticated}>
+          <Stack.Screen name="(app)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="update-password"
+            options={{
+              title: t('updatePassword.title'),
+            }}
+          />
+        </Stack.Protected>
+
+        <Stack.Protected guard={!isAuthenticated}>
+          <Stack.Screen name="sign-in" options={{ headerShown: false }} />
+          <Stack.Screen name="sign-up" />
+          <Stack.Screen name="forgot-password" />
+        </Stack.Protected>
+
         <Stack.Screen
-          name="update-password"
+          name="www"
           options={{
-            title: t('updatePassword.title'),
+            presentation: 'modal',
+            title: '',
           }}
         />
-      </Stack.Protected>
-
-      <Stack.Protected guard={!isAuthenticated}>
-        <Stack.Screen name="sign-in" options={{ headerShown: false }} />
-        <Stack.Screen name="sign-up" />
-        <Stack.Screen name="forgot-password" />
-      </Stack.Protected>
-
-      <Stack.Screen
-        name="www"
-        options={{
-          presentation: 'modal',
-          title: '',
-        }}
-      />
-    </Stack>
+      </Stack>
+    </>
   );
 }
 
@@ -110,10 +119,12 @@ function Providers({ children }: Readonly<{ children: React.ReactNode }>) {
         <ThemeProvider value={theme}>
           <APIProvider>
             <AuthProvider>
-              <BottomSheetModalProvider>
-                {children}
-                <FlashMessage position="top" />
-              </BottomSheetModalProvider>
+              <AnalyticsProvider providers={analyticsProviders}>
+                <BottomSheetModalProvider>
+                  {children}
+                  <FlashMessage position="top" />
+                </BottomSheetModalProvider>
+              </AnalyticsProvider>
             </AuthProvider>
           </APIProvider>
         </ThemeProvider>

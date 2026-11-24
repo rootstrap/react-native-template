@@ -3,7 +3,7 @@ title: Stay Up-to-Date with React Native
 description: Stay up-to-date with React Native news.
 head:
   - tag: title
-    content: Stay Updated | React Native / Expo Starter
+    content: Stay Updated | Rootstrap React Native Template
 ---
 
 Make sure to check out the links below to stay up-to-date with React Native news.
