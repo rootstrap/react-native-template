@@ -60,7 +60,7 @@ jobs:
         if: inputs.new-version
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version-file: .nvmrc
       - name: Validate new version
         if: inputs.new-version
         run: |

@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { ScrollView } from 'react-native';
 import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 import { z } from 'zod';
 
@@ -35,39 +36,44 @@ export function ForgotPasswordForm(props: Readonly<ForgotPasswordFormProps>) {
   };
 
   return (
-    <KeyboardAvoidingView>
-      <View className="gap-8 p-4">
-        <View className="gap-2">
-          <Text
-            testID="forgot-password-form-title"
-            className="text-center text-2xl"
-          >
-            {t('forgotPassword.title')}
-          </Text>
-          <Text className="text-center text-gray-600">
-            {t('forgotPassword.description')}
-          </Text>
+    <KeyboardAvoidingView className="flex-1" behavior="padding" automaticOffset>
+      <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        keyboardShouldPersistTaps="handled"
+      >
+        <View className="gap-8 p-4">
+          <View className="gap-2">
+            <Text
+              testID="forgot-password-form-title"
+              className="text-center text-2xl"
+            >
+              {t('forgotPassword.title')}
+            </Text>
+            <Text className="text-center text-gray-600">
+              {t('forgotPassword.description')}
+            </Text>
+          </View>
+          <View className="gap-2">
+            <ControlledInput
+              testID="email-input"
+              autoCapitalize="none"
+              autoComplete="email"
+              control={control}
+              name="email"
+              label={t('forgotPassword.emailLabel')}
+              placeholder={t('forgotPassword.emailPlaceholder')}
+            />
+            <Text className="text-sm text-gray-500">
+              {t('forgotPassword.instructions')}
+            </Text>
+            <Button
+              testID="send-email-button"
+              label={t('forgotPassword.buttonLabel')}
+              onPress={() => { void handleSubmit(onSubmit)(); }}
+            />
+          </View>
         </View>
-        <View className="gap-2">
-          <ControlledInput
-            testID="email-input"
-            autoCapitalize="none"
-            autoComplete="email"
-            control={control}
-            name="email"
-            label={t('forgotPassword.emailLabel')}
-            placeholder={t('forgotPassword.emailPlaceholder')}
-          />
-          <Text className="text-sm text-gray-500">
-            {t('forgotPassword.instructions')}
-          </Text>
-          <Button
-            testID="send-email-button"
-            label={t('forgotPassword.buttonLabel')}
-            onPress={() => { void handleSubmit(onSubmit)(); }}
-          />
-        </View>
-      </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }

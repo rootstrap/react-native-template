@@ -19,7 +19,7 @@ type ItemProps = {
   externalHref?: string;
 };
 
-export const Item = forwardRef<View, ItemProps>(
+export const Item = forwardRef<React.ComponentRef<typeof View>, ItemProps>(
   ({ text, value, icon, onPress, role, externalHref }: ItemProps, ref) => {
     const isPressable = onPress !== undefined || externalHref !== undefined;
     // react-native-web renders a View with `href` as an `<a>` element.
