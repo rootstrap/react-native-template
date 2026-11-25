@@ -5,6 +5,11 @@
 # This workflow is used to compress images in the repo.
 # This workflow will trigger on a push to the "master" or "main" branch and only run when a new image is added or updated.
 # If it's the case, it will compress those images and create a pull request with the compressed images.
+# On push, only the images added or updated by the pushed commits are compressed. An image is skipped when the
+# last commit that touched it in the push is one of this workflow's own "Compress Images" commits (also when it was
+# merged with a merge commit, squashed as "Compress Images (#N)" / "Auto Compress Images (#N)", or rebased), so
+# merging a compression PR does not open a new one for the same images.
+# When triggered manually (workflow_dispatch), every image in the repo is compressed.
 
 # 🚨 GITHUB SECRETS REQUIRED: None
 
@@ -19,7 +24,12 @@ on:
       - '**.jpeg'
       - '**.png'
       - '**.webp'
+      - '**.avif'
   workflow_dispatch:
+
+env:
+  # Comma-separated "<dir>/**" entries; the "Detect images to compress" step derives its directory filter from it.
+  IGNORE_PATHS: 'node_modules/**,ios/**,android/**'
 
 jobs:
   build:
@@ -30,13 +40,68 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      # calibreapp/image-actions compresses every image in the repo when it does not run on a pull request,
+      # so on push the images that were not added/updated by people are passed to it as ignored paths.
+      - name: Detect images to compress
+        id: images
+        if: github.event_name == 'push'
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          image_re='\.(jpe?g|png|webp|avif)$'
+          ignored_re="^($(printf '%s' "$IGNORE_PATHS" | sed -e 's#/\*\*##g' -e 's/,/|/g'))/"
+          compress_commit_re='^(Auto )?Compress Images( \(#[0-9]+\))?$'
+
+          # File names are read NUL-separated and converted to lines so git does not quote unusual names.
+          # First push of the branch or force push (BEFORE missing or not an ancestor of AFTER): inspect the whole
+          # history of the pushed commit.
+          if [[ "$BEFORE" =~ ^0+$ ]] || ! git merge-base --is-ancestor "$BEFORE" "$AFTER" 2>/dev/null; then
+            range="$AFTER"
+            changed=$(git ls-tree -r -z --name-only "$AFTER" | tr '\0' '\n')
+          else
+            range="${BEFORE}..${AFTER}"
+            changed=$(git diff -z --name-only --no-renames --diff-filter=AM "$BEFORE" "$AFTER" | tr '\0' '\n')
+          fi
+
+          targets_file=$(mktemp)
+          while IFS= read -r file; do
+            [ -n "$file" ] || continue
+            subject=$(git --literal-pathspecs log -1 --format=%s "$range" -- "$file")
+            if [[ "$subject" =~ $compress_commit_re ]]; then
+              echo "Skipping $file: already compressed in \"$subject\""
+              continue
+            fi
+            echo "Will compress $file (last changed in \"$subject\")"
+            echo "$file" >> "$targets_file"
+          done < <(printf '%s\n' "$changed" | grep -iE "$image_re" | grep -vE "$ignored_re" || true)
+
+          if [ ! -s "$targets_file" ]; then
+            echo "No new or updated images to compress."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Ignore every other image. Glob characters and commas (the action splits ignorePaths on commas)
+          # are replaced by the single-character wildcard "?".
+          ignore_paths="$IGNORE_PATHS"
+          while IFS= read -r file; do
+            ignore_paths+=",$(printf '%s' "$file" | sed -e 's/[][\\*?{}()!+@,]/?/g')"
+          done < <(git ls-files -z | tr '\0' '\n' | grep -iE "$image_re" | grep -vE "$ignored_re" | grep -vxF -f "$targets_file" || true)
+
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+          echo "ignore-paths=$ignore_paths" >> "$GITHUB_OUTPUT"
+
       - name: Compress Images
         id: calibre
+        if: steps.images.outputs.skip != 'true'
         uses: calibreapp/image-actions@main
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           compressOnly: true
-          ignorePaths: 'node_modules/**,ios/**,android/**'
+          ignorePaths: ${{ steps.images.outputs.ignore-paths || env.IGNORE_PATHS }}
 
       - name: Create Pull Request
         if: steps.calibre.outputs.markdown != ''
@@ -44,5 +109,6 @@ jobs:
         with:
           title: Auto Compress Images
           branch-suffix: timestamp
+          # Used by the "Detect images to compress" step to recognise already compressed images.
           commit-message: Compress Images
           body: ${{ steps.calibre.outputs.markdown }}
