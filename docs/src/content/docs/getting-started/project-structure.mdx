@@ -16,13 +16,14 @@ If you open the new project in VSCode you will see the following structure:
 - api ## any thing related to api calls and data fetching
   - common/
   - index.tsx
-  - posts
+  - auth
   - types.ts
 - app ## app routes and layouts
   - (app)/
   - \_layout.tsx
-  - feed/
-  - login.tsx
+  - forgot-password.tsx
+  - sign-in.tsx
+  - sign-up.tsx
   - onboarding.tsx
 - components ## any reusable components
   - ui ## core ui and theme configuration
@@ -41,13 +42,14 @@ If you open the new project in VSCode you will see the following structure:
     - text.tsx
     - utils.tsx
   - buttons.tsx
-  - card.tsx
   - colors.tsx
   - cover.tsx
+  - forgot-password-form.tsx
   - inputs.tsx
-  - login-form.test.tsx
   - login-form.tsx
+  - providers/
   - settings/
+  - sign-up-form.tsx
   - title.tsx
   - typography.tsx
 - lib ## core files such as auth, localization, storage and more
@@ -77,7 +79,7 @@ If you open the new project in VSCode you will see the following structure:
 
 - `app`: This folder contains the routes of the app, along with its layout routes such as stack and tab navigation structures. We provide a basic navigation structure for the demo app that you can modify to fit your needs.
 
-- `api`: This folder contains the API files. We provide a basic API client and provider and you just need to create query and mutation for your modules. Check `posts` folder for inspiration on how to create a query and mutation.
+- `api`: This folder contains the API files. We provide a basic API client and provider and you just need to create query and mutation for your modules. Check `auth` folder for inspiration on how to create a query and mutation.
 
 - `translations`: This folder contains the translation resources files. We recommend using translation files even if you are not supporting multiple languages as it will help you to support multiple languages in the future and also help you to find all the strings in one place.
 
@@ -92,9 +94,9 @@ the best way to structure a react native project. For sure you can change it as 
 
 We use absolute imports to import files using the Babel module resolver plugin and TypeScript path mapping. This approach helps us avoid long relative paths and makes the code cleaner and more readable.
 
-Here is a simple example of how the Feed screen looks with absolute imports.
+Here is a simple example of how the Sign in screen looks with absolute imports.
 
-<Code file="src/app/(app)/index.tsx" meta="{4-7}" />
+<Code file="src/app/sign-in.tsx" meta="{1,5-7}" />
 
 This approach is very useful when you are working on a large project with a lot of files and folders and it can be done by updating the `babel.config.js` file and `tsconfig.json` file to the following:
 
