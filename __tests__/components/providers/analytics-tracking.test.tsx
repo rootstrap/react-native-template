@@ -209,6 +209,24 @@ describe('useAnalyticsScreenTracking', () => {
     });
   });
 
+  it('does not track again when only a param rejected by trackParams changes', async () => {
+    const provider = createMockProvider();
+    mockUseSegments.mockReturnValue(['(app)', 'feed', '[id]']);
+    mockUseGlobalSearchParams.mockReturnValue({ id: '42', tab: 'comments' });
+
+    const { rerender } = renderWithAnalytics(() => useAnalyticsScreenTracking({ trackParams: name => name === 'tab' }), [provider]);
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledTimes(1);
+    });
+
+    mockUseGlobalSearchParams.mockReturnValue({ id: '43', tab: 'comments' });
+    rerender({});
+    // Wait past the tracker's setTimeout so a wrongly scheduled report would land.
+    await new Promise(resolve => setTimeout(resolve, 20));
+
+    expect(provider.trackScreen).toHaveBeenCalledTimes(1);
+  });
+
   it('reports the index route of a group as the root screen', async () => {
     const provider = createMockProvider();
     mockUseSegments.mockReturnValue(['(app)']);
