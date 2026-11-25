@@ -16,9 +16,10 @@ const HASH_PARAM = '#';
  * Params with a word in their name that suggests a credential or personal
  * data (deep-link tokens, reset codes, emails...) are never sent to vendors.
  * Names are split on camelCase (including acronyms such as `APIKey`), `_` and
- * `-` boundaries, and a word is sensitive when it ends with one of these
- * (singular or plural), so `resetCode`, `APIKey`, `access_token`, `apikey`
- * and `emails` are dropped while `author` or `keyboard` are kept.
+ * `-` and letter/digit boundaries, and a word is sensitive when it ends with
+ * one of these (singular or plural) or, for terms of 5+ letters, starts with
+ * one. So `resetCode`, `APIKey`, `access_token`, `apikey`, `emails`, `token2`
+ * and `tokenvalue` are dropped while `author` or `keyboard` are kept.
  * `client` and `uid` are Devise Token Auth credentials (see `HEADER_KEYS`)
  * that the password-reset redirect puts in the URL.
  * Adjust the list to your app's routes; adapters can filter further.
@@ -47,13 +48,28 @@ function toWords(key: string) {
   return key
     .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
     .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/([a-z])(\d)/gi, '$1 $2')
+    .replace(/(\d)([a-z])/gi, '$1 $2')
     .toLowerCase()
-    .split(/[^a-z0-9]+/);
+    .split(/[^a-z]+/)
+    .filter(Boolean);
 }
+
+/**
+ * Terms this long are distinctive enough to also match at the start of a word
+ * (`tokenvalue`, `passwordconfirm`). Shorter ones (`key`, `auth`, `code`...)
+ * only match at the end, so `keyboard` and `author` are still sent.
+ */
+const MIN_PREFIX_TERM_LENGTH = 5;
 
 function isSensitiveWord(word: string) {
   const singular = word.endsWith('s') ? word.slice(0, -1) : word;
-  return SENSITIVE_PARAM_WORDS.some(sensitive => word.endsWith(sensitive) || singular.endsWith(sensitive));
+  return SENSITIVE_PARAM_WORDS.some(
+    sensitive =>
+      word.endsWith(sensitive)
+      || singular.endsWith(sensitive)
+      || (sensitive.length >= MIN_PREFIX_TERM_LENGTH && word.startsWith(sensitive)),
+  );
 }
 
 function isTrackableParam(key: string) {
