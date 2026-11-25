@@ -1,22 +1,25 @@
 # 🔗 Links:
-# Source file: https://github.com/rootstrap/react-native-template/blob/master/.github/workflows/new-cli-version.yml
+# Source file: https://github.com/rootstrap/react-native-template/blob/master/.github/workflows/deploy-cli.yml
 
 # ✍️ Description:
 # This workflow is used to create a new version of the CLI and publish it to the npm registry.
 # As this workflow will push code to the repo, we set up GitHub Bot as a Git user.
 # This Workflow need to be triggered manually from the Actions tab in the repo.
 #         1. Choose your release type (patch, minor, major)
-#         2. The workflow will run the np-release script which runs the following steps:
-#             - Bump the version in package.json based on the release type using np
-#             - Build & publish the CLI to the npm registry
+#         2. The workflow runs the following steps (only from the master branch):
+#             - Bump the version in package.json based on the release type
+#             - Commit the bump, tag it as cli-v<version> and push both to the repo
+#             - Publish the CLI to the npm registry (only after the push succeeded)
+#
+#         Recovery: if the publish step fails after the push, delete the remote cli-v<version> tag
+#         and publish manually from cli/ (or re-run, which will bump to the next version).
 #
 
 # 🚨 GITHUB SECRETS REQUIRED:
 #         - NPM_TOKEN: A NPM Access Token with Publish access.
-#         - GH_TOKEN: A GitHub token with write repo access.
-#           You can generate one from here: https://github.com/settings/tokens
-#           make sure to add it to the repo secrets with the name GH_TOKEN
-#           Attention: Not to be confused with the GITHUB_TOKEN, this is a different token with different permissions.
+#         - NEW_TEMPLATE_VERSION_PAT: A fine-grained Personal Access Token with Contents: Read & write.
+#           It is shared with the New Template Version workflow, see new-template-version.yml for setup instructions.
+#           It is needed (instead of GITHUB_TOKEN) to push the release commit to the protected default branch.
 
 name: Deploy CLI to NPM Registry
 
@@ -35,6 +38,11 @@ on:
 
 jobs:
   deploy:
+    if: github.ref == 'refs/heads/master'
+    # Serialize CLI releases without cancelling a run that is already publishing.
+    concurrency:
+      group: deploy-cli
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     environment:
       name: CLI
@@ -44,16 +52,14 @@ jobs:
     env:
       HUSKY: 0
     steps:
-      - name: 🔍 GH_TOKEN
-        if: env.GH_TOKEN == ''
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: echo "GH_TOKEN=${GH_TOKEN}" >> $GITHUB_ENV
       - name: 📦 Checkout project repo
         uses: actions/checkout@v4
         with:
+          # Check out the current master tip once the run holds the concurrency slot,
+          # so a queued run bumps from the version the previous run pushed.
+          ref: master
           fetch-depth: 0
-          token: ${{ secrets.GH_TOKEN }}
+          token: ${{ secrets.NEW_TEMPLATE_VERSION_PAT }}
       - name: 📝 Git User Setup
         run: |
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -75,6 +81,13 @@ jobs:
         run: |
           git add "cli/package.json"
           git commit -m "build(cli): release CLI v${{ env.NEW_VERSION }}"
+      # Push before publishing: if the push is rejected (e.g. expired PAT, missing bypass),
+      # nothing has been published to npm yet, so the repo and the registry stay in sync.
+      # The tag is prefixed with "cli-" to avoid clashing with the template's v* tags.
+      - name: 🔗 Tag and push changes to repository
+        run: |
+          git tag "cli-v${{ env.NEW_VERSION }}"
+          git push --atomic origin HEAD:master "cli-v${{ env.NEW_VERSION }}"
       - name: 🔑 Set publishing config
         run: pnpm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
         env:
@@ -83,6 +96,3 @@ jobs:
         run: |
           cd cli
           pnpm publish --verbose --tag ${{ env.RELEASE_TAG }}
-      - name: 🔗 Push changes to repository
-        run: |
-          git push origin && git push --tags
