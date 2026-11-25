@@ -1,15 +1,18 @@
 # 🔗 Links:
-# Source file: https://github.com/rootstrap/react-native-template/blob/master/.github/workflows/new-cli-version.yml
+# Source file: https://github.com/rootstrap/react-native-template/blob/master/.github/workflows/deploy-cli.yml
 
 # ✍️ Description:
 # This workflow is used to create a new version of the CLI and publish it to the npm registry.
 # As this workflow will push code to the repo, we set up GitHub Bot as a Git user.
 # This Workflow need to be triggered manually from the Actions tab in the repo.
 #         1. Choose your release type (patch, minor, major)
-#         2. The workflow will run the np-release script which runs the following steps:
+#         2. The workflow runs the following steps (only from the master branch):
 #             - Bump the version in package.json based on the release type
 #             - Commit the bump, tag it as cli-v<version> and push both to the repo
 #             - Publish the CLI to the npm registry (only after the push succeeded)
+#
+#         Recovery: if the publish step fails after the push, delete the remote cli-v<version> tag
+#         and publish manually from cli/ (or re-run, which will bump to the next version).
 #
 
 # 🚨 GITHUB SECRETS REQUIRED:
@@ -35,6 +38,7 @@ on:
 
 jobs:
   deploy:
+    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     environment:
       name: CLI
@@ -76,7 +80,7 @@ jobs:
       - name: 🔗 Tag and push changes to repository
         run: |
           git tag "cli-v${{ env.NEW_VERSION }}"
-          git push origin HEAD "cli-v${{ env.NEW_VERSION }}"
+          git push origin HEAD:master "cli-v${{ env.NEW_VERSION }}"
       - name: 🔑 Set publishing config
         run: pnpm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
         env:
