@@ -29,9 +29,13 @@ export type AnalyticsScreenTrackingOptions = {
  * screen views, with no filtering by name or value. Route params are treated
  * as non-sensitive by design: they only carry ids, modes and similar values.
  * Tokens, codes and personal data must never be passed as route params (keep
- * them in secure storage or request bodies instead). A name or value denylist
- * was used before and intentionally removed. Apps that do not follow this rule
- * can pass `trackParams: false` or an allowlist function.
+ * them in secure storage or request bodies instead). This includes incoming
+ * deep links: the app defines its own link routes, so they must carry ids
+ * only. A name or value denylist was used before and intentionally removed,
+ * since it could never be complete and gave a false sense of safety; the
+ * trade-off (no redaction when an app breaks this rule) is accepted. Apps
+ * whose links carry credentials pass `trackParams: false` or an allowlist
+ * function.
  */
 const DEFAULT_TRACK_PARAMS: TrackScreenParamsOption = true;
 
