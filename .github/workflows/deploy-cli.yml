@@ -88,6 +88,14 @@ jobs:
         run: |
           npm install -g npm@^11.5.1
           npm --version
+      # Fail before pushing anything if the job cannot request an OIDC token (missing `id-token: write`).
+      # The Trusted Publisher config on npmjs.com can only be validated by the publish itself, see header.
+      - name: 🔍 Check OIDC token availability
+        run: |
+          if [ -z "$ACTIONS_ID_TOKEN_REQUEST_URL" ]; then
+            echo "::error::OIDC token unavailable. The job needs 'permissions: id-token: write' for npm Trusted Publishing."
+            exit 1
+          fi
       - name: 📦 Install CLI Dependencies
         run: |
           cd cli
