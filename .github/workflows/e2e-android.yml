@@ -114,7 +114,7 @@ jobs:
           profile: Nexus 6
           script: |
             adb install "${{ github.workspace }}/app-release.apk"
-            $HOME/.maestro/bin/maestro test .maestro/ --env=APP_ID=com.obytes.staging  --format junit
+            $HOME/.maestro/bin/maestro test .maestro/ --env=APP_ID=com.rootstrap.staging  --format junit
 
       - name: Upload artifacts
         if: always()
