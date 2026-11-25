@@ -116,7 +116,7 @@ describe('useAnalyticsScreenTracking', () => {
     });
   });
 
-  it('does not send params whose name looks sensitive', async () => {
+  it('does not send sensitive-looking or empty params but keeps similar names', async () => {
     const provider = createMockProvider();
     mockUseSegments.mockReturnValue(['update-password']);
     mockUseGlobalSearchParams.mockReturnValue({
@@ -125,12 +125,15 @@ describe('useAnalyticsScreenTracking', () => {
       Email: 'example@example.com',
       apiKey: 'your-api-key',
       tab: 'comments',
+      author: 'jane',
+      keyboard: 'compact',
+      empty: [],
     });
 
     renderWithAnalytics(useAnalyticsScreenTracking, [provider]);
 
     await waitFor(() => {
-      expect(provider.trackScreen).toHaveBeenCalledWith('/update-password', { tab: 'comments' });
+      expect(provider.trackScreen).toHaveBeenCalledWith('/update-password', { author: 'jane', keyboard: 'compact', tab: 'comments' });
     });
   });
 

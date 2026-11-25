@@ -13,14 +13,23 @@ import { hasIdentifiedUser } from '@/lib/analytics';
 const HASH_PARAM = '#';
 
 /**
- * Params whose name looks like it holds a credential or personal data
- * (deep-link tokens, reset codes, emails...) are never sent to vendors.
- * Adjust the pattern to your app's routes; adapters can filter further.
+ * Params with a word in their name that suggests a credential or personal
+ * data (deep-link tokens, reset codes, emails...) are never sent to vendors.
+ * Names are split on camelCase, `_` and `-` boundaries, so `resetCode` and
+ * `access_token` are dropped while `author` or `keyboard` are kept.
+ * Adjust the list to your app's routes; adapters can filter further.
  */
-const SENSITIVE_PARAM_PATTERN = /token|secret|password|code|otp|email|key|auth|session|signature|credential/i;
+const SENSITIVE_PARAM_WORDS = new Set(['token', 'secret', 'password', 'code', 'otp', 'email', 'key', 'auth', 'session', 'signature', 'credential']);
+
+function toWords(key: string) {
+  return key
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .toLowerCase()
+    .split(/[^a-z0-9]+/);
+}
 
 function isTrackableParam(key: string) {
-  return key !== HASH_PARAM && !SENSITIVE_PARAM_PATTERN.test(key);
+  return key !== HASH_PARAM && !toWords(key).some(word => SENSITIVE_PARAM_WORDS.has(word));
 }
 
 function isRouteGroup(segment: string) {
@@ -42,7 +51,8 @@ function isPrimitiveParam(value: unknown): value is string | number | boolean {
  */
 function toParamValue(value: unknown) {
   if (Array.isArray(value)) {
-    return value.filter(isPrimitiveParam).map(String).join(',');
+    const values = value.filter(isPrimitiveParam);
+    return values.length > 0 ? values.map(String).join(',') : undefined;
   }
   return isPrimitiveParam(value) ? String(value) : undefined;
 }
