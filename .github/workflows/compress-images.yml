@@ -8,8 +8,8 @@
 # On push, only the images added or updated by the pushed commits are compressed (see
 # .github/scripts/detect-images-to-compress.sh). An image is skipped when the last commit that changed it is one of
 # this workflow's own compression commits (also when it was merged with a merge commit, squashed as
-# "Compress Images (#N)" / "Auto Compress Images (#N)", or rebased), so merging a compression PR does not open a new
-# one for the same images.
+# "Compress Images (#N)" / "Auto Compress Images (#N)", or rebased) and the image still has the bytes that commit gave
+# it, so merging a compression PR does not open a new one for the same images.
 # When triggered manually (workflow_dispatch), every image in the repo is compressed.
 
 # 🚨 GITHUB SECRETS REQUIRED: None

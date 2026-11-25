@@ -172,6 +172,31 @@ describe('detect-images-to-compress: compression commits', () => {
     expect(repo.detect(repo.base).skip).toBe('false');
   });
 
+  it('selects a compressed image replaced while resolving a merge conflict', () => {
+    repo.git('checkout', '-q', '-b', 'create-pull-request/patch');
+    repo.commit('Compress Images', { 'assets/icon.png': 'compressed icon' });
+    repo.git('checkout', '-q', 'master');
+    repo.commit('feat: new icon', { 'assets/icon.png': 'new icon' });
+    const before = repo.git('rev-parse', 'HEAD');
+    try {
+      repo.git('merge', '-q', '--no-ff', 'create-pull-request/patch');
+    } catch {
+      // Expected: both branches changed assets/icon.png.
+    }
+    repo.commit('Merge pull request #12', {
+      'assets/icon.png': 'resolved icon',
+    });
+    // Guards against the merge failing for another reason, which would leave a plain commit behind.
+    expect(
+      repo.git('rev-list', '--parents', '-n', '1', 'HEAD').split(' '),
+    ).toHaveLength(3);
+
+    const outputs = repo.detect(before);
+
+    expect(outputs.skip).toBe('false');
+    expect(ignoredPaths(outputs)).not.toContain('assets/icon.png');
+  });
+
   it('selects an image that only a merge commit added', () => {
     repo.git('checkout', '-q', '-b', 'feature');
     repo.commit('docs: update readme', { 'README.md': 'feature readme' });

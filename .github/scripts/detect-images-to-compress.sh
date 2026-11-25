@@ -3,8 +3,10 @@
 #
 # Finds the images added or updated by the pushed commits that still need compressing. An image is skipped when
 # the last commit that changed it is one of the workflow's own compression commits: its commit message, its PR
-# title, or either of them followed by " (#N)" (squash merge titles). Merge commits are not considered, so a
-# compression PR merged with a merge commit is recognised through its own commit.
+# title, or either of them followed by " (#N)" (squash merge titles) - and the image in AFTER still has the exact
+# content that commit gave it. Merge commits are not considered, so a compression PR merged with a merge commit is
+# recognised through its own commit, while a merge that resolved a conflict with different bytes is caught by the
+# content check.
 #
 # Inputs (environment):
 #   BEFORE, AFTER            commits before and after the push (github.event.before / github.sha)
@@ -51,27 +53,34 @@ if [ ! -s "$candidates_file" ]; then
   exit 0
 fi
 
-# One pass over the history: for every candidate, the subject of the newest non-merge commit that changed it.
-# Lines starting with \001 are commit subjects, the following lines are the files that commit changed.
-# Prints "<subject>\037<file>" (unlike tabs, \037 does not occur in real subjects or paths); a candidate that no
-# non-merge commit in the range changed (e.g. only a merge commit added it) gets an empty subject.
-git -c core.quotePath=false log --no-merges --topo-order --no-renames --name-only -z --format='%x01%s' "$range" \
+# One pass over the history: for every candidate, the hash and subject of the newest non-merge commit that changed
+# it. Lines starting with \001 are "<hash>\037<subject>", the following lines are the files that commit changed.
+# Prints "<hash>\037<subject>\037<file>" (unlike tabs, \037 does not occur in real subjects or paths); a candidate
+# that no non-merge commit in the range changed (e.g. only a merge commit added it) gets an empty hash and subject.
+git -c core.quotePath=false log --no-merges --topo-order --no-renames --name-only -z --format='%x01%H%x1f%s' "$range" \
   | tr '\0' '\n' \
   | awk '
       NR == FNR { if ($0 != "") { wanted[$0] = 1; order[++count] = $0 }; next }
-      substr($0, 1, 1) == "\001" { subject = substr($0, 2); next }
+      substr($0, 1, 1) == "\001" { commit = substr($0, 2); next }
       $0 == "" { next }
-      ($0 in wanted) && !($0 in found) { found[$0] = subject }
-      END { for (i = 1; i <= count; i++) print found[order[i]] "\037" order[i] }
+      ($0 in wanted) && !($0 in found) { found[$0] = commit }
+      END { for (i = 1; i <= count; i++) print (order[i] in found ? found[order[i]] : "\037") "\037" order[i] }
     ' "$candidates_file" - > "$work_dir/subjects"
 
-while IFS=$'\037' read -r subject file; do
+while IFS=$'\037' read -r hash subject file; do
   [ -n "$file" ] || continue
-  if [[ "$subject" =~ $compress_commit_re ]]; then
-    echo "Skipping $file: already compressed in \"$subject\""
-    continue
+  reason="last changed in \"$subject\""
+  # A compression commit only counts while the pushed tree still holds the exact image it committed: a merge whose
+  # conflict resolution supplied different bytes is not visible above, as merge commits are left out. An empty hash
+  # must not reach rev-parse, where ":<file>" would resolve to the index instead of failing.
+  if [ -n "$hash" ] && [[ "$subject" =~ $compress_commit_re ]]; then
+    if [ "$(git rev-parse --verify -q "$hash:$file")" = "$(git rev-parse --verify -q "$AFTER:$file")" ]; then
+      echo "Skipping $file: already compressed in \"$subject\""
+      continue
+    fi
+    reason="changed by a merge after \"$subject\""
   fi
-  echo "Will compress $file (last changed in \"$subject\")"
+  echo "Will compress $file ($reason)"
   printf '%s\n' "$file" >> "$targets_file"
 done < "$work_dir/subjects"
 
