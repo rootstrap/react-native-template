@@ -69,6 +69,19 @@ jobs:
           name: test-apk
           path: ${{ github.workspace }}
 
+      - name: Read app id from the test APK
+        # The package name depends on the project (env.js) and the environment suffix, so it is read from the APK
+        # instead of being hard-coded. Only valid Android package names are accepted.
+        run: |
+          AAPT2="$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -n 1)aapt2"
+          APP_ID="$("$AAPT2" dump packagename "$GITHUB_WORKSPACE/app-release.apk")"
+          if [[ ! "$APP_ID" =~ ^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)+$ ]]; then
+            echo "Could not read a valid package name from the test APK" >&2
+            exit 1
+          fi
+          echo "App id: $APP_ID"
+          echo "APP_ID=$APP_ID" >> "$GITHUB_ENV"
+
       - name: Gradle cache
         uses: gradle/gradle-build-action@v2
 
@@ -114,7 +127,7 @@ jobs:
           profile: Nexus 6
           script: |
             adb install "${{ github.workspace }}/app-release.apk"
-            $HOME/.maestro/bin/maestro test .maestro/ --env=APP_ID=com.rootstrap.staging  --format junit
+            $HOME/.maestro/bin/maestro test .maestro/ --env=APP_ID="$APP_ID" --format junit
 
       - name: Upload artifacts
         if: always()
