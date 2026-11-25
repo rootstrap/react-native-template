@@ -79,6 +79,8 @@ jobs:
     runs-on: ${{ inputs.platform == 'ios' && 'macos-latest' || 'ubuntu-latest' }}
     permissions:
       contents: write
+    env:
+      HUSKY: 0
     environment: ${{ github.ref_name == 'main' && 'production' || github.ref_name == 'staging' && 'staging' || github.ref_name == 'qa' && 'qa' || github.ref_name == 'development' && 'development' }}
     steps:
       - name: Set environment variable

@@ -41,6 +41,8 @@ jobs:
       url: https://www.npmjs.com/package/create-rootstrap-rn-app/v/${{ env.NEW_VERSION }}
     permissions:
       contents: write
+    env:
+      HUSKY: 0
     steps:
       - name: 🔍 GH_TOKEN
         if: env.GH_TOKEN == ''
