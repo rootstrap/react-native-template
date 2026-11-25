@@ -74,6 +74,8 @@ jobs:
         uses: ./.github/actions/setup-node-pnpm-install
 
       - name: 🏃‍♂️ Run Template release
+        env:
+          HUSKY: 0
         run: |
           pnpm app-release ${{ github.event.inputs.release-type }}
 
