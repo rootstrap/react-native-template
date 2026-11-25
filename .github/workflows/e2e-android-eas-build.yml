@@ -16,7 +16,7 @@ on:
     inputs:
       apk-url:
         type: string
-        description: EAS APK URL
+        description: EAS APK URL (https://expo.dev/artifacts/eas/...)
         required: true
         default: ''
 
@@ -31,12 +31,15 @@ jobs:
         env:
           # Passed through an env var, never interpolated into the script, so the input cannot inject shell commands.
           APK_URL: ${{ github.event.inputs.apk-url }}
+        # Only EAS build artifact links (https://expo.dev/artifacts/eas/<id>.apk) are accepted, and redirects must
+        # stay on https, so the installed APK always comes from EAS.
         run: |
           case "$APK_URL" in
-            https://*) ;;
-            *) echo "apk-url must be an https URL" >&2; exit 1 ;;
+            https://expo.dev/artifacts/eas/*) ;;
+            *) echo "apk-url must be an EAS artifact URL (https://expo.dev/artifacts/eas/...)" >&2; exit 1 ;;
           esac
-          wget "$APK_URL" -O ./app-release.apk
+          curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' --max-redirs 5 \
+            --output ./app-release.apk "$APK_URL"
 
       - name: Upload Test APK
         uses: actions/upload-artifact@v4
