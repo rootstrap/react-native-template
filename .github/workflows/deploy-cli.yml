@@ -13,10 +13,24 @@
 #
 #         Recovery: if the publish step fails after the push, delete the remote cli-v<version> tag
 #         and publish manually from cli/ (or re-run, which will bump to the next version).
+#         A publish failing with ENEEDAUTH/404 usually means the Trusted Publisher config on npmjs.com
+#         does not match this workflow (filename, environment, org/repo).
 #
 
+# 🚨 NPM PUBLISHING (Trusted Publishing, no NPM_TOKEN needed):
+#         The CLI is published through npm Trusted Publishing (OIDC): npm exchanges the GitHub
+#         Actions identity of this job for a short-lived publish token, so no long-lived secret is stored.
+#         Docs: https://docs.npmjs.com/trusted-publishers
+#         One-time setup on npmjs.com > create-rootstrap-rn-app > Settings > Trusted Publisher > GitHub Actions:
+#             - Organization or user: rootstrap
+#             - Repository: react-native-template
+#             - Workflow filename: deploy-cli.yml
+#             - Environment name: CLI
+#             - Allowed actions: npm publish
+#         All fields are case-sensitive and must match exactly. Requirements: npm >= 11.5.1, a GitHub-hosted runner,
+#         `id-token: write` permission on the job and `repository.url` in cli/package.json matching this repo.
+#
 # 🚨 GITHUB SECRETS REQUIRED:
-#         - NPM_TOKEN: A NPM Access Token with Publish access.
 #         - NEW_TEMPLATE_VERSION_PAT: A fine-grained Personal Access Token with Contents: Read & write.
 #           It is shared with the New Template Version workflow, see new-template-version.yml for setup instructions.
 #           It is needed (instead of GITHUB_TOKEN) to push the release commit to the protected default branch.
@@ -49,6 +63,8 @@ jobs:
       url: https://www.npmjs.com/package/create-rootstrap-rn-app/v/${{ env.NEW_VERSION }}
     permissions:
       contents: write
+      # Required for npm Trusted Publishing (OIDC)
+      id-token: write
     env:
       HUSKY: 0
     steps:
@@ -66,6 +82,20 @@ jobs:
           git config --global user.name "github-actions[bot]"
       - name: 📦 Setup Node + PNPM
         uses: ./.github/actions/setup-node-pnpm-install
+      # Trusted Publishing needs npm >= 11.5.1, but the Node version in .nvmrc ships npm 10.x.
+      # Done before the push so a failure here cannot leave a release commit/tag without a publish.
+      - name: 📦 Update npm (Trusted Publishing requires >= 11.5.1)
+        run: |
+          npm install -g npm@11.5.1
+          npm --version
+      # Fail before pushing anything if the job cannot request an OIDC token (missing `id-token: write`).
+      # The Trusted Publisher config on npmjs.com can only be validated by the publish itself, see header.
+      - name: 🔍 Check OIDC token availability
+        run: |
+          if [ -z "$ACTIONS_ID_TOKEN_REQUEST_URL" ]; then
+            echo "::error::OIDC token unavailable. The job needs 'permissions: id-token: write' for npm Trusted Publishing."
+            exit 1
+          fi
       - name: 📦 Install CLI Dependencies
         run: |
           cd cli
@@ -88,11 +118,8 @@ jobs:
         run: |
           git tag "cli-v${{ env.NEW_VERSION }}"
           git push --atomic origin HEAD:master "cli-v${{ env.NEW_VERSION }}"
-      - name: 🔑 Set publishing config
-        run: pnpm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
-        env:
-          NPM_TOKEN: ${{secrets.NPM_TOKEN}}
+      # Use npm (not pnpm) to publish: it performs the OIDC token exchange, so no auth token is configured.
       - name: 📦 Publish to NPM registry
         run: |
           cd cli
-          pnpm publish --verbose --tag ${{ env.RELEASE_TAG }}
+          npm publish --verbose --tag ${{ env.RELEASE_TAG }}
