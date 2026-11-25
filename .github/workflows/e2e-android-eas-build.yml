@@ -28,7 +28,15 @@ jobs:
 
     steps:
       - name: 📦 Download EAS APK
-        run: wget ${{ github.event.inputs.apk-url }} -O ./app-release.apk
+        env:
+          # Passed through an env var, never interpolated into the script, so the input cannot inject shell commands.
+          APK_URL: ${{ github.event.inputs.apk-url }}
+        run: |
+          case "$APK_URL" in
+            https://*) ;;
+            *) echo "apk-url must be an https URL" >&2; exit 1 ;;
+          esac
+          wget "$APK_URL" -O ./app-release.apk
 
       - name: Upload Test APK
         uses: actions/upload-artifact@v4
