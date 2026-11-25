@@ -171,15 +171,17 @@ describe('useAnalyticsScreenTracking', () => {
     expect(provider.trackScreen).toHaveBeenCalledTimes(1);
   });
 
-  it('sends every param by default, whatever its name', async () => {
+  // Route params only carry ids, modes and similar values by design, so the
+  // default sends all of them without filtering by name or value.
+  it('sends every route param by default', async () => {
     const provider = createMockProvider();
     mockUseSegments.mockReturnValue(['(app)', 'feed', '[id]']);
-    mockUseGlobalSearchParams.mockReturnValue({ id: '42', mode: 'edit', resetCode: '123456', ref: 'home' });
+    mockUseGlobalSearchParams.mockReturnValue({ id: '42', mode: 'edit', tab: 'comments', ref: 'home' });
 
     renderWithAnalytics(useAnalyticsScreenTracking, [provider]);
 
     await waitFor(() => {
-      expect(provider.trackScreen).toHaveBeenCalledWith('/feed/[id]', { id: '42', mode: 'edit', ref: 'home', resetCode: '123456' });
+      expect(provider.trackScreen).toHaveBeenCalledWith('/feed/[id]', { id: '42', mode: 'edit', ref: 'home', tab: 'comments' });
     });
   });
 

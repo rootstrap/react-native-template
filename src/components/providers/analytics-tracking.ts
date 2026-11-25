@@ -26,9 +26,12 @@ export type AnalyticsScreenTrackingOptions = {
 
 /**
  * Default decided by the template maintainers: every route param is sent with
- * screen views. Route params are treated as non-sensitive by design: they only
- * carry ids, modes and similar values, so never put tokens or personal data
- * in route params.
+ * screen views, with no filtering by name or value. Route params are treated
+ * as non-sensitive by design: they only carry ids, modes and similar values.
+ * Tokens, codes and personal data must never be passed as route params (keep
+ * them in secure storage or request bodies instead). A name or value denylist
+ * was used before and intentionally removed. Apps that do not follow this rule
+ * can pass `trackParams: false` or an allowlist function.
  */
 const DEFAULT_TRACK_PARAMS: TrackScreenParamsOption = true;
 
