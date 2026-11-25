@@ -3,7 +3,6 @@ import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
-import { useTranslation } from 'react-i18next';
 import { StyleSheet } from 'react-native';
 import FlashMessage from 'react-native-flash-message';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -48,7 +47,6 @@ function AnalyticsTrackers() {
 
 function GuardedStack() {
   const { isAuthenticated } = useAuth();
-  const { t } = useTranslation();
   const [isFirstTime] = useIsFirstTime();
   const fallbackRoute = getFallbackRoute({ isFirstTime, isAuthenticated });
 
@@ -62,12 +60,7 @@ function GuardedStack() {
 
         <Stack.Protected guard={isAuthenticated} redirectTo={fallbackRoute}>
           <Stack.Screen name="(app)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="update-password"
-            options={{
-              title: t('updatePassword.title'),
-            }}
-          />
+          <Stack.Screen name="update-password" />
         </Stack.Protected>
 
         <Stack.Protected guard={!isAuthenticated} redirectTo={fallbackRoute}>

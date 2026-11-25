@@ -1,6 +1,7 @@
 import type { ColorValue } from 'react-native';
 import { Link, Redirect, SplashScreen, Tabs } from 'expo-router';
 import { useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { useAuth } from '@/components/providers/auth';
 import { Pressable, Text } from '@/components/ui';
@@ -32,6 +33,7 @@ function renderCreateNewPostLink() {
 export default function TabLayout() {
   const { isAuthenticated, ready } = useAuth();
   const [isFirstTime] = useIsFirstTime();
+  const { t } = useTranslation();
   const hideSplash = useCallback(async () => {
     await SplashScreen.hideAsync();
   }, []);
@@ -53,7 +55,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Feed',
+          title: t('tabs.feed'),
           tabBarIcon: renderFeedIcon,
           headerRight: renderCreateNewPostLink,
           tabBarButtonTestID: 'feed-tab',
@@ -62,7 +64,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="style"
         options={{
-          title: 'Style',
+          title: t('tabs.style'),
           tabBarIcon: renderStyleIcon,
           tabBarButtonTestID: 'style-tab',
         }}
@@ -70,7 +72,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: 'Settings',
+          title: t('settings.title'),
           tabBarIcon: renderSettingsIcon,
           tabBarButtonTestID: 'settings-tab',
         }}
@@ -80,10 +82,12 @@ export default function TabLayout() {
 }
 
 function CreateNewPostLink() {
+  const { t } = useTranslation();
+
   return (
     <Link href="/feed/add-post" asChild>
       <Pressable>
-        <Text className="px-3 text-primary-300">Create</Text>
+        <Text className="px-3 text-primary-300">{t('tabs.create')}</Text>
       </Pressable>
     </Link>
   );

@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigation } from 'expo-router';
+import { Stack, useNavigation } from 'expo-router';
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -36,7 +36,7 @@ const schema = z
     path: ['passwordConfirmation'],
   });
 
-export default function UpdatePassword() {
+function useUpdatePasswordForm() {
   const { t } = useTranslation();
   const navigate = useNavigation();
 
@@ -59,12 +59,20 @@ export default function UpdatePassword() {
   const { handleSubmit, control } = useForm<FormValues>({
     resolver: zodResolver(schema),
   });
-  const onSubmit = async (data: FormValues) => {
+  const onSubmit = handleSubmit(async (data: FormValues) => {
     await updatePassword(data);
-  };
+  });
+
+  return { control, onSubmit };
+}
+
+export default function UpdatePassword() {
+  const { t } = useTranslation();
+  const { control, onSubmit } = useUpdatePasswordForm();
 
   return (
     <>
+      <Stack.Screen options={{ title: t('updatePassword.title') }} />
       <FocusAwareStatusBar />
       <KeyboardAvoidingView className="flex-1" behavior="padding" automaticOffset>
         <ScrollView
@@ -102,7 +110,7 @@ export default function UpdatePassword() {
               <Button
                 testID="update-password-button"
                 label={t('updatePassword.buttonLabel')}
-                onPress={() => { void handleSubmit(onSubmit)(); }}
+                onPress={() => { void onSubmit(); }}
               />
             </View>
           </View>
