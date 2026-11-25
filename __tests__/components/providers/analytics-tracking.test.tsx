@@ -124,6 +124,8 @@ describe('useAnalyticsScreenTracking', () => {
       resetCode: '123456',
       Email: 'example@example.com',
       apiKey: 'your-api-key',
+      APIKey: 'your-api-key',
+      XMLToken: 'fake-token',
       tab: 'comments',
       author: 'jane',
       keyboard: 'compact',

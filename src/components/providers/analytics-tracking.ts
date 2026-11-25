@@ -15,14 +15,15 @@ const HASH_PARAM = '#';
 /**
  * Params with a word in their name that suggests a credential or personal
  * data (deep-link tokens, reset codes, emails...) are never sent to vendors.
- * Names are split on camelCase, `_` and `-` boundaries, so `resetCode` and
- * `access_token` are dropped while `author` or `keyboard` are kept.
+ * Names are split on camelCase (including acronyms such as `APIKey`), `_` and
+ * `-` boundaries, so `resetCode`, `APIKey` and `access_token` are dropped while `author` or `keyboard` are kept.
  * Adjust the list to your app's routes; adapters can filter further.
  */
 const SENSITIVE_PARAM_WORDS = new Set(['token', 'secret', 'password', 'code', 'otp', 'email', 'key', 'auth', 'session', 'signature', 'credential']);
 
 function toWords(key: string) {
   return key
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
     .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
     .toLowerCase()
     .split(/[^a-z0-9]+/);
