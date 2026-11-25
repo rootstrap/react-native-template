@@ -42,7 +42,27 @@ const SENSITIVE_PARAM_WORDS = [
   'credential',
   'client',
   'uid',
+  'pass',
+  'pin',
+  'sid',
+  'sig',
+  'hash',
+  'bearer',
+  'phone',
+  'ssn',
 ];
+
+const EMAIL_VALUE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const JWT_VALUE = /^eyJ[\w-]*\.[\w-]+\.[\w-]*$/;
+
+/**
+ * Second layer for credentials or personal data passed under a harmless name
+ * (`?ref=<email>`, `?state=<jwt>`): values that look like an email address or
+ * a JWT are never sent, whatever the param is called.
+ */
+function isSensitiveValue(value: string) {
+  return EMAIL_VALUE.test(value) || JWT_VALUE.test(value);
+}
 
 function toWords(key: string) {
   return key
@@ -92,9 +112,12 @@ export type AnalyticsScreenTrackingOptions = {
 };
 
 /**
- * Default decided for the template: route params are sent with screen views
- * (denylist approach, not an opt-in allowlist). Pass `trackParams` to
- * `useAnalyticsScreenTracking` to turn this off or narrow it per app.
+ * Default decided by the template maintainers: route params are sent with
+ * screen views (denylist approach). An opt-in allowlist and `false` were
+ * considered as defaults and not chosen, so screen views carry useful context
+ * out of the box. The denylist and the value checks above are best effort,
+ * not a guarantee: apps that route sensitive data should pass `trackParams`
+ * to `useAnalyticsScreenTracking` to turn this off or narrow it.
  */
 const DEFAULT_TRACK_PARAMS: TrackScreenParamsOption = true;
 
@@ -142,7 +165,7 @@ function toParamsKey(routeParams: Readonly<Record<string, unknown>>, trackParams
     .sort()
     .flatMap((key) => {
       const value = toParamValue(routeParams[key]);
-      return value === undefined ? [] : [[key, value] as const];
+      return value === undefined || isSensitiveValue(value) ? [] : [[key, value] as const];
     });
   return entries.length > 0 ? JSON.stringify(Object.fromEntries(entries)) : '';
 }

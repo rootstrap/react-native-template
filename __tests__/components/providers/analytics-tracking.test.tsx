@@ -140,6 +140,14 @@ describe('useAnalyticsScreenTracking', () => {
       'tokenvalue': 'fake-token',
       'secretkey2': 'fake-secret',
       'passwordconfirm': 'fake-password',
+      'pass': 'fake-password',
+      'pin': '1234',
+      'sid': 'fake-session',
+      'sig': 'fake-signature',
+      'hash': 'fake-hash',
+      'bearer': 'fake-token',
+      'phone': '555-0100',
+      'ssn': '000-00-0000',
       'tab': 'comments',
       'author': 'jane',
       'keyboard': 'compact',
@@ -205,6 +213,34 @@ describe('useAnalyticsScreenTracking', () => {
     await new Promise(resolve => setTimeout(resolve, 20));
 
     expect(provider.trackScreen).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not send values that look like an email or a JWT under any name', async () => {
+    const provider = createMockProvider();
+    mockUseSegments.mockReturnValue(['(app)', 'feed']);
+    mockUseGlobalSearchParams.mockReturnValue({
+      ref: 'example@example.com',
+      state: 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJleGFtcGxlIn0.fake-signature',
+      tab: 'comments',
+    });
+
+    renderWithAnalytics(useAnalyticsScreenTracking, [provider]);
+
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledWith('/feed', { tab: 'comments' });
+    });
+  });
+
+  it('sends every non-sensitive param by default', async () => {
+    const provider = createMockProvider();
+    mockUseSegments.mockReturnValue(['(app)', 'feed', '[id]']);
+    mockUseGlobalSearchParams.mockReturnValue({ id: '42', tab: 'comments', ref: 'home' });
+
+    renderWithAnalytics(useAnalyticsScreenTracking, [provider]);
+
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledWith('/feed/[id]', { id: '42', ref: 'home', tab: 'comments' });
+    });
   });
 
   it('sends no params when param tracking is turned off', async () => {
