@@ -5,10 +5,11 @@
 # This workflow is used to compress images in the repo.
 # This workflow will trigger on a push to the "master" or "main" branch and only run when a new image is added or updated.
 # If it's the case, it will compress those images and create a pull request with the compressed images.
-# On push, only the images added or updated by the pushed commits are compressed. An image is skipped when the
-# last commit that touched it in the push is one of this workflow's own "Compress Images" commits (also when it was
-# merged with a merge commit, squashed as "Compress Images (#N)" / "Auto Compress Images (#N)", or rebased), so
-# merging a compression PR does not open a new one for the same images.
+# On push, only the images added or updated by the pushed commits are compressed (see
+# .github/scripts/detect-images-to-compress.sh). An image is skipped when the last commit that changed it is one of
+# this workflow's own compression commits (also when it was merged with a merge commit, squashed as
+# "Compress Images (#N)" / "Auto Compress Images (#N)", or rebased), so merging a compression PR does not open a new
+# one for the same images.
 # When triggered manually (workflow_dispatch), every image in the repo is compressed.
 
 # 🚨 GITHUB SECRETS REQUIRED: None
@@ -30,6 +31,10 @@ on:
 env:
   # Comma-separated "<dir>/**" entries; the "Detect images to compress" step derives its directory filter from it.
   IGNORE_PATHS: 'node_modules/**,ios/**,android/**'
+  # Commit message and title of the compression PR. The "Detect images to compress" step reads both to recognise
+  # images that are already compressed, so they are defined only here.
+  COMPRESS_COMMIT_MESSAGE: Compress Images
+  COMPRESS_PR_TITLE: Auto Compress Images
 
 jobs:
   build:
@@ -49,53 +54,7 @@ jobs:
         env:
           BEFORE: ${{ github.event.before }}
           AFTER: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-          image_re='\.(jpe?g|png|webp|avif)$'
-          ignored_re="^($(printf '%s' "$IGNORE_PATHS" | sed -e 's#/\*\*##g' -e 's/,/|/g'))/"
-          # Must match the "Create Pull Request" step's commit-message and title (also as squash titles).
-          compress_commit_re='^(Auto )?Compress Images( \(#[0-9]+\))?$'
-
-          # File names are read NUL-separated and converted to lines so git does not quote unusual names.
-          # First push of the branch or force push (BEFORE missing or not an ancestor of AFTER): inspect the whole
-          # history of the pushed commit.
-          if [[ "$BEFORE" =~ ^0+$ ]] || ! git merge-base --is-ancestor "$BEFORE" "$AFTER" 2>/dev/null; then
-            range="$AFTER"
-            changed=$(git ls-tree -r -z --name-only "$AFTER" | tr '\0' '\n')
-          else
-            range="${BEFORE}..${AFTER}"
-            changed=$(git diff -z --name-only --no-renames --diff-filter=AM "$BEFORE" "$AFTER" | tr '\0' '\n')
-          fi
-
-          targets_file=$(mktemp)
-          while IFS= read -r file; do
-            [ -n "$file" ] || continue
-            subject=$(git --literal-pathspecs log -1 --format=%s "$range" -- "$file")
-            if [[ "$subject" =~ $compress_commit_re ]]; then
-              echo "Skipping $file: already compressed in \"$subject\""
-              continue
-            fi
-            echo "Will compress $file (last changed in \"$subject\")"
-            echo "$file" >> "$targets_file"
-          done < <(printf '%s\n' "$changed" | grep -iE "$image_re" | grep -vE "$ignored_re" || true)
-
-          if [ ! -s "$targets_file" ]; then
-            echo "No new or updated images to compress."
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          # Ignore every other image. Glob characters and commas (the action splits ignorePaths on commas)
-          # are replaced by the single-character wildcard "?". Known edge case, accepted on purpose: such a
-          # wildcard can also match a target whose name differs only in those characters (e.g. ignored
-          # "a[1].png" -> "a?1?.png" also matches "a-1-.png"), which then stays uncompressed until the next run.
-          ignore_paths="$IGNORE_PATHS"
-          while IFS= read -r file; do
-            ignore_paths+=",$(printf '%s' "$file" | sed -e 's/[][\\*?{}()!+@,]/?/g')"
-          done < <(git ls-files -z | tr '\0' '\n' | grep -iE "$image_re" | grep -vE "$ignored_re" | grep -vxF -f "$targets_file" || true)
-
-          echo "skip=false" >> "$GITHUB_OUTPUT"
-          echo "ignore-paths=$ignore_paths" >> "$GITHUB_OUTPUT"
+        run: bash .github/scripts/detect-images-to-compress.sh
 
       - name: Compress Images
         id: calibre
@@ -110,9 +69,7 @@ jobs:
         if: steps.calibre.outputs.markdown != ''
         uses: peter-evans/create-pull-request@v3
         with:
-          # Used (also as a squash title) by the "Detect images to compress" step; keep both in sync.
-          title: Auto Compress Images
+          title: ${{ env.COMPRESS_PR_TITLE }}
           branch-suffix: timestamp
-          # Used by the "Detect images to compress" step to recognise already compressed images.
-          commit-message: Compress Images
+          commit-message: ${{ env.COMPRESS_COMMIT_MESSAGE }}
           body: ${{ steps.calibre.outputs.markdown }}
