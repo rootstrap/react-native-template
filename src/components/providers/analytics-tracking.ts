@@ -16,10 +16,32 @@ const HASH_PARAM = '#';
  * Params with a word in their name that suggests a credential or personal
  * data (deep-link tokens, reset codes, emails...) are never sent to vendors.
  * Names are split on camelCase (including acronyms such as `APIKey`), `_` and
- * `-` boundaries, so `resetCode`, `APIKey` and `access_token` are dropped while `author` or `keyboard` are kept.
+ * `-` boundaries, and a word is sensitive when it ends with one of these
+ * (singular or plural), so `resetCode`, `APIKey`, `access_token`, `apikey`
+ * and `emails` are dropped while `author` or `keyboard` are kept.
+ * `client` and `uid` are Devise Token Auth credentials (see `HEADER_KEYS`)
+ * that the password-reset redirect puts in the URL.
  * Adjust the list to your app's routes; adapters can filter further.
  */
-const SENSITIVE_PARAM_WORDS = new Set(['token', 'secret', 'password', 'code', 'otp', 'email', 'key', 'auth', 'session', 'signature', 'credential']);
+const SENSITIVE_PARAM_WORDS = [
+  'token',
+  'secret',
+  'password',
+  'passwd',
+  'pwd',
+  'code',
+  'otp',
+  'email',
+  'key',
+  'auth',
+  'authorization',
+  'jwt',
+  'session',
+  'signature',
+  'credential',
+  'client',
+  'uid',
+];
 
 function toWords(key: string) {
   return key
@@ -29,8 +51,42 @@ function toWords(key: string) {
     .split(/[^a-z0-9]+/);
 }
 
+function isSensitiveWord(word: string) {
+  const singular = word.endsWith('s') ? word.slice(0, -1) : word;
+  return SENSITIVE_PARAM_WORDS.some(sensitive => word.endsWith(sensitive) || singular.endsWith(sensitive));
+}
+
 function isTrackableParam(key: string) {
-  return key !== HASH_PARAM && !toWords(key).some(word => SENSITIVE_PARAM_WORDS.has(word));
+  return key !== HASH_PARAM && !toWords(key).some(isSensitiveWord);
+}
+
+/**
+ * Which route params are sent with each screen view:
+ * - `true` (the default): every param except the URL fragment and the names
+ *   matched by `SENSITIVE_PARAM_WORDS`.
+ * - `false`: no params; `trackScreen` always receives `undefined`.
+ * - a function: only the params whose name it accepts. The denylist still
+ *   applies first, so it can narrow what is sent but never re-enable a
+ *   sensitive name.
+ */
+export type TrackScreenParamsOption = boolean | ((name: string) => boolean);
+
+export type AnalyticsScreenTrackingOptions = {
+  trackParams?: TrackScreenParamsOption;
+};
+
+/**
+ * Default decided for the template: route params are sent with screen views
+ * (denylist approach, not an opt-in allowlist). Pass `trackParams` to
+ * `useAnalyticsScreenTracking` to turn this off or narrow it per app.
+ */
+const DEFAULT_TRACK_PARAMS: TrackScreenParamsOption = true;
+
+function acceptsParam(trackParams: TrackScreenParamsOption, key: string) {
+  if (trackParams === false || !isTrackableParam(key)) {
+    return false;
+  }
+  return trackParams === true || trackParams(key);
 }
 
 function isRouteGroup(segment: string) {
@@ -64,9 +120,9 @@ function toParamValue(value: unknown) {
  * Repeated params are joined with commas. Returns an empty string when the
  * route has no params.
  */
-function toParamsKey(routeParams: Readonly<Record<string, unknown>>) {
+function toParamsKey(routeParams: Readonly<Record<string, unknown>>, trackParams: TrackScreenParamsOption) {
   const entries = Object.keys(routeParams)
-    .filter(isTrackableParam)
+    .filter(key => acceptsParam(trackParams, key))
     .sort()
     .flatMap((key) => {
       const value = toParamValue(routeParams[key]);
@@ -82,12 +138,14 @@ function fromParamsKey(paramsKey: string): AnalyticsParams | undefined {
 /**
  * Reports a screen view to every analytics provider whenever the route or its
  * params change, sending the route params (dynamic segments and search params)
- * along with the route pattern. Call it once, inside `AnalyticsProvider`,
- * after auth is ready.
+ * along with the route pattern. By default every param is sent except the
+ * denylisted names (see `DEFAULT_TRACK_PARAMS` and `TrackScreenParamsOption`);
+ * pass `{ trackParams: false }` to send none, or a function to narrow them.
+ * Call it once, inside `AnalyticsProvider`, after auth is ready.
  */
-export function useAnalyticsScreenTracking() {
+export function useAnalyticsScreenTracking({ trackParams = DEFAULT_TRACK_PARAMS }: AnalyticsScreenTrackingOptions = {}) {
   const screenName = toScreenName(useSegments());
-  const paramsKey = toParamsKey(useGlobalSearchParams());
+  const paramsKey = toParamsKey(useGlobalSearchParams(), trackParams);
   const { trackScreen } = useAnalytics();
   const lastTrackedRef = useRef<{ screenName: string; paramsKey: string } | null>(null);
 
