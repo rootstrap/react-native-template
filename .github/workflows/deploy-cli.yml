@@ -7,8 +7,9 @@
 # This Workflow need to be triggered manually from the Actions tab in the repo.
 #         1. Choose your release type (patch, minor, major)
 #         2. The workflow will run the np-release script which runs the following steps:
-#             - Bump the version in package.json based on the release type using np
-#             - Build & publish the CLI to the npm registry
+#             - Bump the version in package.json based on the release type
+#             - Commit the bump, tag it as cli-v<version> and push both to the repo
+#             - Publish the CLI to the npm registry (only after the push succeeded)
 #
 
 # 🚨 GITHUB SECRETS REQUIRED:
@@ -69,6 +70,13 @@ jobs:
         run: |
           git add "cli/package.json"
           git commit -m "build(cli): release CLI v${{ env.NEW_VERSION }}"
+      # Push before publishing: if the push is rejected (e.g. expired PAT, missing bypass),
+      # nothing has been published to npm yet, so the repo and the registry stay in sync.
+      # The tag is prefixed with "cli-" to avoid clashing with the template's v* tags.
+      - name: 🔗 Tag and push changes to repository
+        run: |
+          git tag "cli-v${{ env.NEW_VERSION }}"
+          git push origin HEAD "cli-v${{ env.NEW_VERSION }}"
       - name: 🔑 Set publishing config
         run: pnpm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
         env:
@@ -77,6 +85,3 @@ jobs:
         run: |
           cd cli
           pnpm publish --verbose --tag ${{ env.RELEASE_TAG }}
-      - name: 🔗 Push changes to repository
-        run: |
-          git push origin && git push --tags
