@@ -82,6 +82,12 @@ jobs:
           git config --global user.name "github-actions[bot]"
       - name: 📦 Setup Node + PNPM
         uses: ./.github/actions/setup-node-pnpm-install
+      # Trusted Publishing needs npm >= 11.5.1, but the Node version in .nvmrc ships npm 10.x.
+      # Done before the push so a failure here cannot leave a release commit/tag without a publish.
+      - name: 📦 Update npm (Trusted Publishing requires >= 11.5.1)
+        run: |
+          npm install -g npm@^11.5.1
+          npm --version
       - name: 📦 Install CLI Dependencies
         run: |
           cd cli
@@ -104,9 +110,6 @@ jobs:
         run: |
           git tag "cli-v${{ env.NEW_VERSION }}"
           git push --atomic origin HEAD:master "cli-v${{ env.NEW_VERSION }}"
-      # Trusted Publishing needs npm >= 11.5.1, but the Node version in .nvmrc ships npm 10.x.
-      - name: 📦 Update npm (Trusted Publishing requires >= 11.5.1)
-        run: npm install -g npm@^11.5.1
       # Use npm (not pnpm) to publish: it performs the OIDC token exchange, so no auth token is configured.
       - name: 📦 Publish to NPM registry
         run: |
