@@ -86,7 +86,7 @@ jobs:
       # Done before the push so a failure here cannot leave a release commit/tag without a publish.
       - name: 📦 Update npm (Trusted Publishing requires >= 11.5.1)
         run: |
-          npm install -g npm@^11.5.1
+          npm install -g npm@11.5.1
           npm --version
       # Fail before pushing anything if the job cannot request an OIDC token (missing `id-token: write`).
       # The Trusted Publisher config on npmjs.com can only be validated by the publish itself, see header.
@@ -122,4 +122,4 @@ jobs:
       - name: 📦 Publish to NPM registry
         run: |
           cd cli
-          npm publish --tag ${{ env.RELEASE_TAG }}
+          npm publish --verbose --tag ${{ env.RELEASE_TAG }}
