@@ -87,7 +87,7 @@ jobs:
       - name: 🔗 Tag and push changes to repository
         run: |
           git tag "cli-v${{ env.NEW_VERSION }}"
-          git push origin HEAD:master "cli-v${{ env.NEW_VERSION }}"
+          git push --atomic origin HEAD:master "cli-v${{ env.NEW_VERSION }}"
       - name: 🔑 Set publishing config
         run: pnpm config set '//registry.npmjs.org/:_authToken' "${NPM_TOKEN}"
         env:
