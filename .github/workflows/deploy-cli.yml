@@ -39,6 +39,10 @@ on:
 jobs:
   deploy:
     if: github.ref == 'refs/heads/master'
+    # Serialize CLI releases without cancelling a run that is already publishing.
+    concurrency:
+      group: deploy-cli
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     environment:
       name: CLI
@@ -51,6 +55,9 @@ jobs:
       - name: 📦 Checkout project repo
         uses: actions/checkout@v4
         with:
+          # Check out the current master tip once the run holds the concurrency slot,
+          # so a queued run bumps from the version the previous run pushed.
+          ref: master
           fetch-depth: 0
           token: ${{ secrets.NEW_TEMPLATE_VERSION_PAT }}
       - name: 📝 Git User Setup
