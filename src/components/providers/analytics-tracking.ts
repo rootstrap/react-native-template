@@ -144,13 +144,15 @@ function isPrimitiveParam(value: unknown): value is string | number | boolean {
  * Navigation params can hold non-string values at runtime (numbers, nested
  * objects), so values are converted to strings and anything that is not a
  * primitive (or an array of primitives) is dropped, keeping params flat.
+ * Each value (each element of a repeated param) is checked on its own, and
+ * the ones that look like an email or a JWT are dropped before joining.
  */
 function toParamValue(value: unknown) {
-  if (Array.isArray(value)) {
-    const values = value.filter(isPrimitiveParam);
-    return values.length > 0 ? values.map(String).join(',') : undefined;
-  }
-  return isPrimitiveParam(value) ? String(value) : undefined;
+  const values = (Array.isArray(value) ? value : [value])
+    .filter(isPrimitiveParam)
+    .map(String)
+    .filter(item => !isSensitiveValue(item));
+  return values.length > 0 ? values.join(',') : undefined;
 }
 
 /**
@@ -165,11 +167,17 @@ function toParamsKey(routeParams: Readonly<Record<string, unknown>>, trackParams
     .sort()
     .flatMap((key) => {
       const value = toParamValue(routeParams[key]);
-      return value === undefined || isSensitiveValue(value) ? [] : [[key, value] as const];
+      return value === undefined ? [] : [[key, value] as const];
     });
   return entries.length > 0 ? JSON.stringify(Object.fromEntries(entries)) : '';
 }
 
+/**
+ * The serialised key is the only value the tracking effect depends on, so a
+ * new params object on every render never re-triggers it; the params are read
+ * back from that key when a screen view is reported. `toParamsKey` only ever
+ * serialises a flat object of strings, which is what the cast states.
+ */
 function fromParamsKey(paramsKey: string): AnalyticsParams | undefined {
   return paramsKey ? (JSON.parse(paramsKey) as Record<string, string>) : undefined;
 }

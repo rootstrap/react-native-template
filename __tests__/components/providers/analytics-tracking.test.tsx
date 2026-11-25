@@ -222,12 +222,14 @@ describe('useAnalyticsScreenTracking', () => {
       ref: 'example@example.com',
       state: 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJleGFtcGxlIn0.fake-signature',
       tab: 'comments',
+      tag: ['news', 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJleGFtcGxlIn0.fake-signature', 'example@example.com', 'sports'],
+      to: ['example@example.com'],
     });
 
     renderWithAnalytics(useAnalyticsScreenTracking, [provider]);
 
     await waitFor(() => {
-      expect(provider.trackScreen).toHaveBeenCalledWith('/feed', { tab: 'comments' });
+      expect(provider.trackScreen).toHaveBeenCalledWith('/feed', { tab: 'comments', tag: 'news,sports' });
     });
   });
 
