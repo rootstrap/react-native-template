@@ -116,6 +116,24 @@ describe('useAnalyticsScreenTracking', () => {
     });
   });
 
+  it('does not send params whose name looks sensitive', async () => {
+    const provider = createMockProvider();
+    mockUseSegments.mockReturnValue(['update-password']);
+    mockUseGlobalSearchParams.mockReturnValue({
+      access_token: 'fake-token',
+      resetCode: '123456',
+      Email: 'example@example.com',
+      apiKey: 'your-api-key',
+      tab: 'comments',
+    });
+
+    renderWithAnalytics(useAnalyticsScreenTracking, [provider]);
+
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledWith('/update-password', { tab: 'comments' });
+    });
+  });
+
   it('converts primitive values to strings and drops nested objects', async () => {
     const provider = createMockProvider();
     mockUseSegments.mockReturnValue(['(app)', 'feed']);

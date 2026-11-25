@@ -12,6 +12,17 @@ import { hasIdentifiedUser } from '@/lib/analytics';
  */
 const HASH_PARAM = '#';
 
+/**
+ * Params whose name looks like it holds a credential or personal data
+ * (deep-link tokens, reset codes, emails...) are never sent to vendors.
+ * Adjust the pattern to your app's routes; adapters can filter further.
+ */
+const SENSITIVE_PARAM_PATTERN = /token|secret|password|code|otp|email|key|auth|session|signature|credential/i;
+
+function isTrackableParam(key: string) {
+  return key !== HASH_PARAM && !SENSITIVE_PARAM_PATTERN.test(key);
+}
+
 function isRouteGroup(segment: string) {
   return segment.startsWith('(') && segment.endsWith(')');
 }
@@ -44,7 +55,7 @@ function toParamValue(value: unknown) {
  */
 function toParamsKey(routeParams: Readonly<Record<string, unknown>>) {
   const entries = Object.keys(routeParams)
-    .filter(key => key !== HASH_PARAM)
+    .filter(isTrackableParam)
     .sort()
     .flatMap((key) => {
       const value = toParamValue(routeParams[key]);
