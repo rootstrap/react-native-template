@@ -1,4 +1,3 @@
-/* eslint-disable max-lines-per-function */
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Stack, useNavigation } from 'expo-router';
 import * as React from 'react';
@@ -37,7 +36,7 @@ const schema = z
     path: ['passwordConfirmation'],
   });
 
-export default function UpdatePassword() {
+function useUpdatePasswordForm() {
   const { t } = useTranslation();
   const navigate = useNavigation();
 
@@ -60,9 +59,16 @@ export default function UpdatePassword() {
   const { handleSubmit, control } = useForm<FormValues>({
     resolver: zodResolver(schema),
   });
-  const onSubmit = async (data: FormValues) => {
+  const onSubmit = handleSubmit(async (data: FormValues) => {
     await updatePassword(data);
-  };
+  });
+
+  return { control, onSubmit };
+}
+
+export default function UpdatePassword() {
+  const { t } = useTranslation();
+  const { control, onSubmit } = useUpdatePasswordForm();
 
   return (
     <>
@@ -104,7 +110,7 @@ export default function UpdatePassword() {
               <Button
                 testID="update-password-button"
                 label={t('updatePassword.buttonLabel')}
-                onPress={() => { void handleSubmit(onSubmit)(); }}
+                onPress={() => { void onSubmit(); }}
               />
             </View>
           </View>
