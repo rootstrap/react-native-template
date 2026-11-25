@@ -44,12 +44,27 @@ describe('WWW', () => {
     });
   });
 
-  it('leaves the title empty when the title param is missing', () => {
+  it('leaves the title unset when the title param is missing', () => {
     mockUseLocalSearchParams.mockReturnValue({ url: 'https://example.com' });
 
     render(<WWW />);
 
-    expect(mockStackScreen.mock.calls[0][0].options.title).toBe('');
+    expect(mockStackScreen.mock.calls[0][0].options).not.toHaveProperty(
+      'title',
+    );
+  });
+
+  it('leaves the title unset when the title param is repeated', () => {
+    mockUseLocalSearchParams.mockReturnValue({
+      url: 'https://example.com',
+      title: ['A', 'B'],
+    });
+
+    render(<WWW />);
+
+    expect(mockStackScreen.mock.calls[0][0].options).not.toHaveProperty(
+      'title',
+    );
   });
 
   it('goes back when the page fails to load', () => {

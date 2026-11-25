@@ -10,9 +10,7 @@ export default function WWW() {
   const router = useRouter();
   const { url, title } = useLocalSearchParams();
 
-  const screenOptions = {
-    title: typeof title === 'string' ? title : '',
-  };
+  const screenOptions = typeof title === 'string' ? { title } : {};
 
   return (
     <>
