@@ -22,8 +22,8 @@ on:
 
 jobs:
   download-eas-apk:
-    if: github.event_name != 'pull_request'  && github.event.inputs.apk-url != ''
-    name: Download Test APK From EAS Url (wget)
+    if: github.event.inputs.apk-url != ''
+    name: Download Test APK From EAS Url (curl)
     runs-on: ubuntu-latest
 
     steps:
@@ -31,8 +31,8 @@ jobs:
         env:
           # Passed through an env var, never interpolated into the script, so the input cannot inject shell commands.
           APK_URL: ${{ github.event.inputs.apk-url }}
-        # Only EAS build artifact links (https://expo.dev/artifacts/eas/<id>.apk) are accepted, and redirects must
-        # stay on https, so the installed APK always comes from EAS.
+        # Only EAS build artifact links (https://expo.dev/artifacts/eas/<id>.apk) are accepted as input. EAS redirects
+        # them to its storage host, so redirects are followed but must stay on https.
         run: |
           case "$APK_URL" in
             https://expo.dev/artifacts/eas/*) ;;
