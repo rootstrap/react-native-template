@@ -11,6 +11,18 @@ const ZERO_SHA = '0000000000000000000000000000000000000000';
 
 type Outputs = Record<string, string>;
 
+// Parses the "name=value" lines the script appends to $GITHUB_OUTPUT.
+const parseOutputs = (content: string): Outputs =>
+  Object.fromEntries(
+    content
+      .split('\n')
+      .filter(Boolean)
+      .map((line) => {
+        const separator = line.indexOf('=');
+        return [line.slice(0, separator), line.slice(separator + 1)];
+      }),
+  );
+
 const createRepo = () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'detect-images-'));
   const git = (...args: string[]) =>
@@ -56,13 +68,7 @@ const createRepo = () => {
         GITHUB_OUTPUT: outputFile,
       },
     });
-    return Object.fromEntries(
-      fs
-        .readFileSync(outputFile, 'utf8')
-        .split('\n')
-        .filter(Boolean)
-        .map(line => [line.slice(0, line.indexOf('=')), line.slice(line.indexOf('=') + 1)]),
-    ) as Outputs;
+    return parseOutputs(fs.readFileSync(outputFile, 'utf8'));
   };
 
   git('init', '-q', '-b', 'master');
@@ -125,7 +131,9 @@ describe('detect-images-to-compress: images added by people', () => {
     });
     repo.commit('Compress Images', { 'assets/a[1],b.png': 'compressed' });
 
-    expect(ignoredPaths(repo.detect(repo.base))).toContain('assets/a?1??b.png');
+    expect(ignoredPaths(repo.detect(repo.base))).toContain(
+      'assets/a?1??b.png',
+    );
   });
 });
 
@@ -134,14 +142,21 @@ describe('detect-images-to-compress: compression commits', () => {
     repo.git('checkout', '-q', '-b', 'create-pull-request/patch');
     repo.commit('Compress Images', { 'assets/icon.png': 'compressed icon' });
     repo.git('checkout', '-q', 'master');
-    repo.git('merge', '-q', '--no-ff', '-m', 'Merge pull request #12', 'create-pull-request/patch');
+    repo.git(
+      'merge',
+      '-q',
+      '--no-ff',
+      '-m',
+      'Merge pull request #12',
+      'create-pull-request/patch',
+    );
 
     expect(repo.detect(repo.base)).toEqual({ skip: 'true' });
   });
 
   it.each(['Compress Images (#12)', 'Auto Compress Images (#12)'])(
     'skips images whose compression PR was squashed as "%s"',
-    title => {
+    (title) => {
       repo.commit(title, { 'assets/icon.png': 'compressed icon' });
 
       expect(repo.detect(repo.base)).toEqual({ skip: 'true' });
@@ -149,14 +164,41 @@ describe('detect-images-to-compress: compression commits', () => {
   );
 
   it('selects an image changed by people after its compression', () => {
-    repo.commit('Compress Images (#12)', { 'assets/icon.png': 'compressed icon' });
+    repo.commit('Compress Images (#12)', {
+      'assets/icon.png': 'compressed icon',
+    });
     repo.commit('feat: new icon', { 'assets/icon.png': 'new icon' });
 
     expect(repo.detect(repo.base).skip).toBe('false');
   });
 
-  it('does not treat other subjects that mention compression as compression commits', () => {
-    repo.commit('Compress Images manually', { 'assets/icon.png': 'smaller icon' });
+  it('selects an image that only a merge commit added', () => {
+    repo.git('checkout', '-q', '-b', 'feature');
+    repo.commit('docs: update readme', { 'README.md': 'feature readme' });
+    repo.git('checkout', '-q', 'master');
+    repo.git('merge', '-q', '--no-ff', '--no-commit', 'feature');
+    repo.commit('Merge branch feature', { 'assets/merged.png': 'merged' });
+
+    const outputs = repo.detect(repo.base);
+
+    expect(outputs.skip).toBe('false');
+    expect(ignoredPaths(outputs)).not.toContain('assets/merged.png');
+  });
+
+  it('keeps file names intact when a subject contains a tab', () => {
+    repo.commit('feat:\tadd splash', { 'assets/splash.png': 'splash' });
+
+    const outputs = repo.detect(repo.base);
+
+    expect(outputs.skip).toBe('false');
+    expect(ignoredPaths(outputs)).toContain('assets/icon.png');
+    expect(ignoredPaths(outputs)).not.toContain('assets/splash.png');
+  });
+
+  it('selects images whose subject only mentions compression', () => {
+    repo.commit('Compress Images manually', {
+      'assets/icon.png': 'smaller icon',
+    });
 
     expect(repo.detect(repo.base).skip).toBe('false');
   });
@@ -174,7 +216,9 @@ describe('detect-images-to-compress: first and force pushes', () => {
   });
 
   it('inspects the whole history after a force push', () => {
-    const rewritten = repo.commit('feat: temporary', { 'assets/tmp.png': 'tmp' });
+    const rewritten = repo.commit('feat: temporary', {
+      'assets/tmp.png': 'tmp',
+    });
     repo.git('reset', '-q', '--hard', repo.base);
     repo.commit('Compress Images', {
       'assets/icon.png': 'compressed icon',

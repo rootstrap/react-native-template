@@ -53,7 +53,8 @@ fi
 
 # One pass over the history: for every candidate, the subject of the newest non-merge commit that changed it.
 # Lines starting with \001 are commit subjects, the following lines are the files that commit changed.
-# Prints "<subject>\t<file>"; a candidate no commit in the range changed gets an empty subject.
+# Prints "<subject>\037<file>" (unlike tabs, \037 does not occur in real subjects or paths); a candidate that no
+# non-merge commit in the range changed (e.g. only a merge commit added it) gets an empty subject.
 git -c core.quotePath=false log --no-merges --topo-order --no-renames --name-only -z --format='%x01%s' "$range" \
   | tr '\0' '\n' \
   | awk '
@@ -61,10 +62,11 @@ git -c core.quotePath=false log --no-merges --topo-order --no-renames --name-onl
       substr($0, 1, 1) == "\001" { subject = substr($0, 2); next }
       $0 == "" { next }
       ($0 in wanted) && !($0 in found) { found[$0] = subject }
-      END { for (i = 1; i <= count; i++) print found[order[i]] "\t" order[i] }
+      END { for (i = 1; i <= count; i++) print found[order[i]] "\037" order[i] }
     ' "$candidates_file" - > "$work_dir/subjects"
 
-while IFS=$'\t' read -r subject file; do
+while IFS=$'\037' read -r subject file; do
+  [ -n "$file" ] || continue
   if [[ "$subject" =~ $compress_commit_re ]]; then
     echo "Skipping $file: already compressed in \"$subject\""
     continue
