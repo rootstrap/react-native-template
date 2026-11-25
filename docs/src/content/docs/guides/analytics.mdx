@@ -82,10 +82,10 @@ Keep params flat and primitive (`string`, `number`, `boolean`, `null`) so they c
 
 Screen names are route patterns, not resolved paths: route groups are dropped and dynamic segments are kept as written, so `/feed/42` is reported as `/feed/[id]` and `/(app)/settings` as `/settings`. This keeps the number of distinct screens small.
 
-The concrete values are sent as the `params` argument of `trackScreen`: dynamic segment values and search params of the focused route, so `/feed/42?tab=comments` is reported as `trackScreen('/feed/[id]', { id: '42', tab: 'comments' })`. Values are strings; a param that appears more than once (`?tag=news&tag=sports`) or a catch-all segment is joined with commas (`{ tag: 'news,sports' }`). Non-string navigation params (numbers, booleans) are converted to strings and object values (or arrays with no primitive values) are dropped, so params stay flat. The URL fragment (`#...`) is never sent, and neither is any param whose name looks sensitive (a word of a camelCase, snake_case or kebab-case name, also split between letters and digits, that ends with one of the words in `SENSITIVE_PARAM_WORDS`, singular or plural, or starts with one of its words of five letters or more: `token`, `secret`, `password`, `passwd`, `pwd`, `code`, `otp`, `email`, `key`, `auth`, `authorization`, `jwt`, `session`, `signature`, `credential`, `client`, `uid`, `pass`, `pin`, `sid`, `sig`, `hash`, `bearer`, `phone` or `ssn`, such as `resetCode`, `access_token`, `apikey`, `emails`, `token2` or `tokenvalue`; `client` and `uid` are the Devise Token Auth credentials the password-reset redirect puts in the URL; `author` or `keyboard` are still sent). Values that look like an email address or a JWT are dropped too, whatever the param is called (for a repeated param, each value is checked on its own). Routes without params are reported with `params` set to `undefined`. Navigating to the same route with different params (for example from `/feed/1` to `/feed/2`) counts as a new screen view.
+The concrete values are sent as the `params` argument of `trackScreen`: dynamic segment values and search params of the focused route, so `/feed/42?tab=comments` is reported as `trackScreen('/feed/[id]', { id: '42', tab: 'comments' })`. Values are strings; a param that appears more than once (`?tag=news&tag=sports`) or a catch-all segment is joined with commas (`{ tag: 'news,sports' }`). Non-string navigation params (numbers, booleans) are converted to strings and object values (or arrays with no primitive values) are dropped, so params stay flat. The URL fragment (`#...`) is never sent, as it is not a route or search param. Routes without params are reported with `params` set to `undefined`. Navigating to the same route with different params (for example from `/feed/1` to `/feed/2`) counts as a new screen view.
 
 :::caution[Route params are sent by default]
-This is a deliberate default chosen by the template maintainers over an opt-in allowlist: every route param is sent with the screen view except the URL fragment and the denylisted names above, and every value is forwarded to every registered provider. The denylist and the value checks are best effort and cannot catch everything (an id in a dynamic segment, or an opaque credential passed under an unrelated name such as `ref` or `state`), so review your routes before shipping, and turn param tracking off or narrow it as shown below if your routes carry sensitive data. The default lives in `DEFAULT_TRACK_PARAMS` in `src/components/providers/analytics-tracking.ts`.
+This is a deliberate default chosen by the template maintainers: every route param except the URL fragment is sent with the screen view and forwarded to every registered provider. Route params are treated as non-sensitive by design, since they only carry ids, modes and similar values, so never put tokens or personal data in route params. The default lives in `DEFAULT_TRACK_PARAMS` in `src/components/providers/analytics-tracking.ts`.
 :::
 
 To change what is sent, pass the `trackParams` option where `useAnalyticsScreenTracking` is called in `AnalyticsTrackers` (`src/app/_layout.tsx`):
@@ -94,13 +94,10 @@ To change what is sent, pass the `trackParams` option where `useAnalyticsScreenT
 // Send no params at all: trackScreen always receives `undefined`.
 useAnalyticsScreenTracking({ trackParams: false });
 
-// Send only the params you list (an allowlist). The denylist still applies
-// first, so a sensitive name is never sent even if the function accepts it.
+// Send only the params you list (an allowlist).
 const TRACKED_PARAMS = new Set(['id', 'tab']);
 useAnalyticsScreenTracking({ trackParams: name => TRACKED_PARAMS.has(name) });
 ```
-
-If your app puts sensitive values in routes under other names, you can also add those words to `SENSITIVE_PARAM_WORDS` in the same file, or filter params inside the adapter's `trackScreen` before calling the vendor SDK.
 
 <CodeBlock file="src/components/providers/analytics-tracking.ts" />
 

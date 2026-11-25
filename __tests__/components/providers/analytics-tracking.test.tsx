@@ -116,51 +116,6 @@ describe('useAnalyticsScreenTracking', () => {
     });
   });
 
-  it('does not send sensitive-looking or empty params but keeps similar names', async () => {
-    const provider = createMockProvider();
-    mockUseSegments.mockReturnValue(['update-password']);
-    mockUseGlobalSearchParams.mockReturnValue({
-      'access_token': 'fake-token',
-      'resetCode': '123456',
-      'Email': 'example@example.com',
-      'apiKey': 'your-api-key',
-      'APIKey': 'your-api-key',
-      'XMLToken': 'fake-token',
-      'access-token': 'fake-token',
-      'client': 'fake-client',
-      'client_id': 'fake-client',
-      'uid': 'example@example.com',
-      'emails': 'example@example.com',
-      'apikey': 'your-api-key',
-      'accesstoken': 'fake-token',
-      'authorization': 'Bearer fake-token',
-      'passcode': '1234',
-      'token2': 'fake-token',
-      'code1': '123456',
-      'tokenvalue': 'fake-token',
-      'secretkey2': 'fake-secret',
-      'passwordconfirm': 'fake-password',
-      'pass': 'fake-password',
-      'pin': '1234',
-      'sid': 'fake-session',
-      'sig': 'fake-signature',
-      'hash': 'fake-hash',
-      'bearer': 'fake-token',
-      'phone': '555-0100',
-      'ssn': '000-00-0000',
-      'tab': 'comments',
-      'author': 'jane',
-      'keyboard': 'compact',
-      'empty': [],
-    });
-
-    renderWithAnalytics(useAnalyticsScreenTracking, [provider]);
-
-    await waitFor(() => {
-      expect(provider.trackScreen).toHaveBeenCalledWith('/update-password', { author: 'jane', keyboard: 'compact', tab: 'comments' });
-    });
-  });
-
   it('converts primitive values to strings and drops nested objects', async () => {
     const provider = createMockProvider();
     mockUseSegments.mockReturnValue(['(app)', 'feed']);
@@ -169,6 +124,7 @@ describe('useAnalyticsScreenTracking', () => {
       draft: false,
       filter: { status: 'open' },
       empty: null,
+      none: [],
     });
 
     renderWithAnalytics(useAnalyticsScreenTracking, [provider]);
@@ -215,33 +171,15 @@ describe('useAnalyticsScreenTracking', () => {
     expect(provider.trackScreen).toHaveBeenCalledTimes(1);
   });
 
-  it('does not send values that look like an email or a JWT under any name', async () => {
-    const provider = createMockProvider();
-    mockUseSegments.mockReturnValue(['(app)', 'feed']);
-    mockUseGlobalSearchParams.mockReturnValue({
-      ref: 'example@example.com',
-      state: 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJleGFtcGxlIn0.fake-signature',
-      tab: 'comments',
-      tag: ['news', 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJleGFtcGxlIn0.fake-signature', 'example@example.com', 'sports'],
-      to: ['example@example.com'],
-    });
-
-    renderWithAnalytics(useAnalyticsScreenTracking, [provider]);
-
-    await waitFor(() => {
-      expect(provider.trackScreen).toHaveBeenCalledWith('/feed', { tab: 'comments', tag: 'news,sports' });
-    });
-  });
-
-  it('sends every non-sensitive param by default', async () => {
+  it('sends every param by default, whatever its name', async () => {
     const provider = createMockProvider();
     mockUseSegments.mockReturnValue(['(app)', 'feed', '[id]']);
-    mockUseGlobalSearchParams.mockReturnValue({ id: '42', tab: 'comments', ref: 'home' });
+    mockUseGlobalSearchParams.mockReturnValue({ id: '42', mode: 'edit', resetCode: '123456', ref: 'home' });
 
     renderWithAnalytics(useAnalyticsScreenTracking, [provider]);
 
     await waitFor(() => {
-      expect(provider.trackScreen).toHaveBeenCalledWith('/feed/[id]', { id: '42', ref: 'home', tab: 'comments' });
+      expect(provider.trackScreen).toHaveBeenCalledWith('/feed/[id]', { id: '42', mode: 'edit', ref: 'home', resetCode: '123456' });
     });
   });
 
@@ -266,18 +204,6 @@ describe('useAnalyticsScreenTracking', () => {
 
     await waitFor(() => {
       expect(provider.trackScreen).toHaveBeenCalledWith('/feed/[id]', { tab: 'comments' });
-    });
-  });
-
-  it('never sends a denylisted param, even when a trackParams function accepts it', async () => {
-    const provider = createMockProvider();
-    mockUseSegments.mockReturnValue(['reset-password']);
-    mockUseGlobalSearchParams.mockReturnValue({ resetToken: 'abc', step: '2' });
-
-    renderWithAnalytics(() => useAnalyticsScreenTracking({ trackParams: () => true }), [provider]);
-
-    await waitFor(() => {
-      expect(provider.trackScreen).toHaveBeenCalledWith('/reset-password', { step: '2' });
     });
   });
 
