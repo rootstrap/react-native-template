@@ -1,4 +1,4 @@
-import { useSegments } from 'expo-router';
+import { useGlobalSearchParams, useSegments } from 'expo-router';
 
 import { AnalyticsProvider } from '@/components/providers/analytics';
 import {
@@ -11,6 +11,7 @@ import { clearUserIdentified, hasIdentifiedUser, markUserIdentified } from '@/li
 import { renderHook, waitFor } from '@/lib/test-utils';
 
 jest.mock('expo-router', () => ({
+  useGlobalSearchParams: jest.fn(),
   useSegments: jest.fn(),
 }));
 
@@ -19,6 +20,9 @@ jest.mock('@/components/providers/auth', () => ({
 }));
 
 const mockUseSegments = useSegments as jest.MockedFunction<() => string[]>;
+const mockUseGlobalSearchParams = useGlobalSearchParams as jest.MockedFunction<
+  () => Record<string, string | Array<string> | undefined>
+>;
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 
 function mockAuthenticated(isAuthenticated: boolean) {
@@ -50,6 +54,7 @@ function renderWithAnalytics(hook: () => void, providers: ReadonlyArray<Analytic
 describe('useAnalyticsScreenTracking', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseGlobalSearchParams.mockReturnValue({});
   });
 
   it('tracks the current screen on mount', async () => {
@@ -73,6 +78,186 @@ describe('useAnalyticsScreenTracking', () => {
     await waitFor(() => {
       expect(provider.trackScreen).toHaveBeenCalledWith('/feed/[id]', undefined);
     });
+  });
+
+  it('sends the route params along with the route pattern', async () => {
+    const provider = createMockProvider();
+    mockUseSegments.mockReturnValue(['(app)', 'feed', '[id]']);
+    mockUseGlobalSearchParams.mockReturnValue({ id: '42', tab: 'comments' });
+
+    renderWithAnalytics(useAnalyticsScreenTracking, [provider]);
+
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledWith('/feed/[id]', { id: '42', tab: 'comments' });
+    });
+  });
+
+  it('joins repeated params with commas and drops undefined values', async () => {
+    const provider = createMockProvider();
+    mockUseSegments.mockReturnValue(['(app)', 'feed']);
+    mockUseGlobalSearchParams.mockReturnValue({ tag: ['news', 'sports'], page: undefined });
+
+    renderWithAnalytics(useAnalyticsScreenTracking, [provider]);
+
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledWith('/feed', { tag: 'news,sports' });
+    });
+  });
+
+  it('does not send the URL fragment', async () => {
+    const provider = createMockProvider();
+    mockUseSegments.mockReturnValue(['(app)', 'feed']);
+    mockUseGlobalSearchParams.mockReturnValue({ '#': 'access_token=secret', 'tab': 'comments' });
+
+    renderWithAnalytics(useAnalyticsScreenTracking, [provider]);
+
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledWith('/feed', { tab: 'comments' });
+    });
+  });
+
+  it('converts primitive values to strings and drops nested objects', async () => {
+    const provider = createMockProvider();
+    mockUseSegments.mockReturnValue(['(app)', 'feed']);
+    (mockUseGlobalSearchParams as jest.Mock).mockReturnValue({
+      page: 2,
+      draft: false,
+      filter: { status: 'open' },
+      empty: null,
+      none: [],
+    });
+
+    renderWithAnalytics(useAnalyticsScreenTracking, [provider]);
+
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledWith('/feed', { draft: 'false', page: '2' });
+    });
+  });
+
+  it('tracks again when only the params change', async () => {
+    const provider = createMockProvider();
+    mockUseSegments.mockReturnValue(['(app)', 'feed', '[id]']);
+    mockUseGlobalSearchParams.mockReturnValue({ id: '1' });
+
+    const { rerender } = renderWithAnalytics(useAnalyticsScreenTracking, [provider]);
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledTimes(1);
+    });
+
+    mockUseGlobalSearchParams.mockReturnValue({ id: '2' });
+    rerender({});
+
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledTimes(2);
+    });
+    expect(provider.trackScreen).toHaveBeenLastCalledWith('/feed/[id]', { id: '2' });
+  });
+
+  it('does not track again when the same params come back in a new object or order', async () => {
+    const provider = createMockProvider();
+    mockUseSegments.mockReturnValue(['(app)', 'feed', '[id]']);
+    mockUseGlobalSearchParams.mockReturnValue({ id: '1', tab: 'comments' });
+
+    const { rerender } = renderWithAnalytics(useAnalyticsScreenTracking, [provider]);
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledTimes(1);
+    });
+
+    mockUseGlobalSearchParams.mockReturnValue({ tab: 'comments', id: '1' });
+    rerender({});
+    // Wait past the tracker's setTimeout so a wrongly scheduled report would land.
+    await new Promise(resolve => setTimeout(resolve, 20));
+
+    expect(provider.trackScreen).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not track again when the params change and come back within the same tick', async () => {
+    const provider = createMockProvider();
+    mockUseSegments.mockReturnValue(['(app)', 'feed', '[id]']);
+    mockUseGlobalSearchParams.mockReturnValue({ id: '1' });
+
+    const { rerender } = renderWithAnalytics(useAnalyticsScreenTracking, [provider]);
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledTimes(1);
+    });
+
+    mockUseGlobalSearchParams.mockReturnValue({ id: '2' });
+    rerender({});
+    mockUseGlobalSearchParams.mockReturnValue({ id: '1' });
+    rerender({});
+    // Wait past the tracker's setTimeout so a wrongly scheduled report would land.
+    await new Promise(resolve => setTimeout(resolve, 20));
+
+    expect(provider.trackScreen).toHaveBeenCalledTimes(1);
+  });
+
+  it('sorts params by name in code unit order', async () => {
+    const provider = createMockProvider();
+    mockUseSegments.mockReturnValue(['(app)', 'feed']);
+    mockUseGlobalSearchParams.mockReturnValue({ b: '2', a: '1', B: '3' });
+
+    renderWithAnalytics(useAnalyticsScreenTracking, [provider]);
+
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledTimes(1);
+    });
+    expect(Object.keys(provider.trackScreen.mock.calls[0][1])).toEqual(['B', 'a', 'b']);
+  });
+
+  // Route params only carry ids, modes and similar values by design, so the
+  // default sends all of them without filtering by name or value.
+  it('sends every route param by default', async () => {
+    const provider = createMockProvider();
+    mockUseSegments.mockReturnValue(['(app)', 'feed', '[id]']);
+    mockUseGlobalSearchParams.mockReturnValue({ id: '42', mode: 'edit', tab: 'comments', ref: 'home' });
+
+    renderWithAnalytics(useAnalyticsScreenTracking, [provider]);
+
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledWith('/feed/[id]', { id: '42', mode: 'edit', ref: 'home', tab: 'comments' });
+    });
+  });
+
+  it('sends no params when param tracking is turned off', async () => {
+    const provider = createMockProvider();
+    mockUseSegments.mockReturnValue(['(app)', 'feed', '[id]']);
+    mockUseGlobalSearchParams.mockReturnValue({ id: '42', tab: 'comments' });
+
+    renderWithAnalytics(() => useAnalyticsScreenTracking({ trackParams: false }), [provider]);
+
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledWith('/feed/[id]', undefined);
+    });
+  });
+
+  it('sends only the params accepted by a trackParams function', async () => {
+    const provider = createMockProvider();
+    mockUseSegments.mockReturnValue(['(app)', 'feed', '[id]']);
+    mockUseGlobalSearchParams.mockReturnValue({ id: '42', tab: 'comments' });
+
+    renderWithAnalytics(() => useAnalyticsScreenTracking({ trackParams: name => name === 'tab' }), [provider]);
+
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledWith('/feed/[id]', { tab: 'comments' });
+    });
+  });
+
+  it('does not track again when only a param rejected by trackParams changes', async () => {
+    const provider = createMockProvider();
+    mockUseSegments.mockReturnValue(['(app)', 'feed', '[id]']);
+    mockUseGlobalSearchParams.mockReturnValue({ id: '42', tab: 'comments' });
+
+    const { rerender } = renderWithAnalytics(() => useAnalyticsScreenTracking({ trackParams: name => name === 'tab' }), [provider]);
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledTimes(1);
+    });
+
+    mockUseGlobalSearchParams.mockReturnValue({ id: '43', tab: 'comments' });
+    rerender({});
+    // Wait past the tracker's setTimeout so a wrongly scheduled report would land.
+    await new Promise(resolve => setTimeout(resolve, 20));
+
+    expect(provider.trackScreen).toHaveBeenCalledTimes(1);
   });
 
   it('reports the index route of a group as the root screen', async () => {

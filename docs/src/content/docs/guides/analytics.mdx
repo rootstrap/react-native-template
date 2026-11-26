@@ -78,9 +78,26 @@ Keep params flat and primitive (`string`, `number`, `boolean`, `null`) so they c
 
 ## Automatic screen tracking
 
-`useAnalyticsScreenTracking` is called once in `AnalyticsTrackers`, a component that renders nothing and sits next to the root `Stack` in `GuardedStack` (`src/app/_layout.tsx`). `GuardedStack` only renders after auth has been hydrated, so the placeholder stack shown while auth loads is not reported, and keeping the hook in its own component means route changes re-render only that component, not the root `Stack`. It reads the current route with `useSegments()` from expo-router and calls `trackScreen` every time it changes, without any code in the screens themselves. The report waits one tick so that when a route guard redirects on launch (for example to `/sign-in`) only the screen the user lands on is reported, and the same screen is never reported twice in a row.
+`useAnalyticsScreenTracking` is called once in `AnalyticsTrackers`, a component that renders nothing and sits next to the root `Stack` in `GuardedStack` (`src/app/_layout.tsx`). `GuardedStack` only renders after auth has been hydrated, so the placeholder stack shown while auth loads is not reported, and keeping the hook in its own component means route changes re-render only that component, not the root `Stack`. It reads the current route with `useSegments()` and its params with `useGlobalSearchParams()` from expo-router, and calls `trackScreen` every time either changes, without any code in the screens themselves. The report waits one tick so that when a route guard redirects on launch (for example to `/sign-in`) only the screen the user lands on is reported, and the same screen with the same params is never reported twice in a row.
 
-Screen names are route patterns, not resolved paths: route groups are dropped and dynamic segments are kept as written, so `/feed/42` is reported as `/feed/[id]` and `/(app)/settings` as `/settings`. This keeps the number of distinct screens small and keeps ids and other path values out of your vendors. If you need the concrete value, track it as an event param.
+Screen names are route patterns, not resolved paths: route groups are dropped and dynamic segments are kept as written, so `/feed/42` is reported as `/feed/[id]` and `/(app)/settings` as `/settings`. This keeps the number of distinct screens small.
+
+The concrete values are sent as the `params` argument of `trackScreen`: dynamic segment values and search params of the focused route, so `/feed/42?tab=comments` is reported as `trackScreen('/feed/[id]', { id: '42', tab: 'comments' })`. Values are strings; a param that appears more than once (`?tag=news&tag=sports`) or a catch-all segment is joined with commas (`{ tag: 'news,sports' }`). Non-string navigation params (numbers, booleans) are converted to strings and object values (or arrays with no primitive values) are dropped, so params stay flat. The URL fragment (`#...`) is never sent, as it is not a route or search param. Routes without params are reported with `params` set to `undefined`. Navigating to the same route with different params (for example from `/feed/1` to `/feed/2`) counts as a new screen view.
+
+:::caution[Route params are sent by default]
+This is a deliberate default chosen by the template maintainers: every route param except the URL fragment is sent with the screen view and forwarded to every registered provider. Route params are treated as non-sensitive by design, since they only carry ids, modes and similar values, so never put tokens or personal data in route params. This also applies to incoming deep links and universal links (password reset, magic links, OAuth callbacks): their query params become route params, so design those links to carry ids only, or turn param tracking off or narrow it with `trackParams` for apps whose links carry credentials. The default lives in `DEFAULT_TRACK_PARAMS` in `src/components/providers/analytics-tracking.ts`.
+:::
+
+To change what is sent, pass the `trackParams` option where `useAnalyticsScreenTracking` is called in `AnalyticsTrackers` (`src/app/_layout.tsx`):
+
+```tsx
+// Send no params at all: trackScreen always receives `undefined`.
+useAnalyticsScreenTracking({ trackParams: false });
+
+// Send only the params you list (an allowlist).
+const TRACKED_PARAMS = new Set(['id', 'tab']);
+useAnalyticsScreenTracking({ trackParams: name => TRACKED_PARAMS.has(name) });
+```
 
 <CodeBlock file="src/components/providers/analytics-tracking.ts" />
 
