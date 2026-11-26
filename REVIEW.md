@@ -18,7 +18,9 @@ Code review guidelines for human teammates and AI agents. All categories are gro
 
 - Auth state and token management must not live in screen components. Business logic belongs in `src/components/providers/auth.tsx`; routing guards belong in `src/app/_layout.tsx`.
 - Tokens must be stored exclusively via `storeTokens()` and read via `getTokenDetails()` from `src/components/providers/auth.tsx`. Never store auth tokens in plain React state, `AsyncStorage`, or the general `storage` instance from `src/lib/storage.tsx`.
-- All routes that require a logged-in user must be inside the `(app)/` group, wrapped in `Stack.Protected` with `guard={isAuthenticated}` in `src/app/_layout.tsx`. Never replicate this guard inside individual screen files.
+- All routes that require a logged-in user must be declared under the `Stack.Protected` with `guard={isAuthenticated}` in `src/app/_layout.tsx`, either through the `(app)/` group or as a stack screen of their own (e.g. `feed/[id]`). Never replicate this guard inside individual screen files.
+- Screens under the authenticated and logged-out guards are rendered from `AUTHENTICATED_SCREENS` / `AUTH_SCREENS` in `src/lib/auth/deep-link-path.ts`. Add, move or remove a guarded screen there (and its options in `GUARDED_SCREEN_OPTIONS` in `src/app/_layout.tsx`), never as a hand-written `Stack.Screen` inside those guards.
+- Pending deep links are only stored by `src/app/+native-intent.tsx` and only consumed through `getFallbackRoute()`. Never navigate to a pending link directly from a screen, and never let a path that resolves to a public or auth screen become a return-to target.
 - Verify that API calls are not triggered before `ready === true` from `AuthProvider`. Until `ready` is true, the auth state is not yet hydrated from MMKV.
 - Token expiry must be evaluated using `dayjs` comparison against the ISO string stored in `authStorage` — do not compare raw Unix timestamps or use `Date` directly.
 

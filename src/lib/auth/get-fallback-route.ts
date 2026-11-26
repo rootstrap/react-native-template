@@ -1,11 +1,23 @@
+import type { Href } from 'expo-router';
+
+import { isReturnToPath } from './deep-link-path';
+
 type GuardState = {
   isFirstTime: boolean;
   isAuthenticated: boolean;
+  pendingDeepLink?: string | null;
 };
 
-export function getFallbackRoute({ isFirstTime, isAuthenticated }: GuardState) {
+export function getFallbackRoute({
+  isFirstTime,
+  isAuthenticated,
+  pendingDeepLink = null,
+}: GuardState): Href {
   if (isFirstTime) {
-    return '/onboarding' as const;
+    return '/onboarding';
   }
-  return isAuthenticated ? ('/' as const) : ('/sign-in' as const);
+  if (!isAuthenticated) {
+    return '/sign-in';
+  }
+  return pendingDeepLink !== null && isReturnToPath(pendingDeepLink) ? pendingDeepLink : '/';
 }

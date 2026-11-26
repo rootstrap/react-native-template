@@ -31,13 +31,21 @@ Data flows down; side-effects (navigation, token refresh) are handled at the lay
 
 | Pattern                            | Meaning                                                                             |
 | ---------------------------------- | ----------------------------------------------------------------------------------- |
-| `src/app/(app)/`                   | Route group for authenticated screens — all screens here require `isAuthenticated`  |
+| `src/app/(app)/`                   | Route group for the authenticated tabs — all screens here require `isAuthenticated` |
 | `Stack.Protected` in `_layout.tsx` | Declarative auth and onboarding gating — do not replicate inside individual screens |
 | `src/app/[...messing].tsx`         | 404 catch-all for unmatched routes                                                  |
 | `src/app/+html.tsx`                | Web-only HTML shell                                                                 |
 | `src/app/www.tsx`                  | In-app WebView presented as a modal                                                 |
 
-Route guards are centralised in `src/app/_layout.tsx`. The `GuardedStack` component reads `isAuthenticated` and `isFirstTime` and applies `Stack.Protected` — nothing inside `(app)/` screens should check auth state or redirect.
+Route guards are centralised in `src/app/_layout.tsx`. The `GuardedStack` component reads `isAuthenticated`, `isFirstTime` and the pending deep link, and applies `Stack.Protected` — no screen should check auth state or redirect. Authenticated routes do not have to live in `(app)/`: stack screens that sit outside the tabs (e.g. `feed/[id]`, `feed/add-post`, `update-password`) are declared directly under the authenticated `Stack.Protected`. The screens under the authenticated and logged-out guards are rendered from `AUTHENTICATED_SCREENS` and `AUTH_SCREENS` in `src/lib/auth/deep-link-path.ts`, so adding or moving a guarded screen means editing those lists (plus `GUARDED_SCREEN_OPTIONS` in `src/app/_layout.tsx` when the screen needs options).
+
+### Deep links into protected screens
+
+A logged-out user who opens a link to a protected screen is sent to sign-in and lands on that screen after logging in:
+
+1. `src/app/+native-intent.tsx` normalises every incoming link with `toAppPath()` and, if `isReturnToPath()` accepts it (an in-app path that does not resolve to a public or auth screen, dot segments included), stores it in the pending deep link store (`src/lib/auth/pending-deep-link.ts`). Any other link, or one that cannot be parsed, clears the store so a stale target is never reused.
+2. `getFallbackRoute()` (`src/lib/auth/get-fallback-route.ts`) uses the pending link as the `redirectTo` of the guards once the user is authenticated, and falls back to `/` for anything that is not a valid return-to path.
+3. `GuardedStack` clears the pending link once the user is past sign-in, or when onboarding takes over.
 
 ---
 

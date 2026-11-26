@@ -65,4 +65,16 @@ describe('LoginForm Form ', () => {
     expect(screen.queryByText(/at least/i)).not.toBeOnTheScreen();
     expect(screen.queryByText(/Password is required/i)).not.toBeOnTheScreen();
   });
+
+  it('shows the notice under the title when one is given', () => {
+    render(<LoginForm notice="Sign in to open this link." />);
+
+    expect(screen.getByText('Sign in to open this link.')).toBeOnTheScreen();
+  });
+
+  it('shows no notice by default', () => {
+    render(<LoginForm />);
+
+    expect(screen.queryByTestId('login-notice')).not.toBeOnTheScreen();
+  });
 });
