@@ -79,7 +79,9 @@ function toParamValue(value: unknown) {
 function toParamsKey(routeParams: Readonly<Record<string, unknown>>, trackParams: TrackScreenParamsOption) {
   const entries = Object.keys(routeParams)
     .filter(key => acceptsParam(trackParams, key))
-    .sort()
+    // Same UTF-16 code unit order as the default sort, stated explicitly
+    // rather than with `localeCompare`, which would depend on the device locale.
+    .sort((a, b) => Number(a > b) - Number(a < b))
     .flatMap((key) => {
       const value = toParamValue(routeParams[key]);
       return value === undefined ? [] : [[key, value] as const];
