@@ -49,6 +49,18 @@ export function getTokenDetails() {
   };
 }
 
+export function getValidAccessToken(): string | null {
+  const { accessToken, expiration } = getTokenDetails();
+  if (accessToken === '' || expiration === '' || dayjs().isAfter(dayjs(expiration))) {
+    return null;
+  }
+  return accessToken;
+}
+
+export function hasValidSession(): boolean {
+  return getValidAccessToken() !== null;
+}
+
 export function clearTokens() {
   authStorage.clearAll();
 }
@@ -113,25 +125,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const [ready, setReady] = useState(false);
 
   const checkToken = useCallback(() => {
-    const storedToken = authStorage.getString(HEADER_KEYS.ACCESS_TOKEN);
-    const expiration = authStorage.getString(HEADER_KEYS.EXPIRY);
-
-    if (storedToken === undefined || expiration === undefined) {
-      setToken(null);
-      setLoading(false);
-      setReady(true);
-      return;
-    }
-
-    const isExpired = dayjs().isAfter(dayjs(expiration));
-
-    if (isExpired) {
-      setToken(null); // Token expired, clear it
-    }
-    else {
-      setToken(storedToken); // Token is valid, set it
-    }
-
+    setToken(getValidAccessToken());
     setLoading(false);
     setReady(true);
   }, []);

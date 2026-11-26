@@ -1,7 +1,8 @@
 import { renderHook } from '@testing-library/react-native';
 import { useMMKVBoolean } from 'react-native-mmkv';
 
-import { useIsFirstTime } from '@/lib/hooks/use-is-first-time';
+import { getIsFirstTime, useIsFirstTime } from '@/lib/hooks/use-is-first-time';
+import { storage } from '@/lib/storage';
 
 // Mock react-native-mmkv before importing the hook
 jest.mock('react-native-mmkv', () => ({
@@ -16,6 +17,7 @@ jest.mock('react-native-mmkv', () => ({
 // Mock the storage module
 jest.mock('@/lib/storage', () => ({
   storage: {
+    getBoolean: jest.fn(),
     getString: jest.fn(),
     set: jest.fn(),
     delete: jest.fn(),
@@ -58,5 +60,26 @@ describe('useIsFirstTime', () => {
 
     expect(result.current[0]).toBe(true);
     expect(result.current[1]).toBe(mockSetIsFirstTime);
+  });
+});
+
+describe('getIsFirstTime', () => {
+  const mockGetBoolean = jest.mocked(storage.getBoolean);
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('is true when onboarding has never been recorded', () => {
+    mockGetBoolean.mockReturnValue(undefined);
+
+    expect(getIsFirstTime()).toBe(true);
+    expect(mockGetBoolean).toHaveBeenCalledWith('IS_FIRST_TIME');
+  });
+
+  it.each([true, false])('returns the stored value (%s)', (value) => {
+    mockGetBoolean.mockReturnValue(value);
+
+    expect(getIsFirstTime()).toBe(value);
   });
 });

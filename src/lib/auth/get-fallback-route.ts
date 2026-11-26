@@ -12,7 +12,7 @@ export function getFallbackRoute({
   isFirstTime,
   isAuthenticated,
   pendingDeepLink = null,
-}: GuardState): Href {
+}: GuardState): Extract<Href, string> {
   if (isFirstTime) {
     return '/onboarding';
   }
