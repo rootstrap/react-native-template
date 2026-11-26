@@ -171,6 +171,39 @@ describe('useAnalyticsScreenTracking', () => {
     expect(provider.trackScreen).toHaveBeenCalledTimes(1);
   });
 
+  it('does not track again when the params change and come back within the same tick', async () => {
+    const provider = createMockProvider();
+    mockUseSegments.mockReturnValue(['(app)', 'feed', '[id]']);
+    mockUseGlobalSearchParams.mockReturnValue({ id: '1' });
+
+    const { rerender } = renderWithAnalytics(useAnalyticsScreenTracking, [provider]);
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledTimes(1);
+    });
+
+    mockUseGlobalSearchParams.mockReturnValue({ id: '2' });
+    rerender({});
+    mockUseGlobalSearchParams.mockReturnValue({ id: '1' });
+    rerender({});
+    // Wait past the tracker's setTimeout so a wrongly scheduled report would land.
+    await new Promise(resolve => setTimeout(resolve, 20));
+
+    expect(provider.trackScreen).toHaveBeenCalledTimes(1);
+  });
+
+  it('sorts params by name in code unit order', async () => {
+    const provider = createMockProvider();
+    mockUseSegments.mockReturnValue(['(app)', 'feed']);
+    mockUseGlobalSearchParams.mockReturnValue({ b: '2', a: '1', B: '3' });
+
+    renderWithAnalytics(useAnalyticsScreenTracking, [provider]);
+
+    await waitFor(() => {
+      expect(provider.trackScreen).toHaveBeenCalledTimes(1);
+    });
+    expect(Object.keys(provider.trackScreen.mock.calls[0][1])).toEqual(['B', 'a', 'b']);
+  });
+
   // Route params only carry ids, modes and similar values by design, so the
   // default sends all of them without filtering by name or value.
   it('sends every route param by default', async () => {
