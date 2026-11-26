@@ -4,11 +4,10 @@
 
 # ✍️ Description:
 # This workflow is used to run end-to-end tests for EAS build on Android.
-# It uses Maestro Cloud to run tests on Android emulator.
-# It downloads the APK from EAS build and triggers the tests on Maestro Cloud with the downloaded APK.
+# It runs the tests with Maestro on an Android emulator in GitHub Actions.
+# It downloads the APK from the provided EAS build URL and runs the tests against the downloaded APK.
 
-# 🚨 GITHUB SECRETS REQUIRED:
-# MAESTRO_CLOUD_API_KEY: API key for Maestro Cloud. You can get it from https://cloud.mobile.dev/ci-integration/github-actions#add-your-api-key-secret
+# 🚨 GITHUB SECRETS REQUIRED: None
 
 name: E2E Tests EAS Build Android (Maestro + Github Action)
 
@@ -17,19 +16,30 @@ on:
     inputs:
       apk-url:
         type: string
-        description: EAS APK URL
+        description: EAS APK URL (https://expo.dev/artifacts/eas/...)
         required: true
         default: ''
 
 jobs:
   download-eas-apk:
-    if: github.event_name != 'pull_request'  && github.event.inputs.apk-url != ''
-    name: Download Test APK From EAS Url (wget)
+    if: github.event.inputs.apk-url != ''
+    name: Download Test APK From EAS Url (curl)
     runs-on: ubuntu-latest
 
     steps:
       - name: 📦 Download EAS APK
-        run: wget ${{ github.event.inputs.apk-url }} -O ./app-release.apk
+        env:
+          # Passed through an env var, never interpolated into the script, so the input cannot inject shell commands.
+          APK_URL: ${{ github.event.inputs.apk-url }}
+        # Only EAS build artifact links (https://expo.dev/artifacts/eas/<id>.apk) are accepted as input. EAS redirects
+        # them to its storage host, so redirects are followed but must stay on https.
+        run: |
+          if [[ ! "$APK_URL" =~ ^https://expo\.dev/artifacts/eas/[A-Za-z0-9_-]+\.apk$ ]]; then
+            echo "apk-url must be an EAS artifact URL (https://expo.dev/artifacts/eas/<id>.apk)" >&2
+            exit 1
+          fi
+          curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' --max-redirs 5 \
+            --output ./app-release.apk "$APK_URL"
 
       - name: Upload Test APK
         uses: actions/upload-artifact@v4
@@ -40,7 +50,12 @@ jobs:
   test-android:
     name: E2E Tests EAS Build Android (Maestro + Github Action)
     needs: download-eas-apk
-    runs-on: macOS-latest
+    runs-on: ubuntu-latest
+    # The emulator setup below matches the test-android job in e2e-android.yml: keep both in sync.
+    env:
+      # Shared by the AVD cache key and both emulator steps so a cached AVD always matches the requested one.
+      EMULATOR_API_LEVEL: 29
+      EMULATOR_ARCH: x86_64
 
     steps:
       - name: 📦 Checkout project repo
@@ -57,8 +72,19 @@ jobs:
           name: test-apk
           path: ${{ github.workspace }}
 
+      - name: 📦 Read app id from the test APK
+        uses: ./.github/actions/read-apk-app-id
+        with:
+          apk-path: ${{ github.workspace }}/app-release.apk
+
       - name: Gradle cache
         uses: gradle/gradle-build-action@v2
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
 
       - name: AVD cache
         uses: actions/cache@v4
@@ -67,13 +93,14 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-cache
+          key: avd-${{ runner.os }}-${{ env.EMULATOR_API_LEVEL }}-${{ env.EMULATOR_ARCH }}
 
       - name: create AVD and generate snapshot for caching
         if: steps.avd-cache.outputs.cache-hit != 'true'
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 29
+          api-level: ${{ env.EMULATOR_API_LEVEL }}
+          arch: ${{ env.EMULATOR_ARCH }}
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: false
@@ -85,7 +112,8 @@ jobs:
       - name: Run tests with Maestro
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 29
+          api-level: ${{ env.EMULATOR_API_LEVEL }}
+          arch: ${{ env.EMULATOR_ARCH }}
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: false
@@ -94,7 +122,7 @@ jobs:
           profile: Nexus 6
           script: |
             adb install "${{ github.workspace }}/app-release.apk"
-            $HOME/.maestro/bin/maestro test .maestro/ --env=APP_ID=com.obytes.staging  --format junit
+            $HOME/.maestro/bin/maestro test .maestro/ --env=APP_ID="$APP_ID" --format junit
 
       - name: Upload artifacts
         if: always()

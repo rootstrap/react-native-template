@@ -1,0 +1,37 @@
+# 🔗 Links:
+# Source file: https://github.com/rootstrap/react-native-template/blob/master/.github/actions/read-apk-app-id/action.yml
+
+# ✍️ Description:
+# Reads the package name (app id) from an Android APK and exports it as the APP_ID environment variable for the next
+# steps of the job. The package name depends on the project (env.js) and the environment suffix, so the E2E workflows
+# read it from the APK instead of hard-coding it. Only valid Android package names are accepted.
+
+# 👀 Example usage:
+#      - name: 📦 Read app id from the test APK
+#        uses: ./.github/actions/read-apk-app-id
+#        with:
+#          apk-path: ${{ github.workspace }}/app-release.apk
+
+name: Read APK app id
+description: Exports the package name of an Android APK as APP_ID
+inputs:
+  apk-path:
+    description: Path to the APK file
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: 📦 Read app id from the APK
+      shell: bash
+      env:
+        APK_PATH: ${{ inputs.apk-path }}
+      run: |
+        AAPT2="$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -n 1)aapt2"
+        APP_ID="$("$AAPT2" dump packagename "$APK_PATH")"
+        if [[ ! "$APP_ID" =~ ^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)+$ ]]; then
+          echo "Could not read a valid package name from $APK_PATH" >&2
+          exit 1
+        fi
+        echo "App id: $APP_ID"
+        echo "APP_ID=$APP_ID" >> "$GITHUB_ENV"

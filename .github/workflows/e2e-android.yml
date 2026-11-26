@@ -6,7 +6,7 @@
 # This workflow is used to run end-to-end tests on Android using Maestro.
 # As a first step, it will generate a test APK using the Gradle build and then upload it as an artifact.
 # A new job will be started to run the tests using the test APK generated in the previous job.
-# To test the app, we set up an Android emulator using the `reactivecircus/android-emulator-runner` action. This runner requires macOS as the operating system for the runner.
+# To test the app, we set up an Android emulator using the `reactivecircus/android-emulator-runner` action. The emulator runs on a Linux runner with KVM hardware acceleration enabled.
 # This workflow will be triggered on pull requests (PRs) with the label "android-test-github" or can be manually triggered from the Actions tab.
 #
 
@@ -48,7 +48,12 @@ jobs:
   test-android:
     name: Run Android E2E Tests (Maestro + Github Action)
     needs: generate-test-apk
-    runs-on: macOS-latest
+    runs-on: ubuntu-latest
+    # The emulator setup below matches the test-android job in e2e-android-eas-build.yml: keep both in sync.
+    env:
+      # Shared by the AVD cache key and both emulator steps so a cached AVD always matches the requested one.
+      EMULATOR_API_LEVEL: 29
+      EMULATOR_ARCH: x86_64
 
     steps:
       - name: 📦 Checkout project repo
@@ -65,8 +70,19 @@ jobs:
           name: test-apk
           path: ${{ github.workspace }}
 
+      - name: 📦 Read app id from the test APK
+        uses: ./.github/actions/read-apk-app-id
+        with:
+          apk-path: ${{ github.workspace }}/app-release.apk
+
       - name: Gradle cache
         uses: gradle/gradle-build-action@v2
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
 
       - name: AVD cache
         uses: actions/cache@v4
@@ -75,13 +91,14 @@ jobs:
           path: |
             ~/.android/avd/*
             ~/.android/adb*
-          key: avd-cache
+          key: avd-${{ runner.os }}-${{ env.EMULATOR_API_LEVEL }}-${{ env.EMULATOR_ARCH }}
 
       - name: create AVD and generate snapshot for caching
         if: steps.avd-cache.outputs.cache-hit != 'true'
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 29
+          api-level: ${{ env.EMULATOR_API_LEVEL }}
+          arch: ${{ env.EMULATOR_ARCH }}
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: false
@@ -93,7 +110,8 @@ jobs:
       - name: Run tests with Maestro
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 29
+          api-level: ${{ env.EMULATOR_API_LEVEL }}
+          arch: ${{ env.EMULATOR_ARCH }}
           force-avd-creation: false
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: false
@@ -102,7 +120,7 @@ jobs:
           profile: Nexus 6
           script: |
             adb install "${{ github.workspace }}/app-release.apk"
-            $HOME/.maestro/bin/maestro test .maestro/ --env=APP_ID=com.obytes.staging  --format junit
+            $HOME/.maestro/bin/maestro test .maestro/ --env=APP_ID="$APP_ID" --format junit
 
       - name: Upload artifacts
         if: always()
