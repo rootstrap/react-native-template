@@ -5,6 +5,12 @@
 # This workflow is used to compress images in the repo.
 # This workflow will trigger on a push to the "master" or "main" branch and only run when a new image is added or updated.
 # If it's the case, it will compress those images and create a pull request with the compressed images.
+# On push, only the images added or updated by the pushed commits are compressed (see
+# .github/scripts/detect-images-to-compress.sh). An image is skipped when the last commit that changed it is one of
+# this workflow's own compression commits (also when it was merged with a merge commit, squashed as
+# "Compress Images (#N)" / "Auto Compress Images (#N)", or rebased) and the image still has the bytes that commit gave
+# it, so merging a compression PR does not open a new one for the same images.
+# When triggered manually (workflow_dispatch), every image in the repo is compressed.
 
 # 🚨 GITHUB SECRETS REQUIRED: None
 
@@ -19,7 +25,16 @@ on:
       - '**.jpeg'
       - '**.png'
       - '**.webp'
+      - '**.avif'
   workflow_dispatch:
+
+env:
+  # Comma-separated "<dir>/**" entries; the "Detect images to compress" step derives its directory filter from it.
+  IGNORE_PATHS: 'node_modules/**,ios/**,android/**'
+  # Commit message and title of the compression PR. The "Detect images to compress" step reads both to recognise
+  # images that are already compressed, so they are defined only here.
+  COMPRESS_COMMIT_MESSAGE: Compress Images
+  COMPRESS_PR_TITLE: Auto Compress Images
 
 jobs:
   build:
@@ -30,19 +45,31 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      # calibreapp/image-actions compresses every image in the repo when it does not run on a pull request,
+      # so on push the images that were not added/updated by people are passed to it as ignored paths.
+      - name: Detect images to compress
+        id: images
+        if: github.event_name == 'push'
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        run: bash .github/scripts/detect-images-to-compress.sh
+
       - name: Compress Images
         id: calibre
+        if: steps.images.outputs.skip != 'true'
         uses: calibreapp/image-actions@main
         with:
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           compressOnly: true
-          ignorePaths: 'node_modules/**,ios/**,android/**'
+          ignorePaths: ${{ steps.images.outputs.ignore-paths || env.IGNORE_PATHS }}
 
       - name: Create Pull Request
         if: steps.calibre.outputs.markdown != ''
         uses: peter-evans/create-pull-request@v3
         with:
-          title: Auto Compress Images
+          title: ${{ env.COMPRESS_PR_TITLE }}
           branch-suffix: timestamp
-          commit-message: Compress Images
+          commit-message: ${{ env.COMPRESS_COMMIT_MESSAGE }}
           body: ${{ steps.calibre.outputs.markdown }}
