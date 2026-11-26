@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from 'react';
 import { Stack } from 'expo-router';
+import { hideAsync } from 'expo-splash-screen';
 import { Children, isValidElement } from 'react';
 
 import RootLayout from '@/app/_layout';
@@ -24,6 +25,7 @@ jest.mock('react-native-gesture-handler', () => ({
 
 jest.mock('expo-splash-screen', () => ({
   preventAutoHideAsync: jest.fn(() => Promise.resolve()),
+  hideAsync: jest.fn(() => Promise.resolve()),
   setOptions: jest.fn(),
 }));
 
@@ -49,6 +51,7 @@ jest.mock('@/lib/hooks/use-is-first-time', () => ({
 }));
 
 const mockProtected = jest.mocked(Stack.Protected);
+const mockHideSplash = jest.mocked(hideAsync);
 const mockUseAuth = jest.mocked(useAuth);
 const mockUseIsFirstTime = jest.mocked(useIsFirstTime);
 
@@ -265,5 +268,30 @@ describe('RootLayout guards', () => {
     rerenderAt(['sign-in']);
 
     expect(guardFor('sign-in').redirectTo).toBe('/');
+  });
+});
+
+describe('RootLayout while auth is hydrating', () => {
+  it('renders no screens and keeps the splash until auth is ready', () => {
+    mockUseAuth.mockReturnValue({
+      token: null,
+      isAuthenticated: false,
+      loading: true,
+      ready: false,
+      logout: jest.fn(),
+    });
+
+    render(<RootLayout />);
+
+    expect(mockProtected).not.toHaveBeenCalled();
+    expect(Stack.Screen).not.toHaveBeenCalled();
+    expect(mockHideSplash).not.toHaveBeenCalled();
+  });
+
+  it('renders the guarded screens and hides the splash once auth is ready', () => {
+    render(<RootLayout />);
+
+    expect(guardFor('feed/add-post')).toMatchObject({ guard: false });
+    expect(mockHideSplash).toHaveBeenCalledTimes(1);
   });
 });

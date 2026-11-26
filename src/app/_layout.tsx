@@ -116,8 +116,14 @@ export default function RootLayout() {
 function RouterContent() {
   const { ready } = useAuth();
 
+  React.useEffect(() => {
+    if (ready) {
+      void SplashScreen.hideAsync();
+    }
+  }, [ready]);
+
   if (!ready) {
-    return <Stack />;
+    return null;
   }
 
   return <GuardedStack />;
