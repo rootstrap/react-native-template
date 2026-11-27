@@ -1,12 +1,12 @@
 import { act, renderHook } from '@testing-library/react-hooks';
 import { waitFor } from '@testing-library/react-native';
 import dayjs from 'dayjs';
-import { AppState } from 'react-native';
 
 import { Text, TouchableOpacity, View } from '@/components/ui';
 import { fireEvent, render, screen } from '@/lib/test-utils';
 
 import {
+  authStorage,
   AuthProvider,
   clearTokens,
   getTokenDetails,
@@ -26,10 +26,6 @@ jest.mock('@/api', () => ({
     },
   },
 }));
-
-const mockAddAppStateListener = jest
-  .spyOn(AppState, 'addEventListener')
-  .mockImplementation(() => ({ remove: jest.fn() }));
 
 const TestComponent = () => {
   const { token, isAuthenticated, loading, ready, logout } = useAuth();
@@ -202,27 +198,16 @@ describe('AuthProvider', () => {
     clearTokens();
   });
 
-  it('logs out when the app returns to the foreground with an expired token', () => {
-    storeSession(dayjs().add(1, 'hour').toISOString());
-    const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
-    const onAppStateChange = mockAddAppStateListener.mock.calls.at(-1)?.[1];
-
-    storeSession(mockedExpiryDate);
-    act(() => onAppStateChange?.('active'));
-
-    expect(result.current.isAuthenticated).toBe(false);
-    clearTokens();
-  });
-
   it('stops syncing once unmounted', () => {
     storeSession(dayjs().add(1, 'hour').toISOString());
-    const { result, unmount } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+    const { unmount } = renderHook(() => useAuth(), { wrapper: AuthProvider });
     unmount();
+    const getString = jest.spyOn(authStorage, 'getString');
+    const readsBeforeSync = getString.mock.calls.length;
 
-    storeSession(mockedExpiryDate);
+    syncSession();
 
-    expect(() => syncSession()).not.toThrow();
-    expect(result.current.isAuthenticated).toBe(true);
+    expect(getString.mock.calls).toHaveLength(readsBeforeSync);
     clearTokens();
   });
 

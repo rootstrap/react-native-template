@@ -8,7 +8,6 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { AppState } from 'react-native';
 import { createMMKV } from 'react-native-mmkv';
 
 import { client } from '@/api';
@@ -150,11 +149,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setReady(true);
     }
     sessionListeners.add(checkToken);
-    const appStateSubscription = AppState.addEventListener('change', (state) => {
-      if (state === 'active') {
-        checkToken();
-      }
-    });
     const requestInterceptor = client.interceptors.response.use(
       (config) => {
         if (config.status === unauthorizedHttpStatusCode) {
@@ -168,7 +162,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
     return () => {
       sessionListeners.delete(checkToken);
-      appStateSubscription.remove();
       client.interceptors.request.eject(requestInterceptor);
     };
   }, [checkToken]);
