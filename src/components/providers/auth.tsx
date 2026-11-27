@@ -8,6 +8,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { AppState } from 'react-native';
 import { createMMKV } from 'react-native-mmkv';
 
 import { client } from '@/api';
@@ -59,6 +60,12 @@ export function getValidAccessToken(): string | null {
 
 export function hasValidSession(): boolean {
   return getValidAccessToken() !== null;
+}
+
+const sessionListeners = new Set<() => void>();
+
+export function syncSession() {
+  sessionListeners.forEach(listener => listener());
 }
 
 export function clearTokens() {
@@ -142,6 +149,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     catch {
       setReady(true);
     }
+    sessionListeners.add(checkToken);
+    const appStateSubscription = AppState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        checkToken();
+      }
+    });
     const requestInterceptor = client.interceptors.response.use(
       (config) => {
         if (config.status === unauthorizedHttpStatusCode) {
@@ -154,6 +167,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     );
 
     return () => {
+      sessionListeners.delete(checkToken);
+      appStateSubscription.remove();
       client.interceptors.request.eject(requestInterceptor);
     };
   }, [checkToken]);

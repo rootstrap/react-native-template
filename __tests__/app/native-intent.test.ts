@@ -1,7 +1,8 @@
+import { act, renderHook } from '@testing-library/react-native';
 import dayjs from 'dayjs';
 
 import { redirectSystemPath } from '@/app/+native-intent';
-import { clearTokens, storeTokens } from '@/components/providers/auth';
+import { AuthProvider, clearTokens, storeTokens, useAuth } from '@/components/providers/auth';
 import { clearPendingDeepLink, setPendingDeepLink, usePendingDeepLink } from '@/lib/auth/pending-deep-link';
 import { storage } from '@/lib/storage';
 
@@ -58,6 +59,20 @@ describe('redirectSystemPath', () => {
       expect(pendingDeepLink()).toBe('/feed/add-post');
     });
 
+    it('logs the running app out when the link finds the session expired', () => {
+      logIn();
+      const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+      expect(result.current.isAuthenticated).toBe(true);
+
+      logIn(dayjs().subtract(1, 'minute').toISOString());
+      act(() => {
+        redirectSystemPath({ path: 'RootstrapApp://feed/add-post', initial: false });
+      });
+
+      expect(result.current.isAuthenticated).toBe(false);
+      expect(pendingDeepLink()).toBe('/feed/add-post');
+    });
+
     it('sends a protected link to onboarding on first launch and forgets it', () => {
       storage.remove('IS_FIRST_TIME');
       setPendingDeepLink('/feed/1');
@@ -91,6 +106,16 @@ describe('redirectSystemPath', () => {
     expect(redirectSystemPath({ path: 'RootstrapApp.staging://sign-up', initial: false })).toBe('RootstrapApp.staging://sign-up');
     expect(pendingDeepLink()).toBeNull();
   });
+
+  it.each(['RootstrapApp://does-not-exist', 'RootstrapApp://feed', 'RootstrapApp://Sign-In'])(
+    'opens %s, which is not a protected screen, unchanged without remembering it',
+    (path) => {
+      setPendingDeepLink('/feed/1');
+
+      expect(redirectSystemPath({ path, initial: true })).toBe(path);
+      expect(pendingDeepLink()).toBeNull();
+    },
+  );
 
   it('opens a plain app launch unchanged without remembering it', () => {
     const path = 'RootstrapApp.staging://';

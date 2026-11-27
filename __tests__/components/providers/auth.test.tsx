@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react-hooks';
 import { waitFor } from '@testing-library/react-native';
 import dayjs from 'dayjs';
+import { AppState } from 'react-native';
 
 import { Text, TouchableOpacity, View } from '@/components/ui';
 import { fireEvent, render, screen } from '@/lib/test-utils';
@@ -12,6 +13,7 @@ import {
   getValidAccessToken,
   hasValidSession,
   storeTokens,
+  syncSession,
   useAuth,
 } from '../../../src/components/providers/auth';
 
@@ -24,6 +26,10 @@ jest.mock('@/api', () => ({
     },
   },
 }));
+
+const mockAddAppStateListener = jest
+  .spyOn(AppState, 'addEventListener')
+  .mockImplementation(() => ({ remove: jest.fn() }));
 
 const TestComponent = () => {
   const { token, isAuthenticated, loading, ready, logout } = useAuth();
@@ -172,6 +178,51 @@ describe('AuthProvider', () => {
     expect(result.current.isAuthenticated).toBe(false);
     expect(result.current.token).toBeNull();
     expect(result.current.ready).toBe(true);
+    clearTokens();
+  });
+
+  function storeSession(expiration: string) {
+    storeTokens({
+      accessToken: mockedValidToken,
+      refreshToken: mockedRefreshToken,
+      userId: mockedUserId,
+      expiration,
+    });
+  }
+
+  it('logs out when a session sync finds the stored token expired', () => {
+    storeSession(dayjs().add(1, 'hour').toISOString());
+    const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+    expect(result.current.isAuthenticated).toBe(true);
+
+    storeSession(mockedExpiryDate);
+    act(() => syncSession());
+
+    expect(result.current.isAuthenticated).toBe(false);
+    clearTokens();
+  });
+
+  it('logs out when the app returns to the foreground with an expired token', () => {
+    storeSession(dayjs().add(1, 'hour').toISOString());
+    const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+    const onAppStateChange = mockAddAppStateListener.mock.calls.at(-1)?.[1];
+
+    storeSession(mockedExpiryDate);
+    act(() => onAppStateChange?.('active'));
+
+    expect(result.current.isAuthenticated).toBe(false);
+    clearTokens();
+  });
+
+  it('stops syncing once unmounted', () => {
+    storeSession(dayjs().add(1, 'hour').toISOString());
+    const { result, unmount } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+    unmount();
+
+    storeSession(mockedExpiryDate);
+
+    expect(() => syncSession()).not.toThrow();
+    expect(result.current.isAuthenticated).toBe(true);
     clearTokens();
   });
 

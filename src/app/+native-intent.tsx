@@ -1,6 +1,6 @@
 import type { NativeIntent } from 'expo-router';
 
-import { hasValidSession } from '@/components/providers/auth';
+import { hasValidSession, syncSession } from '@/components/providers/auth';
 import { isReturnToPath, toAppPath } from '@/lib/auth/deep-link-path';
 import { getFallbackRoute } from '@/lib/auth/get-fallback-route';
 import { clearPendingDeepLink, setPendingDeepLink } from '@/lib/auth/pending-deep-link';
@@ -16,6 +16,7 @@ export function redirectSystemPath({ path }: RedirectSystemPathEvent): string {
       return path;
     }
 
+    syncSession();
     const isFirstTime = getIsFirstTime();
     if (isFirstTime) {
       clearPendingDeepLink();

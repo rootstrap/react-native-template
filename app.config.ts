@@ -35,7 +35,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     url: `https://u.expo.dev/${Env.EAS_PROJECT_ID}`,
   },
   runtimeVersion: {
-    policy: 'appVersion',
+    policy: 'fingerprint',
   },
   assetBundlePatterns: ['**/*'],
   ios: {

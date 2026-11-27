@@ -1,7 +1,7 @@
 import type { NativeStackNavigationOptions } from 'expo-router';
 
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
-import { Stack, ThemeProvider, useSegments } from 'expo-router';
+import { Stack, ThemeProvider, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import * as React from 'react';
 import { StyleSheet } from 'react-native';
@@ -13,9 +13,9 @@ import { APIProvider } from '@/api';
 import interceptors from '@/api/common/interceptors';
 import { AnalyticsProvider } from '@/components/providers/analytics';
 import { useAnalyticsScreenTracking, useAnalyticsSessionReset } from '@/components/providers/analytics-tracking';
-import { AuthProvider, useAuth } from '@/components/providers/auth';
+import { AuthProvider, hasValidSession, useAuth } from '@/components/providers/auth';
 import { consoleAnalyticsProvider, hydrateAuth, loadSelectedTheme, useIsFirstTime } from '@/lib';
-import { AUTH_SCREENS, AUTHENTICATED_SCREENS, isOnScreen } from '@/lib/auth/deep-link-path';
+import { AUTH_SCREENS, AUTHENTICATED_SCREENS, isOnScreen, isReturnToPath } from '@/lib/auth/deep-link-path';
 import { getFallbackRoute } from '@/lib/auth/get-fallback-route';
 import { clearPendingDeepLink, usePendingDeepLink } from '@/lib/auth/pending-deep-link';
 import { useSyncLanguageWithOS } from '@/lib/i18n';
@@ -59,25 +59,48 @@ function AnalyticsTrackers() {
   return null;
 }
 
-function GuardedStack() {
+function PendingDeepLinkHandler() {
+  const router = useRouter();
   const { isAuthenticated } = useAuth();
   const [isFirstTime] = useIsFirstTime();
   const segments: ReadonlyArray<string> = useSegments();
   const pendingDeepLink = usePendingDeepLink.use.path();
-  const fallbackRoute = getFallbackRoute({ isFirstTime, isAuthenticated, pendingDeepLink });
-  const isWaitingForLogin = segments.length === 0
-    || isOnScreen(segments, AUTH_SCREENS)
-    || (!isAuthenticated && isOnScreen(segments, AUTHENTICATED_SCREENS));
 
   React.useEffect(() => {
-    if (pendingDeepLink !== null && (isFirstTime || !isWaitingForLogin)) {
+    if (pendingDeepLink === null) {
+      return;
+    }
+    if (isFirstTime) {
+      clearPendingDeepLink();
+      return;
+    }
+    if (isAuthenticated && hasValidSession() && segments[0] === '(app)') {
+      clearPendingDeepLink();
+      if (isReturnToPath(pendingDeepLink)) {
+        router.push(pendingDeepLink);
+      }
+      return;
+    }
+    const isWaitingForLogin = segments.length === 0
+      || isOnScreen(segments, AUTH_SCREENS)
+      || isOnScreen(segments, AUTHENTICATED_SCREENS);
+    if (!isWaitingForLogin) {
       clearPendingDeepLink();
     }
-  }, [isFirstTime, isWaitingForLogin, pendingDeepLink]);
+  }, [isAuthenticated, isFirstTime, pendingDeepLink, router, segments]);
+
+  return null;
+}
+
+function GuardedStack() {
+  const { isAuthenticated } = useAuth();
+  const [isFirstTime] = useIsFirstTime();
+  const fallbackRoute = getFallbackRoute({ isFirstTime, isAuthenticated });
 
   return (
     <>
       <AnalyticsTrackers />
+      <PendingDeepLinkHandler />
       <Stack>
         <Stack.Protected guard={isFirstTime} redirectTo={fallbackRoute}>
           <Stack.Screen name="onboarding" options={{ headerShown: false }} />

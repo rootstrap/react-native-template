@@ -4,7 +4,7 @@ import { hideAsync } from 'expo-splash-screen';
 import { Children, isValidElement } from 'react';
 
 import RootLayout from '@/app/_layout';
-import { useAuth } from '@/components/providers/auth';
+import { hasValidSession, useAuth } from '@/components/providers/auth';
 import { clearPendingDeepLink, setPendingDeepLink, usePendingDeepLink } from '@/lib/auth/pending-deep-link';
 import { useIsFirstTime } from '@/lib/hooks/use-is-first-time';
 import { act, cleanup, render, screen } from '@/lib/test-utils';
@@ -12,6 +12,7 @@ import { act, cleanup, render, screen } from '@/lib/test-utils';
 type ProtectedProps = { guard: boolean; redirectTo?: string; children?: ReactNode };
 
 let mockSegments: Array<string> = [];
+const mockPush = jest.fn();
 
 jest.mock('../../global.css', () => ({}));
 
@@ -38,11 +39,13 @@ jest.mock('expo-router', () => {
     Stack: MockStack,
     ThemeProvider: ({ children }: { children: ReactNode }) => children,
     useSegments: () => mockSegments,
+    useRouter: () => ({ push: mockPush }),
   };
 });
 
 jest.mock('@/components/providers/auth', () => ({
   AuthProvider: ({ children }: { children: ReactNode }) => children,
+  hasValidSession: jest.fn(),
   useAuth: jest.fn(),
 }));
 
@@ -54,8 +57,10 @@ const mockProtected = jest.mocked(Stack.Protected);
 const mockHideSplash = jest.mocked(hideAsync);
 const mockUseAuth = jest.mocked(useAuth);
 const mockUseIsFirstTime = jest.mocked(useIsFirstTime);
+const mockHasValidSession = jest.mocked(hasValidSession);
 
-function setAuthenticated(isAuthenticated: boolean) {
+function setAuthenticated(isAuthenticated: boolean, hasStoredSession = isAuthenticated) {
+  mockHasValidSession.mockReturnValue(hasStoredSession);
   mockUseAuth.mockReturnValue({
     token: isAuthenticated ? 'token' : null,
     isAuthenticated,
@@ -132,75 +137,82 @@ describe('RootLayout guards', () => {
 
     expect(guardFor('feed/[id]').redirectTo).toBe('/sign-in');
     expect(pendingDeepLink()).toBe('/feed/1');
+    expect(mockPush).not.toHaveBeenCalled();
   });
 
-  it('sends the user to the pending link after login and forgets it once they land there', () => {
+  it('sends the user home after login and opens the pending link on top of the tabs', () => {
     setPendingDeepLink('/feed/1');
     render(<RootLayout />);
 
     setAuthenticated(true);
     rerenderAt(['sign-in']);
 
-    expect(guardFor('sign-in')).toMatchObject({ guard: false, redirectTo: '/feed/1' });
+    expect(guardFor('sign-in')).toMatchObject({ guard: false, redirectTo: '/' });
+    expect(mockPush).not.toHaveBeenCalled();
     expect(pendingDeepLink()).toBe('/feed/1');
 
-    rerenderAt(['feed', '[id]']);
+    rerenderAt(['(app)']);
 
+    expect(mockPush).toHaveBeenCalledTimes(1);
+    expect(mockPush).toHaveBeenCalledWith('/feed/1');
     expect(pendingDeepLink()).toBeNull();
-    expect(guardFor('sign-in').redirectTo).toBe('/');
   });
 
-  it('sends a second login to home once the link was used', () => {
+  it('opens the pending link after signing up instead of signing in', () => {
+    setPendingDeepLink('/feed/add-post');
+    mockSegments = ['sign-up'];
+    render(<RootLayout />);
+
+    setAuthenticated(true);
+    rerenderAt(['(app)']);
+
+    expect(mockPush).toHaveBeenCalledWith('/feed/add-post');
+  });
+
+  it('opens nothing on a second login once the link was used', () => {
     setPendingDeepLink('/feed/1');
     render(<RootLayout />);
     setAuthenticated(true);
-    rerenderAt(['feed', '[id]']);
+    rerenderAt(['(app)']);
+    mockPush.mockClear();
 
     setAuthenticated(false);
     rerenderAt(['sign-in']);
     setAuthenticated(true);
-    rerenderAt(['sign-in']);
+    rerenderAt(['(app)']);
 
-    expect(guardFor('sign-in').redirectTo).toBe('/');
+    expect(mockPush).not.toHaveBeenCalled();
   });
 
-  it('sends a login without a pending link to home', () => {
-    render(<RootLayout />);
-
-    setAuthenticated(true);
-    rerenderAt(['sign-in']);
-
-    expect(guardFor('sign-in').redirectTo).toBe('/');
-  });
-
-  it('drops a link that arrives while logged in so it cannot hijack a later login', () => {
-    setAuthenticated(true);
+  it('keeps the link without opening it while the stored session has expired but auth state has not caught up', () => {
+    setAuthenticated(true, false);
     mockSegments = ['(app)'];
     render(<RootLayout />);
 
     act(() => setPendingDeepLink('/feed/3'));
 
-    expect(pendingDeepLink()).toBeNull();
+    expect(mockPush).not.toHaveBeenCalled();
+    expect(pendingDeepLink()).toBe('/feed/3');
 
     setAuthenticated(false);
     rerenderAt(['sign-in']);
     setAuthenticated(true);
-    rerenderAt(['sign-in']);
+    rerenderAt(['(app)']);
 
-    expect(guardFor('sign-in').redirectTo).toBe('/');
+    expect(mockPush).toHaveBeenCalledWith('/feed/3');
   });
 
-  it.each(['/../sign-in', '/(app)/../forgot-password', '/(app)/%2e%2e/sign-in', '/sign%2Din', '/%73ign-up'])(
-    'sends the logged-in user home instead of back to the auth screen %s resolves to',
+  it.each(['/../sign-in', '/(app)/../forgot-password', '/(app)/%2e%2e/sign-in', '/sign%2Din', '/%73ign-up', '/does-not-exist'])(
+    'drops the pending link %s after login instead of opening it',
     (pendingPath) => {
       setPendingDeepLink(pendingPath);
-      mockSegments = ['sign-in'];
       render(<RootLayout />);
 
       setAuthenticated(true);
-      rerenderAt(['sign-in']);
+      rerenderAt(['(app)']);
 
-      expect(guardFor('sign-in').redirectTo).toBe('/');
+      expect(mockPush).not.toHaveBeenCalled();
+      expect(pendingDeepLink()).toBeNull();
     },
   );
 
@@ -237,12 +249,6 @@ describe('RootLayout guards', () => {
     render(<RootLayout />);
 
     expect(pendingDeepLink()).toBe('/feed/1');
-
-    rerenderAt(['sign-in']);
-    setAuthenticated(true);
-    rerenderAt(['sign-in']);
-
-    expect(guardFor('sign-in').redirectTo).toBe('/feed/1');
   });
 
   it('keeps the pending link before the first route is known on a cold start', () => {
@@ -256,18 +262,18 @@ describe('RootLayout guards', () => {
   it.each([
     ['an unknown route', ['[...messing]']],
     ['the web view', ['www']],
-  ])('drops a link that opened %s while logged out so a later login goes home', (_route, segments) => {
-    setPendingDeepLink('/feed');
-    mockSegments = segments;
+  ])('drops the pending link when the logged-out user leaves sign-in for %s', (_route, segments) => {
+    setPendingDeepLink('/feed/1');
     render(<RootLayout />);
+
+    rerenderAt(segments);
 
     expect(pendingDeepLink()).toBeNull();
 
-    rerenderAt(['sign-in']);
     setAuthenticated(true);
-    rerenderAt(['sign-in']);
+    rerenderAt(['(app)']);
 
-    expect(guardFor('sign-in').redirectTo).toBe('/');
+    expect(mockPush).not.toHaveBeenCalled();
   });
 });
 

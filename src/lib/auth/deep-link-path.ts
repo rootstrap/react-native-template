@@ -11,7 +11,7 @@ export const AUTHENTICATED_SCREENS: ReadonlyArray<string> = [
   'feed/add-post',
 ];
 
-const PUBLIC_ROUTES: ReadonlySet<string> = new Set([...AUTH_SCREENS, 'onboarding', 'www', '_sitemap']);
+export const APP_TAB_SCREENS: ReadonlyArray<string> = ['index', 'settings', 'style'];
 
 const WEB_ORIGIN = /^https?:\/\/[^/?#]*/i;
 const APP_SCHEME = /^[a-z][a-z\d+.-]*:\/\//i;
@@ -20,6 +20,12 @@ const ROUTE_GROUP = /^\(.*\)$/;
 const SINGLE_DOT_SEGMENT = /^(?:\.|%2e)$/i;
 const DOUBLE_DOT_SEGMENT = /^(?:\.|%2e){2}$/i;
 const IN_APP_PATH = /^\/(?![/\\])[^\\\s\p{Cc}]*$/u;
+const DYNAMIC_SEGMENT = /^\[[^\]]+\]$/;
+
+const RETURN_TO_ROUTES: ReadonlyArray<ReadonlyArray<string>> = [
+  ...APP_TAB_SCREENS.filter(screen => screen !== 'index'),
+  ...AUTHENTICATED_SCREENS.filter(screen => !ROUTE_GROUP.test(screen)),
+].map(route => route.split('/'));
 
 export function toAppPath(url: string): string {
   const target = unwrapDevLaunchURL(url.trim());
@@ -64,13 +70,17 @@ function getRouteSegments(path: string): Array<string> {
     .filter(segment => segment !== '' && !ROUTE_GROUP.test(segment));
 }
 
-export function isPublicPath(path: string): boolean {
-  const [firstSegment] = getRouteSegments(path);
-  return firstSegment !== undefined && PUBLIC_ROUTES.has(firstSegment);
+function matchesRoute(segments: ReadonlyArray<string>, route: ReadonlyArray<string>): boolean {
+  return segments.length === route.length
+    && route.every((part, index) => DYNAMIC_SEGMENT.test(part) || part === segments[index]);
 }
 
 export function isReturnToPath(path: string): path is Extract<Href, string> {
-  return isInAppPath(path) && getRouteSegments(path).length > 0 && !isPublicPath(path);
+  if (!isInAppPath(path)) {
+    return false;
+  }
+  const segments = getRouteSegments(path);
+  return RETURN_TO_ROUTES.some(route => matchesRoute(segments, route));
 }
 
 export function isOnScreen(segments: ReadonlyArray<string>, screens: ReadonlyArray<string>): boolean {

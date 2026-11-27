@@ -48,7 +48,7 @@ adb shell am start -W -a android.intent.action.VIEW -d "RootstrapApp.development
 
 In app code, read the scheme from `Env.SCHEME` (imported from `@/lib/env`) instead of hardcoding it, so links always match the environment the app was built for. Links configured outside the app (push notification payloads, emails, backend settings or OAuth redirect URIs) must also use the per-environment scheme, such as `RootstrapApp.staging://`, for `development`, `qa` and `staging` builds, or those builds will not open them.
 
-Native builds register the scheme at build time, so after changing `SCHEME` or switching to a version of the template with per-environment schemes, rebuild the app (for example `pnpm prebuild:staging`, or a new EAS build) before testing links. When you create a project with `create-rootstrap-rn-app`, `RootstrapApp` is replaced with your project name, so the schemes become `<ProjectName>` and `<ProjectName>.<APP_ENV>`.
+Native builds register the scheme at build time, so the app uses the `fingerprint` runtime version policy: a change to the scheme or any other native config produces a new runtime version, and EAS Update only delivers an update to builds that share it. After changing `SCHEME` or switching to a version of the template with per-environment schemes, rebuild the app (for example `pnpm prebuild:staging`, or a new EAS build) before testing links. When you create a project with `create-rootstrap-rn-app`, `RootstrapApp` is replaced with your project name, so the schemes become `<ProjectName>` and `<ProjectName>.<APP_ENV>`.
 
 ## Sitemap route
 

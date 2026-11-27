@@ -1,9 +1,12 @@
+import { readdirSync } from 'node:fs';
+import path from 'node:path';
+
 import {
+  APP_TAB_SCREENS,
   AUTH_SCREENS,
   AUTHENTICATED_SCREENS,
   isInAppPath,
   isOnScreen,
-  isPublicPath,
   isReturnToPath,
   toAppPath,
 } from '@/lib/auth/deep-link-path';
@@ -32,48 +35,6 @@ describe('toAppPath', () => {
   it('ignores a development client launch URL without a target', () => {
     expect(toAppPath('RootstrapApp://expo-development-client/')).toBe('/');
   });
-});
-
-describe('isPublicPath', () => {
-  it.each([
-    '/sign-in',
-    '/sign-up',
-    '/forgot-password',
-    '/onboarding',
-    '/www?url=https://example.com',
-    '/_sitemap',
-  ])('treats %s as public', (path) => {
-    expect(isPublicPath(path)).toBe(true);
-  });
-
-  it.each([
-    '/../sign-in',
-    '/./sign-in',
-    '/(app)/../forgot-password',
-    '/%2e%2e/sign-in',
-    '/feed/.%2E/sign-up',
-    '/feed/%2e/../../onboarding',
-  ])('treats %s as public once its dot segments are resolved', (path) => {
-    expect(isPublicPath(path)).toBe(true);
-  });
-
-  it.each(['/sign%2Din', '/%73ign-in', '/%66orgot-password', '/(app)/%2e%2e/sign-in', '/%28app%29/sign-up'])(
-    'treats %s as public once its segments are decoded',
-    (path) => {
-      expect(isPublicPath(path)).toBe(true);
-    },
-  );
-
-  it('treats a malformed escape as a protected segment instead of throwing', () => {
-    expect(isPublicPath('/%E0%A4%A')).toBe(false);
-  });
-
-  it.each(['/', '/feed/1', '/feed/add-post', '/settings', '/update-password', '/(app)/style', '/sign-in-help'])(
-    'treats %s as protected',
-    (path) => {
-      expect(isPublicPath(path)).toBe(false);
-    },
-  );
 });
 
 describe('isInAppPath', () => {
@@ -111,7 +72,10 @@ describe('isReturnToPath', () => {
     '/feed/./1',
     '/feed/1?next=../sign-in',
     '/feed/%E0%A4%A',
-    '/Sign-In',
+    '/feed/add-post',
+    '/update-password',
+    '/(app)/style',
+    '/%28app%29/settings',
   ])(
     'returns to %s after login',
     (path) => {
@@ -134,12 +98,30 @@ describe('isReturnToPath', () => {
     '/sign%2Din',
     '/%73ign-in',
     '/(app)/%2e%2e/sign-in',
+    '/feed/.%2E/sign-up',
+    '/feed/%2e/../../onboarding',
+    '/%66orgot-password',
+    '/%28app%29/sign-up',
+    '/_sitemap',
+    '/onboarding',
   ])(
     'does not return to %s after login',
     (path) => {
       expect(isReturnToPath(path)).toBe(false);
     },
   );
+
+  it.each([
+    '/does-not-exist',
+    '/feed',
+    '/feed/1/comments',
+    '/sign-in-help',
+    '/Sign-In',
+    '/(app)',
+    '/index',
+  ])('does not return to %s, which is not a protected screen', (path) => {
+    expect(isReturnToPath(path)).toBe(false);
+  });
 
   it.each([
     'RootstrapApp:////example.com/x',
@@ -181,5 +163,30 @@ describe('isOnScreen', () => {
     [['feed', '[id]'], AUTH_SCREENS],
   ])('does not find %j among the listed screens', (segments, screens) => {
     expect(isOnScreen(segments, screens)).toBe(false);
+  });
+});
+
+describe('route classification', () => {
+  const appDirectory = path.join(__dirname, '../../../src/app');
+  const PUBLIC_SCREENS = ['onboarding', 'www', '[...messing]'];
+
+  function routeFiles(directory: string, prefix = ''): Array<string> {
+    return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+      const route = `${prefix}${entry.name}`;
+      if (entry.isDirectory()) {
+        return routeFiles(path.join(directory, entry.name), `${route}/`);
+      }
+      const name = route.replace(/\.tsx?$/, '');
+      return /(?:^|\/)(?:_layout|\+[^/]+)$/.test(name) ? [] : [name];
+    });
+  }
+
+  it.each(routeFiles(appDirectory))('classifies %s as an auth, authenticated, tab or public screen', (route) => {
+    const tab = route.startsWith('(app)/') ? route.slice('(app)/'.length) : null;
+    const isClassified = tab === null
+      ? [...AUTH_SCREENS, ...AUTHENTICATED_SCREENS, ...PUBLIC_SCREENS].includes(route)
+      : APP_TAB_SCREENS.includes(tab);
+
+    expect(isClassified).toBe(true);
   });
 });
