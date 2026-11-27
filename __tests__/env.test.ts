@@ -15,11 +15,15 @@ type EnvModule = {
   ClientEnv: Record<string, unknown>;
 };
 
-const loadEnv = (values: Record<string, string>, script: string) => {
+const loadEnv = (
+  values: Record<string, string>,
+  script: string,
+  appEnv = 'development',
+) => {
   process.env = {
     ...process.env,
     ...values,
-    APP_ENV: 'development',
+    APP_ENV: appEnv,
     EAS_BUILD: 'false',
     npm_lifecycle_script: script,
   };
@@ -58,6 +62,25 @@ describe('env', () => {
 
     expect(Env.NAME).toBe(baselineName);
   });
+
+  it('keeps the base scheme in production', () => {
+    const { ClientEnv } = loadEnv(VALID_ENV, RUN_SCRIPT, 'production');
+
+    expect(ClientEnv.SCHEME).toMatch(/^[A-Z][A-Z\d+.-]*$/i);
+    expect(ClientEnv.SCHEME).not.toMatch(/\.(?:development|qa|staging|production)$/);
+  });
+
+  it.each(['development', 'qa', 'staging'])(
+    'suffixes the scheme with the environment in %s',
+    (appEnv) => {
+      const productionScheme = loadEnv(VALID_ENV, RUN_SCRIPT, 'production')
+        .ClientEnv.SCHEME;
+      const { Env, ClientEnv } = loadEnv(VALID_ENV, RUN_SCRIPT, appEnv);
+
+      expect(ClientEnv.SCHEME).toBe(`${productionScheme}.${appEnv}`);
+      expect(Env.SCHEME).toBe(ClientEnv.SCHEME);
+    },
+  );
 
   it('throws and logs how to fix the invalid variables when the env has to be validated', () => {
     const consoleError = jest

@@ -6,10 +6,14 @@ import { Text, TouchableOpacity, View } from '@/components/ui';
 import { fireEvent, render, screen } from '@/lib/test-utils';
 
 import {
+  authStorage,
   AuthProvider,
   clearTokens,
   getTokenDetails,
+  getValidAccessToken,
+  hasValidSession,
   storeTokens,
+  syncSession,
   useAuth,
 } from '../../../src/components/providers/auth';
 
@@ -85,6 +89,40 @@ describe('Auth Utilities', () => {
   });
 });
 
+describe('session helpers', () => {
+  afterEach(() => {
+    clearTokens();
+  });
+
+  const storeSession = (expiration: string) => {
+    storeTokens({
+      accessToken: mockedValidToken,
+      refreshToken: mockedRefreshToken,
+      userId: mockedUserId,
+      expiration,
+    });
+  };
+
+  it('reports a valid session while the token has not expired', () => {
+    storeSession(dayjs().add(1, 'hour').toISOString());
+
+    expect(hasValidSession()).toBe(true);
+    expect(getValidAccessToken()).toBe(mockedValidToken);
+  });
+
+  it('reports no session when nothing is stored', () => {
+    expect(hasValidSession()).toBe(false);
+    expect(getValidAccessToken()).toBeNull();
+  });
+
+  it('reports no session once the token has expired', () => {
+    storeSession(dayjs().subtract(1, 'minute').toISOString());
+
+    expect(hasValidSession()).toBe(false);
+    expect(getValidAccessToken()).toBeNull();
+  });
+});
+
 describe('AuthProvider', () => {
   it('provides initial state correctly', () => {
     const { result } = renderHook(() => useAuth(), {
@@ -119,6 +157,58 @@ describe('AuthProvider', () => {
     expect(result.current.token).toBe('valid-token');
     expect(result.current.loading).toBe(false);
     expect(result.current.ready).toBe(true);
+  });
+
+  it('starts logged out when the stored token has expired', () => {
+    storeTokens({
+      accessToken: mockedValidToken,
+      refreshToken: mockedRefreshToken,
+      userId: mockedUserId,
+      expiration: mockedExpiryDate,
+    });
+
+    const { result } = renderHook(() => useAuth(), {
+      wrapper: AuthProvider,
+    });
+
+    expect(result.current.isAuthenticated).toBe(false);
+    expect(result.current.token).toBeNull();
+    expect(result.current.ready).toBe(true);
+    clearTokens();
+  });
+
+  function storeSession(expiration: string) {
+    storeTokens({
+      accessToken: mockedValidToken,
+      refreshToken: mockedRefreshToken,
+      userId: mockedUserId,
+      expiration,
+    });
+  }
+
+  it('logs out when a session sync finds the stored token expired', () => {
+    storeSession(dayjs().add(1, 'hour').toISOString());
+    const { result } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+    expect(result.current.isAuthenticated).toBe(true);
+
+    storeSession(mockedExpiryDate);
+    act(() => syncSession());
+
+    expect(result.current.isAuthenticated).toBe(false);
+    clearTokens();
+  });
+
+  it('stops syncing once unmounted', () => {
+    storeSession(dayjs().add(1, 'hour').toISOString());
+    const { unmount } = renderHook(() => useAuth(), { wrapper: AuthProvider });
+    unmount();
+    const getString = jest.spyOn(authStorage, 'getString');
+    const readsBeforeSync = getString.mock.calls.length;
+
+    syncSession();
+
+    expect(getString.mock.calls).toHaveLength(readsBeforeSync);
+    clearTokens();
   });
 
   it('logs out correctly', () => {

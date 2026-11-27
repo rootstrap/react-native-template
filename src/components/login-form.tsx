@@ -22,12 +22,14 @@ export type FormType = z.infer<typeof schema>;
 
 export type LoginFormProps = {
   isLoading?: boolean;
+  notice?: string;
   onSubmit?: SubmitHandler<FormType>;
 };
 
 export function LoginForm({
   onSubmit = () => {},
   isLoading = false,
+  notice,
 }: Readonly<LoginFormProps>) {
   const { handleSubmit, control } = useForm<FormType>({
     resolver: zodResolver(schema),
@@ -42,6 +44,11 @@ export function LoginForm({
         <Text testID="form-title" className="text-center text-2xl">
           {translate('auth.signIn.title')}
         </Text>
+        {notice !== undefined && (
+          <Text testID="login-notice" className="text-center">
+            {notice}
+          </Text>
+        )}
         <View>
           <ControlledInput
             testID="email-input"

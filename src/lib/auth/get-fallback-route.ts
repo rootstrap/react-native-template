@@ -1,11 +1,13 @@
+import type { Href } from 'expo-router';
+
 type GuardState = {
   isFirstTime: boolean;
   isAuthenticated: boolean;
 };
 
-export function getFallbackRoute({ isFirstTime, isAuthenticated }: GuardState) {
+export function getFallbackRoute({ isFirstTime, isAuthenticated }: GuardState): Extract<Href, string> {
   if (isFirstTime) {
-    return '/onboarding' as const;
+    return '/onboarding';
   }
-  return isAuthenticated ? ('/' as const) : ('/sign-in' as const);
+  return isAuthenticated ? '/' : '/sign-in';
 }

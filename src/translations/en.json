@@ -5,6 +5,7 @@
         "login": "Login",
         "signUp": "Sign Up"
       },
+      "deepLinkMessage": "Sign in to open this link.",
       "fields": {
         "email": "Email",
         "password": "Password"

@@ -1,4 +1,4 @@
-import { SplashScreen, Tabs } from 'expo-router';
+import { Tabs } from 'expo-router';
 
 import TabLayout from '@/app/(app)/_layout';
 import { useAuth } from '@/components/providers/auth';
@@ -30,9 +30,6 @@ jest.mock('expo-router', () => {
     },
     Tabs: MockTabs,
     Link: ({ children }: { children: React.ReactNode }) => children,
-    SplashScreen: {
-      hideAsync: jest.fn().mockResolvedValue(undefined),
-    },
   };
 });
 
@@ -46,7 +43,6 @@ const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 const mockUseIsFirstTime = useIsFirstTime as jest.MockedFunction<
   typeof useIsFirstTime
 >;
-const mockSplashScreen = SplashScreen as jest.Mocked<typeof SplashScreen>;
 const mockTabsScreen = Tabs.Screen as unknown as jest.Mock;
 
 const tabOptions = (name: string) =>
@@ -108,32 +104,6 @@ describe('TabLayout', () => {
     setupAuthenticatedUser();
     render(<TabLayout />);
     expect(mockUseAuth).toHaveBeenCalled();
-  });
-
-  it('should hide splash screen when auth is not ready', () => {
-    mockUseIsFirstTime.mockReturnValue([false, jest.fn()]);
-    mockUseAuth.mockReturnValue({
-      token: 'mock-token',
-      isAuthenticated: true,
-      loading: false,
-      ready: false,
-      logout: jest.fn(),
-    });
-    render(<TabLayout />);
-    expect(mockSplashScreen.hideAsync).toHaveBeenCalled();
-  });
-
-  it('should not hide splash screen when auth is ready', () => {
-    mockUseIsFirstTime.mockReturnValue([false, jest.fn()]);
-    mockUseAuth.mockReturnValue({
-      token: 'mock-token',
-      isAuthenticated: true,
-      loading: false,
-      ready: true,
-      logout: jest.fn(),
-    });
-    render(<TabLayout />);
-    expect(mockSplashScreen.hideAsync).not.toHaveBeenCalled();
   });
 
   it('should call useAuth and useIsFirstTime hooks', () => {

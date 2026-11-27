@@ -22,6 +22,34 @@ Here is a simple example of the tabs layout.
 
 <CodeBlock file="src/app/(app)/_layout.tsx" />
 
+## App scheme and deep links
+
+The app scheme is defined as `SCHEME` in `env.js` and passed to `app.config.ts` as `scheme: Env.SCHEME`. Like `BUNDLE_ID` and `PACKAGE`, it goes through the `withEnvSuffix` helper, so each environment registers its own scheme and builds of different environments can be installed side by side without fighting over the same links:
+
+| `APP_ENV`     | Scheme                     |
+| ------------- | -------------------------- |
+| `production`  | `RootstrapApp`             |
+| `staging`     | `RootstrapApp.staging`     |
+| `qa`          | `RootstrapApp.qa`          |
+| `development` | `RootstrapApp.development` |
+
+To build a deep link, put the scheme of the build you want to open in front of the route path. For example, to open `src/app/feed/[id].tsx` with the post `1`:
+
+```bash
+# production
+RootstrapApp://feed/1
+# staging
+RootstrapApp.staging://feed/1
+# development, on the iOS simulator
+xcrun simctl openurl booted "RootstrapApp.development://feed/1"
+# development, on an Android emulator
+adb shell am start -W -a android.intent.action.VIEW -d "RootstrapApp.development://feed/1"
+```
+
+In app code, read the scheme from `Env.SCHEME` (imported from `@/lib/env`) instead of hardcoding it, so links always match the environment the app was built for. Links configured outside the app (push notification payloads, emails, backend settings or OAuth redirect URIs) must also use the per-environment scheme, such as `RootstrapApp.staging://`, for `development`, `qa` and `staging` builds, or those builds will not open them.
+
+Native builds register the scheme at build time, so after changing `SCHEME` or switching to a version of the template with per-environment schemes, rebuild the app (for example `pnpm prebuild:staging`, or a new EAS build) before testing links. When you create a project with `create-rootstrap-rn-app`, `RootstrapApp` is replaced with your project name, so the schemes become `<ProjectName>` and `<ProjectName>.<APP_ENV>`.
+
 ## Sitemap route
 
 Expo Router injects a [`/_sitemap`](https://docs.expo.dev/router/reference/sitemap/) route that lists every route in the app, which is handy for debugging. The template removes this in-app route browser from production builds: the `expo-router` plugin in `app.config.ts` is configured with `sitemap: Env.APP_ENV !== 'production'`. This does not hide the route names themselves, which still ship in the JS bundle and the typed-routes output. On `development`, `qa` and `staging` builds you can open `<scheme>://_sitemap` (or `/_sitemap` on web); on `production` builds that path is handled by the template's catch-all route, `src/app/[...messing].tsx`.

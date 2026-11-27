@@ -1,6 +1,5 @@
 import type { ColorValue } from 'react-native';
-import { Link, Redirect, SplashScreen, Tabs } from 'expo-router';
-import { useCallback, useEffect } from 'react';
+import { Link, Redirect, Tabs } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { useAuth } from '@/components/providers/auth';
@@ -34,15 +33,6 @@ export default function TabLayout() {
   const { isAuthenticated, ready } = useAuth();
   const [isFirstTime] = useIsFirstTime();
   const { t } = useTranslation();
-  const hideSplash = useCallback(async () => {
-    await SplashScreen.hideAsync();
-  }, []);
-
-  useEffect(() => {
-    if (!ready) {
-      void hideSplash();
-    }
-  }, [hideSplash, ready]);
 
   if (isFirstTime) {
     return <Redirect href="/onboarding" />;

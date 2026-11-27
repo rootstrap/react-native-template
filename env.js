@@ -153,7 +153,7 @@ const buildTimeEnvSchema = envSchema({
 const clientStaticValues = {
   APP_ENV,
   NAME,
-  SCHEME,
+  SCHEME: withEnvSuffix(SCHEME),
   BUNDLE_ID: withEnvSuffix(BUNDLE_ID),
   PACKAGE: withEnvSuffix(PACKAGE),
   VERSION: packageJSON.version,
